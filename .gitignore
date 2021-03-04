@@ -6,12 +6,12 @@
 *
 /*
 
-!/c/*
-!/ds
-!/projects
-!/quizzes
-!/system_programming
-#!/ws1
+!c/*
+!ds
+!projects
+!quizzes
+!system_programming
+#!ws1
 
 !.myFunc
 !*.c
