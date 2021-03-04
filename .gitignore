@@ -5,11 +5,11 @@
 *
 */
 
-!/c
-!/ds
-!/projects
-!/quizzes
-!/system_programming
+!/c/
+!/ds/
+!/projects/
+!/quizzes/
+!/system_programming/
 
 !.myFunc
 !*.c
