@@ -2,13 +2,14 @@
 # file that is ignored by the previous pattern. The exception to this rule is
 # to re-include a file if its parent directory is excluded.
 
-*
 
-!./c/*
+
+!/c
 !/ds
 !/projects
 !/quizzes
 !/system_programming
+!/ws1
 
 !.myFunc
 !*.c
