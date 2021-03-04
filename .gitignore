@@ -3,8 +3,9 @@
 # to re-include a file if its parent directory is excluded.
 
 *
+*/
 
-!c/*/
+!/c
 !ds/
 !projects/
 !quizzes/
