@@ -3,6 +3,7 @@
 # to re-include a file if its parent directory is excluded.
 
 #*.out
+#!ws1
 *
 /*
 
@@ -11,7 +12,7 @@
 !projects
 !quizzes
 !system_programming
-#!ws1
+
 
 !.myFunc
 !*.c
