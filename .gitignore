@@ -11,7 +11,7 @@
 !projects
 !quizzes
 !system_programming
-!ws1
+#!ws1
 
 !.myFunc
 !*.c
