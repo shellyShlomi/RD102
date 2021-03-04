@@ -6,10 +6,10 @@
 */
 
 !/c
-!ds/
-!projects/
-!quizzes/
-!system_programming/
+!/ds
+!/projects
+!/quizzes
+!/system_programming
 
 !.myFunc
 !*.c
