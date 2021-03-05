@@ -2,13 +2,7 @@
 
 int flip_num(int n) 
 {
-int ans=0,res=0,sing=1;
-
-
-if (n<0)
-{
-int sing = -1;
-}
+int ans=0,res=0;
 
 while (n!=0)
 {
