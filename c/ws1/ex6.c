@@ -13,9 +13,7 @@ if (n==0)
 {
 return (ans+res);
 }
-
 ans = (res+ans)*10;
-
 
 }
 
