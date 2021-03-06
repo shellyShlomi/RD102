@@ -7,8 +7,6 @@ int main()
     int a = 56340;
     int exp_a = 4365;
 
-    // int x flip_num(a);
-    // printf("%d",x);
 
     if (exp_a != flip_num(a))
     {
