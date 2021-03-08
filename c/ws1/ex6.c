@@ -3,7 +3,6 @@ int FlipNum(int n);
 
 int main()
 {
-
     int a = 56340;
     int exp_a = 4365;
     
