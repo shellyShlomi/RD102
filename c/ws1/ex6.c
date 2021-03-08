@@ -1,14 +1,13 @@
 #include <stdio.h>
-int flip_num(int n);
+int FlipNum(int n);
 
 int main()
 {
 
     int a = 56340;
     int exp_a = 4365;
-
-
-    if (exp_a != flip_num(a))
+    
+    if (exp_a != FlipNum(a))
     {
         printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("ERROR\n");
@@ -19,76 +18,78 @@ int main()
         printf("YESSSSSS\n");
     }
 
-    int b = 0;
-    int exp_b = 0;
-    if (exp_b != flip_num(b))
+    a = 0;
+    exp_a = 0;
+    if (exp_a != FlipNum(a))
     {
-        printf("the num is %d\n the expected num is %d\n", b, exp_b);
+        printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("ERROR\n");
     }
     else
     {
-        printf("the num is %d\n the expected num is %d\n", b, exp_b);
+        printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("YESSSSSS\n");
     }
 
-    int d = -1;
-    int exp_d = -1;
-    if (exp_d != flip_num(d))
+    a = -1;
+    exp_a = -1;
+    if (exp_a != FlipNum(a))
     {
-        printf("the num is %d\n the expected num is %d\n", d, exp_d);
+        printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("ERROR\n");
     }
     else
     {
-        printf("the num is %d\n the expected num is %d\n", d, exp_d);
+        printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("YESSSSSS\n");
     }
 
-    int e = 2345;
-    int exp_e = 5432;
-    if (exp_e != flip_num(e))
+    a = 2345;
+    exp_a = 5432;
+    if (exp_a != FlipNum(a))
     {
-        printf("the num is %d\n the expected num is %d\n", e, exp_e);
+        printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("ERROR\n");
     }
     else
     {
-        printf("the num is %d\n the expected num is %d\n", e, exp_e);
+        printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("YESSSSSS\n");
     }
 
-    b = -2345;
-    exp_b = -5432;
-    if (exp_b != flip_num(b))
+    a = -2345;
+    exp_a = -5432;
+    if (exp_a != FlipNum(a))
     {
-        printf("the num is %d\n the expected num is %d\n", b, exp_b);
+         printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("ERROR\n");
     }
     else
     {
-        printf("the num is %d\n the expected num is %d\n", b, exp_b);
+       printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("YESSSSSS\n");
     }
 
-    int f = -23456;
-    int exp_f = -65432;
-    if (exp_f != flip_num(f))
+    a = -23456;
+    exp_a = -65432;
+    if (exp_a != FlipNum(a))
     {
-        printf("the num is %d\n the expected num is %d\n", f, exp_f);
+         printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("ERROR\n");
     }
     else
     {
-        printf("the num is %d\n the expected num is %d\n", f, exp_f);
+       printf("the num is %d\n the expected num is %d\n", a, exp_a);
         printf("YESSSSSS\n");
     }
+    
     return 0;
 }
 
-int flip_num(int n)
+int FlipNum(int n)
 {
-    int ans = 0, res = 0;
+    int ans = 0;
+    int res = 0;
 
     while (n != 0)
     {
@@ -99,6 +100,7 @@ int flip_num(int n)
         {
             return (ans + res);
         }
+        
         ans = (res + ans) * 10;
     }
 

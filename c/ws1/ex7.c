@@ -5,18 +5,15 @@
 
 #include <stdio.h>
 
-void swap(int *x, int *y);
+void Swap(int *x, int *y);
 
 int main()
 {
     int a = 0;
     int b;
-    int exp_a =a;
+    int exp_a = a;
     int exp_b = 0;
-
-
-    swap(&a,NULL);
-
+    Swap(&a, NULL);
     if (exp_a == a)
     {
         printf("a is stil %d \n", a);
@@ -32,9 +29,7 @@ int main()
     b = 20;
     exp_a = 20;
     exp_b = -4;
-
-    swap(&a, &b);
-
+    Swap(&a, &b);
     if ((exp_a == a) && (exp_b == b))
     {
         printf("a was %d b was %d\n", exp_b, exp_a);
@@ -54,8 +49,7 @@ int main()
     b = 20;
     exp_a = 20;
     exp_b = 0;
-
-    swap(&a, &b);
+    Swap(&a, &b);
     if ((exp_a == a) && (exp_b == b))
     {
         printf("a was %d b was %d\n", exp_b, exp_a);
@@ -69,15 +63,13 @@ int main()
         printf("a is %d  b is %d\n", a, b);
         printf("ERROR\n");
     }
-
-   
-
+    
     return 0;
 }
 
-void swap(int *x, int *y)
+void Swap(int *x, int *y)
 {
-    if (x!= NULL && y!= NULL)
+    if (x != NULL && y != NULL)
     {
         *x = *y ^ *x;
         *y = *y ^ *x;
