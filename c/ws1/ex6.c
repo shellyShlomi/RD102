@@ -90,7 +90,13 @@ int FlipNum(int n)
 {
     int ans = 0;
     int res = 0;
-
+    int sing = 1;
+    
+    if (n < 0)
+    {n = -(n);
+    sing = -1;
+    }
+    
     while (n != 0)
     {
         res = n % 10;
@@ -98,11 +104,11 @@ int FlipNum(int n)
 
         if (n == 0)
         {
-            return (ans + res);
+            return (ans + res)*sing;
         }
         
         ans = (res + ans) * 10;
     }
 
-    return ans;
+    return (ans*sing);
 }
