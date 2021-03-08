@@ -1,10 +1,12 @@
-//test groups :
-//1.null pointers
-//2.negativ valuess for signed int
+/* test groups :                    *
+ * 1.null pointers                  *
+ * 2.negativ valuess for signed int */
 
 
 #include <stdio.h>
-#include "ex1.h"
+
+
+void Swap(int *x, int *y);
 
 int main()
 {
