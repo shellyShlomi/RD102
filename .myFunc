@@ -4,7 +4,7 @@
 
 alias gconGun='git config --global user.name'
 alias GiCam='git commit -am'
-alias GiP='git push -u origin master'
+alias Gip='git push -u origin master'
 alias GSi='git status --ignored'
 alias GS='git status'
 alias GAall='git add .'
