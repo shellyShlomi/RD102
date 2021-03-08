@@ -93,7 +93,8 @@ int FlipNum(int n)
     int sing = 1;
     
     if (n < 0)
-    {n = -(n);
+    {
+    n = -(n);
     sing = -1;
     }
     
