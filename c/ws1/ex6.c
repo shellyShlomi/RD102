@@ -94,8 +94,8 @@ int FlipNum(int n)
     
     if (n < 0)
     {
-    n = -(n);
-    sing = -1;
+    	n = -(n);
+   	sing = -1;
     }
     
     while (n != 0)
