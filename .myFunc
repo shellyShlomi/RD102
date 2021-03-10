@@ -8,10 +8,9 @@ alias Gip='git push -u origin master'
 alias GSi='git status --ignored'
 alias GS='git status'
 alias GAall='git add .'
-
-
+    
 alias gd='gcc -ansi -pedantic-errors -Wall -Wextra -g'
-alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -03'
+alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -o3'
 alias gd9='gcc -std=c99 -pedantic-errors -Wall -Wextra -g'
-alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -03'
+alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -o3'
 alias vlg='valgrind --leak-check=yes --track-origins=yes'
