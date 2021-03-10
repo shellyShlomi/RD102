@@ -1,14 +1,14 @@
-#include <stdio.h>		  /*printf function*/
-#include <string.h>		  /*for strlen strcmp*/
 #include "ilrd_strings.h" /*the function declaration*/
 
-void TestFunction()
+int main()
 {
-	char str[] = "";			  /*to test an empty string*/
-	char str_l[] = "longString";  /*to test an long string*/
-	char str_s[] = "s";			  /*to test an short string*/
-	char str_l1[] = "LongString"; /*cmp lower value string*/
-	char str_l2[] = "LongString"; /*test idetical string*/
+	/*	TestFunction();*/
+
+	char str[] = "";	                 /*to test an empty string*/
+	char str_l[] = "longString";            /*to test an long string*/
+	char str_s[] = "s";			  /*to test an short ASCII string*/
+	char str_l1[] = "LongString";            /*cmp lower value ASCII string*/
+	char str_l2[] = "LongString";            /*test idetical string*/
 
 	/*test for strlen*/
 
@@ -41,7 +41,7 @@ void TestFunction()
 	/*test for strcmp                    higher and lower value by ASCII*/
 
 	/*comper to empty string*/
-	if ((strcmp(str, str_l) < 0) == ((StrCmp(str, str_l)) < 0))
+	if (strcmp(str, str_l) == StrCmp(str, str_l))
 	{
 		printf("YESSSSSS\n");
 	}
@@ -77,4 +77,10 @@ void TestFunction()
 		printf("ERROR\n");
 	}
 
+	return 0;
 }
+
+/*void TestFunction()
+{
+}
+*/
