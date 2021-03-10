@@ -6,7 +6,6 @@
 
 int StrCmp(const char *str1, const char *str2);
 size_t StrLen(const char *str);
-void TestFunction();
 
 #endif
 

@@ -2,7 +2,7 @@
 
 int main()
 {
-	/*	TestFunction();*/
+
 
 	char str[] = "";	                 /*to test an empty string*/
 	char str_l[] = "longString";            /*to test an long string*/
@@ -79,8 +79,3 @@ int main()
 
 	return 0;
 }
-
-/*void TestFunction()
-{
-}
-*/
