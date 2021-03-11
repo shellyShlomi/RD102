@@ -33,7 +33,7 @@ void TestFunction()
 {			
 	const int size = 7;
 	int array_original[] = {4, 5, 2, 8, 4, 3, 2}; /*original array*/
-	int array_to_fill[] = {0, 0, 0, 0, 0, 0, 0};					/*copy array*/
+	int array_to_fill[7] = {0};					/*copy array*/
  	int i = 0;
  
 	CopyArray( array_original, array_to_fill, size);
