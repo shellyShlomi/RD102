@@ -3,7 +3,8 @@
 #include <stdio.h>  /*printf function*/
 #include <string.h> /*for strlen strcmp*/
 #include <assert.h> /*assret function*/
- #include <ctype.h> /*tolower function*/
+#include <ctype.h> /*tolower function*/
+#include <strings.h> /*strcasecmp function*/
 
 int StrCmp(const char *str1, const char *str2);
 size_t StrLen(const char *str);

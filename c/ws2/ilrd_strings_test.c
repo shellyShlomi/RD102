@@ -18,6 +18,7 @@ void TestFunction()
 	TestStrnCpy(); 						/*test for StrCpy*/
 	printf("Test for StrCaseCmp\n");
 	/*test for StrCpy*/
+	TestStrCaseCmp();
 	
 	
 }
@@ -122,14 +123,12 @@ void TestStrCpy()
 	/* test the copying of the source array into destanetion arrays*/
 	while (i < size)
 	{
-		StrCpy((*(result_my_function + i)), (*(array_source + i)));
-		strcpy((*(result_original + i)), (*(array_source + i)));
+		StrCpy(result_my_function[i], array_source[i]);
+		strcpy(result_original[i], array_source[i]);
 		
-		compre_my_function = 
-					strcmp((*(result_my_function + i)), (*(array_source + i)));
+		compre_my_function = strcmp(result_my_function[i], array_source[i]);
 		
-		compre_original = 
-					strcmp((*(result_original + i)), (*(array_source + i)));
+		compre_original = strcmp(result_original[i], array_source[i]);
 		
 		if (compre_my_function == compre_original)
 		{
@@ -236,4 +235,40 @@ void TestStrnCpy()
 			printf("ERROR\n");
 		}	
 }	
+
+
+
+/*test for StrCaseCmp*/
+void TestStrCaseCmp()
+{	
+	int compre_my_function = 0;  /*to save the value from StrCaseCpy*/
+	int compre_original = 0; 
+	size_t i = 0; /*indexing the string array*/
+	const char array1[][10] = {"Long^tring", "WoRLD", "", "Shelly","world"};
+	const char array2[][10] = {"LongString", "world", "Shelly", "","world"};
+	
+	size_t string_array_size = sizeof(array2) / sizeof(array2[i]);
+	
+	
+	while (i < string_array_size)
+	{
+		switch (StrCaseCmp(array1[i], array2[i]) - 
+											   strcasecmp(array1[i], array2[i]))
+		{	
+			case 0:
+			{
+			printf("YESSSSSS\n");
+			      break;
+
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
+		++i;
+	}
+
+}
 
