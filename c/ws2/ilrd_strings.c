@@ -97,5 +97,39 @@ int StrCaseCmp(const char *str1, const char *str2)
 
 
 
+char *StrChr(const char *src, int c)
+{
+	assert(src);
+	
+	while ( (char)'\0' <= *src )
+	{
+		if ((char)c == *src)
+		{
+			return (char *)src;
+		} 
+		++src;
+	}
+	
+	return NULL;
+}
+
+char *StrDup(const char *str)
+{
+		char *new_string = NULL;
+		size_t size = strlen(str) + 1;;
+		
+		assert(str);
+		
+		new_string = (char *)malloc(size);
+		
+		if (new_string == NULL) 
+		{
+			/*fprintf(errno, "malloc failed\n");*/
+			return NULL;
+		}
+
+return (char *)strcpy(new_string, str);
+
+}
 
 

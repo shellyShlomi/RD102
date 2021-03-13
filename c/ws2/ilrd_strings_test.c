@@ -10,16 +10,18 @@ int main()
 
 void TestFunction()
 {
-	printf("Test for StrLen\n");
+	printf("\nTest for StrLen\n\n");
 	TestStrLenAndStrCmp(); 				/*test for StrLen & StrCmp*/
-	printf("Test for StrCpy\n");
+	printf("\nTest for StrCpy\n\n");
 	TestStrCpy(); 						/*test for StrCpy*/
-	printf("Test for StrnCpy\n");
+	printf("\nTest for StrnCpy\n\n");
 	TestStrnCpy(); 						/*test for StrCpy*/
-	printf("Test for StrCaseCmp\n");
-	/*test for StrCpy*/
-	TestStrCaseCmp();
-	
+	printf("\nTest for StrCaseCmp\n\n");	
+	TestStrCaseCmp();					/*test for StrCaseCmp*/
+	printf("\nTest for StrChr\n\n");
+	TestStrChr();						/*test for StrChr*/
+	printf("\nTest for StrDup\n\n");	
+	TestStrDup();						/*test for StrChr*/
 	
 }
 
@@ -60,7 +62,7 @@ void TestStrLenAndStrCmp()
 	}
 
 	/*test for StrCmp                   	higher and lower value by ASCII*/
-	printf("Test for StrCmp\n");
+	printf("\nTest for StrCmp\n\n");
 	/*comper to empty string*/
 	if (strcmp(str, str_l) < 0 && StrCmp(str, str_l) < 0)
 	{
@@ -241,8 +243,6 @@ void TestStrnCpy()
 /*test for StrCaseCmp*/
 void TestStrCaseCmp()
 {	
-	int compre_my_function = 0;  /*to save the value from StrCaseCpy*/
-	int compre_original = 0; 
 	size_t i = 0; /*indexing the string array*/
 	const char array1[][10] = {"Long^tring", "WoRLD", "", "Shelly","world"};
 	const char array2[][10] = {"LongString", "world", "Shelly", "","world"};
@@ -271,4 +271,98 @@ void TestStrCaseCmp()
 	}
 
 }
+
+void TestStrChr()
+{	
+	char strings_array[][20] = {"cCCCCCcccccccccc", "hellyworld"};
+	char chars_array[] = {'C', '\0'};
+
+	size_t size = sizeof(chars_array);
+	
+	while (0 < size)
+	{
+		assert(strchr(strings_array[size-1], chars_array[size-1]));
+		assert(StrChr(strings_array[size-1], chars_array[size-1]));
+		
+		switch (StrChr(strings_array[size-1], chars_array[size-1]) - 
+											   strchr(strings_array[size-1], chars_array[size-1]))
+		{	
+			case 0:
+			{
+			printf("YESSSSSS\n");
+				break;
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
+		--size;
+	}
+
+}
+
+
+
+void TestStrDup()
+{	
+	int comparison_my_and_original = 0;
+	int comparison_my_and_source_string = 0;
+	char strings_array[][5] = {"cccc", "hlrld"};
+	
+	size_t size = sizeof(strings_array) / sizeof(strings_array[0]);
+
+	char *ptr_my_function = NULL;
+	char *ptr_origenal = NULL;
+	
+	
+	while (0 < size)
+	{
+		ptr_my_function = StrDup(strings_array[size-1]);
+		ptr_origenal = strdup(strings_array[size-1]);
+		assert(ptr_my_function);
+		assert(ptr_origenal);
+		
+		comparison_my_and_original = strcmp(ptr_origenal, ptr_my_function); 
+		comparison_my_and_source_string = strcmp(strings_array[size-1],
+															   ptr_my_function); 
+				
+		switch (comparison_my_and_original)
+		{	
+			case 0:
+			{
+				printf("YESSSSSS\n");
+				break;
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
+		switch (comparison_my_and_source_string)
+		{	
+			case 0:
+			{
+				printf("YESSSSSS\n");
+				break;
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
+		--size;
+		
+		free(ptr_origenal);
+		ptr_origenal = NULL;
+		free(ptr_my_function);
+		ptr_my_function = NULL;
+	}
+	
+}
+
+
 
