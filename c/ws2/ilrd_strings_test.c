@@ -404,9 +404,10 @@ void TestStrnCat()
 	while (0 < size)
 	{
 		ptr_result_my_function = StrnCat(result_my_function[size - 1], 
-								 array_source[size - 1], array_of_bytes[size - 1]);
+							array_source[size - 1], array_of_bytes[size - 1]);
+							
 		ptr_result_original = strncat(result_original[size - 1],
-								array_source[size - 1], array_of_bytes[size - 1]);
+							array_source[size - 1], array_of_bytes[size - 1]);
 		
 		assert(ptr_result_original);
 		assert(ptr_result_my_function);
@@ -435,14 +436,14 @@ void TestStrStr()
 {	
 	const char array_source[][20] = {"hhhelhhhhellhh", "lo shloo\0mi"};
 
-	char array_needle[][4] = {"ell", "loo"};
+	char array_needle[][4] = {"ell", "loo",""};
 	
 	size_t size = sizeof(array_needle) / sizeof(array_needle[0]);
 	
 	while (0 < size)
 	{
-		assert(strstr(array_source[size - 1], *array_needle[size - 1]));
-		assert(StrStr(array_source[size - 1], *array_needle[size - 1]));
+		assert(strstr(array_source[size - 1], array_needle[size - 1]));
+		assert(StrStr(array_source[size - 1], array_needle[size - 1]));
 				   
 		switch (StrStr(array_source[size - 1], array_needle[size - 1]) -
   					    strstr(array_source[size - 1], array_needle[size - 1]))

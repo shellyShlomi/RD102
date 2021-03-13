@@ -167,6 +167,7 @@ char *StrnCat(char *dest, const char *src, size_t n)
 		++src;
 		--n;
 	}
+	
 	*dest = '\0';
 		
 	return dest_oregin;
@@ -183,6 +184,11 @@ char *StrStr(const char *haystack, const char *needle)
 	assert(haystack);
 	assert(needle);
 
+	if (('\0' == *haystack) && ('\0' == *needle))
+	{
+		return  (char *)haystack;
+	}
+
 	needle_size = strlen(needle);	
 	location_first_char_needle = (char *)haystack;
 	
@@ -198,7 +204,6 @@ char *StrStr(const char *haystack, const char *needle)
 		
 		++location_first_char_needle;
 	}	
-		
 	return NULL;
 }
 
