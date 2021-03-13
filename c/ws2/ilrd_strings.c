@@ -121,7 +121,7 @@ char *StrDup(const char *str)
 {
 	char *new_string = NULL;
 	size_t size = strlen(str) + 1;;
-		
+
 	assert(str);
 		
 	new_string = (char *)malloc(size);
@@ -136,4 +136,21 @@ char *StrDup(const char *str)
 
 }
 
+char *StrCat(char *dest, const char *src)
+{
+	char *dest_oregin = dest;
+	
+	dest = strchr(dest, '\0');
+	
+	strcpy(dest, src);
+	
+	return dest_oregin;
+
+}
+
+char *StrnCat(char *dest, const char *src, size_t n)
+{
+
+
+}
 

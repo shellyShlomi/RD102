@@ -11,17 +11,19 @@ int main()
 void TestFunction()
 {
 	printf("\nTest for StrLen\n\n");
-	TestStrLenAndStrCmp(); 				/*test for StrLen & StrCmp*/
+	TestStrLenAndStrCmp(); 				
 	printf("\nTest for StrCpy\n\n");
-	TestStrCpy(); 						/*test for StrCpy*/
+	TestStrCpy(); 						
 	printf("\nTest for StrnCpy\n\n");
-	TestStrnCpy(); 						/*test for StrCpy*/
+	TestStrnCpy(); 						
 	printf("\nTest for StrCaseCmp\n\n");	
-	TestStrCaseCmp();					/*test for StrCaseCmp*/
+	TestStrCaseCmp();					
 	printf("\nTest for StrChr\n\n");
-	TestStrChr();						/*test for StrChr*/
+	TestStrChr();						
 	printf("\nTest for StrDup\n\n");	
-	TestStrDup();						/*test for StrChr*/
+	TestStrDup();						
+	printf("\nTest for StrCat\n\n");	
+	TestStrCat();						
 	
 }
 
@@ -125,8 +127,8 @@ void TestStrCpy()
 	/* test the copying of the source array into destanetion arrays*/
 	while (i < size)
 	{
-		StrCpy(result_my_function[i], array_source[i]);
-		strcpy(result_original[i], array_source[i]);
+		assert(StrCpy(result_my_function[i], array_source[i]));
+		assert(strcpy(result_original[i], array_source[i]));
 		
 		compre_my_function = strcmp(result_my_function[i], array_source[i]);
 		
@@ -182,8 +184,8 @@ void TestStrnCpy()
 	
 	while (i < string_array_size)
 	{
-		StrnCpy(result_my_function[i], array_source[i], byte_to_copy);
-		strncpy(result_original[i], array_source[i], byte_to_copy);
+		assert(StrnCpy(result_my_function[i], array_source[i], byte_to_copy));
+		assert(strncpy(result_original[i], array_source[i], byte_to_copy));
 		
 		while ( j < size_of_string )
 		{
@@ -214,8 +216,8 @@ void TestStrnCpy()
 	
 	/* test the copying with n lager then the source*/
 	
-	StrnCpy(result_my_function[j], str, byte_to_copy);
-	strncpy(result_original[j], str, byte_to_copy);
+	assert(StrnCpy(result_my_function[j], str, byte_to_copy));
+	assert(strncpy(result_original[j], str, byte_to_copy));
 	
 	while ( j < size_of_string )
 		{
@@ -347,5 +349,38 @@ void TestStrDup()
 	
 }
 
+void TestStrCat()
+{	
+	/*destanetion arrays*/
+	char result_my_function[][1000] = {"dfghdfhf", "hello ", "Shelly", ""};
+	char result_original[][1000] = {"dfghdfhf", "hello ", "Shelly", ""};
+	/*source array*/
+	const char array_source[][10] = {"Shelly", "world", " shlomi", "1 2 3 4 5" };
+
+	size_t size = sizeof(array_source) / sizeof(array_source[0]);
+	
+	while (0 < size)
+	{
+		assert(StrCat(result_my_function[size-1], array_source[size-1]));
+		assert(strcat(result_original[size-1], array_source[size-1]));
+		
+		switch (strcmp(StrCat(result_my_function[size-1], array_source[size-1]), 
+					strcat(result_original[size-1], array_source[size-1])))
+		{	
+			case 0:
+			{
+			printf("YESSSSSS\n");
+				break;
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
+		--size;
+	}
+
+}
 
 

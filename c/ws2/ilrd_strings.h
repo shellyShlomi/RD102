@@ -15,6 +15,8 @@ char *StrnCpy(char *dest, const char *src, size_t n);
 int StrCaseCmp(const char *str1, const char *str2);
 char *StrChr(const char *src, int c);
 char *StrDup(const char *str);
+char *StrCat(char *dest, const char *src);
+char *StrnCat(char *dest, const char *src, size_t n);
 
 void TestFunction();
 void TestStrLenAndStrCmp();
@@ -23,6 +25,8 @@ void TestStrnCpy();
 void TestStrCaseCmp();
 void TestStrChr();
 void TestStrDup();
+void TestStrCat();
+void TestStrnCat();
 
 #endif
 

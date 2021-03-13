@@ -7,7 +7,7 @@ alias gic='git commit -am'
 alias gip='git push -u origin master'
 alias GSi='git status --ignored'
 alias GS='git status'
-alias ga='git add .'
+alias gia='git add .'
     
 alias gd='gcc -ansi -pedantic-errors -Wall -Wextra -g'
 alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -o3'
