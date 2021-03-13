@@ -140,6 +140,9 @@ char *StrCat(char *dest, const char *src)
 {
 	char *dest_oregin = dest;
 	
+	assert(src);
+	assert(dest);
+	
 	dest = strchr(dest, '\0');
 	
 	strcpy(dest, src);
@@ -150,7 +153,52 @@ char *StrCat(char *dest, const char *src)
 
 char *StrnCat(char *dest, const char *src, size_t n)
 {
+	char *dest_oregin = dest;
+	
+	assert(src);
+	assert(dest);
+	
+	dest = strchr(dest, '\0');
+	
+	while (0 < n && '\0' != *src)
+	{
+		*dest = *src;
+		++dest;
+		++src;
+		--n;
+	}
+	*dest = '\0';
+		
+	return dest_oregin;
+
+}
 
 
+char *StrStr(const char *haystack, const char *needle)
+{
+	char *location_first_char_needle = NULL;
+	
+	size_t needle_size = 0;
+	
+	assert(haystack);
+	assert(needle);
+
+	needle_size = strlen(needle);	
+	location_first_char_needle = (char *)haystack;
+	
+	while ('\0' != *location_first_char_needle)
+	{
+		location_first_char_needle = strchr(location_first_char_needle,
+																	 needle[0]);
+		
+		if (strncmp(location_first_char_needle, needle, needle_size) == 0)
+		{	
+			return location_first_char_needle;
+		}
+		
+		++location_first_char_needle;
+	}	
+		
+	return NULL;
 }
 

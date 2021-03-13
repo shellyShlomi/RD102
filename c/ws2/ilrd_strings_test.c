@@ -24,7 +24,10 @@ void TestFunction()
 	TestStrDup();						
 	printf("\nTest for StrCat\n\n");	
 	TestStrCat();						
-	
+	printf("\nTest for StrnCat\n\n");	
+	TestStrnCat();
+	printf("\nTest for StrStr\n\n");	
+	TestStrStr();
 }
 
 void TestStrLenAndStrCmp()
@@ -283,11 +286,11 @@ void TestStrChr()
 	
 	while (0 < size)
 	{
-		assert(strchr(strings_array[size-1], chars_array[size-1]));
-		assert(StrChr(strings_array[size-1], chars_array[size-1]));
+		assert(strchr(strings_array[size - 1], chars_array[size - 1]));
+		assert(StrChr(strings_array[size - 1], chars_array[size - 1]));
 		
-		switch (StrChr(strings_array[size-1], chars_array[size-1]) - 
-											   strchr(strings_array[size-1], chars_array[size-1]))
+		switch (StrChr(strings_array[size - 1], chars_array[size - 1]) - 
+						 strchr(strings_array[size - 1], chars_array[size - 1]))
 		{	
 			case 0:
 			{
@@ -321,12 +324,12 @@ void TestStrDup()
 	
 	while (0 < size)
 	{
-		ptr_my_function = StrDup(strings_array[size-1]);
+		ptr_my_function = StrDup(strings_array[size - 1]);
 
 		assert(ptr_my_function);
 
-		comparison_my_and_source_string = strcmp(strings_array[size-1],
-															   ptr_my_function); 
+		comparison_my_and_source_string = strcmp(strings_array[size - 1],
+														      ptr_my_function); 
 
 		switch (comparison_my_and_source_string)
 		{	
@@ -355,17 +358,60 @@ void TestStrCat()
 	char result_my_function[][1000] = {"dfghdfhf", "hello ", "Shelly", ""};
 	char result_original[][1000] = {"dfghdfhf", "hello ", "Shelly", ""};
 	/*source array*/
-	const char array_source[][10] = {"Shelly", "world", " shlomi", "1 2 3 4 5" };
+	const char array_source[][10] = {"Shelly", "world", " shlomi", "1 2 3 4 5"};
 
 	size_t size = sizeof(array_source) / sizeof(array_source[0]);
 	
 	while (0 < size)
 	{
-		assert(StrCat(result_my_function[size-1], array_source[size-1]));
-		assert(strcat(result_original[size-1], array_source[size-1]));
+		assert(StrCat(result_my_function[size - 1], array_source[size - 1]));
+		assert(strcat(result_original[size - 1], array_source[size - 1]));
 		
-		switch (strcmp(StrCat(result_my_function[size-1], array_source[size-1]), 
-					strcat(result_original[size-1], array_source[size-1])))
+		switch (strcmp(StrCat(result_my_function[size - 1], 
+				  array_source[size - 1]), strcat(result_original[size - 1],
+													   array_source[size - 1])))
+		{	
+			case 0:
+			{
+			printf("YESSSSSS\n");
+				break;
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
+		--size;
+	}
+}
+
+void TestStrnCat()
+{	
+	/*destanetion arrays*/
+	char result_my_function[][30] = {"fgdfdth\0hsgdgssgf", "Shelly", ""};
+	char result_original[][30] = {"fgdfdth\0hsgdgssgf", "Shelly", ""};
+
+	const char array_source[][10] = {"Shelly", " shlomi", "1 2 3 4 5" };
+
+	size_t array_of_bytes[] = {3, 7, 10};
+	
+	size_t size = sizeof(array_source) / sizeof(array_source[0]);
+	
+	char *ptr_result_my_function = NULL;
+	char *ptr_result_original = NULL;
+	
+	while (0 < size)
+	{
+		ptr_result_my_function = StrnCat(result_my_function[size - 1], 
+								 array_source[size - 1], array_of_bytes[size - 1]);
+		ptr_result_original = strncat(result_original[size - 1],
+								array_source[size - 1], array_of_bytes[size - 1]);
+		
+		assert(ptr_result_original);
+		assert(ptr_result_my_function);
+				   
+		switch (*ptr_result_my_function - *ptr_result_original)
 		{	
 			case 0:
 			{
@@ -382,5 +428,42 @@ void TestStrCat()
 	}
 
 }
+
+
+
+void TestStrStr()
+{	
+	const char array_source[][20] = {"hhhelhhhhellhh", "lo shloo\0mi"};
+
+	char array_needle[][4] = {"ell", "loo"};
+	
+	size_t size = sizeof(array_needle) / sizeof(array_needle[0]);
+	
+	while (0 < size)
+	{
+		assert(strstr(array_source[size - 1], *array_needle[size - 1]));
+		assert(StrStr(array_source[size - 1], *array_needle[size - 1]));
+				   
+		switch (StrStr(array_source[size - 1], array_needle[size - 1]) -
+  					    strstr(array_source[size - 1], array_needle[size - 1]))
+		{	
+			case 0:
+			{
+				printf("YESSSSSS\n");
+				break;
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
+		--size;
+	}
+
+}
+
+
+
 
 
