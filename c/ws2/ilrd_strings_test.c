@@ -434,9 +434,11 @@ void TestStrnCat()
 
 void TestStrStr()
 {	
+	char *compre_my_function = NULL;  /*to save the pointer from StrStr*/
+	char *compre_original = NULL; 	 /*to save the pointer from strcpy*/
 	const char array_source[][20] = {"hhhelhhhhellhh", "lo shloo\0mi"};
 
-	char array_needle[][4] = {"ell", "loo",""};
+	char array_needle[][4] = {"ell", "loo", ""};
 	
 	size_t size = sizeof(array_needle) / sizeof(array_needle[0]);
 	
@@ -461,7 +463,23 @@ void TestStrStr()
 		}
 		--size;
 	}
+	
+	compre_my_function = StrStr("aaaa","b");
+	compre_original = strstr("aaaa","b");
 
+	switch (compre_original - compre_my_function)
+		{	
+			case 0:
+			{
+				printf("YESSSSSS\n");
+				break;
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
 }
 
 

@@ -32,7 +32,7 @@ size_t StrLen(const char *str)
 	return counter;
 }
 
-
+/*aprovde by tal*/
 char *StrCpy(char *dest, const char *src)
 {
 	char *dest_oregin = dest;			/*saving the original location*/
@@ -116,7 +116,7 @@ char *StrChr(const char *src, int c)
 	return NULL;
 }
 
-
+/*aprovde by roman*/
 char *StrDup(const char *str)
 {
 	char *new_string = NULL;
@@ -135,7 +135,7 @@ char *StrDup(const char *str)
 	return (char *)strcpy(new_string, str);
 
 }
-
+/*aprovde by shir*/
 char *StrCat(char *dest, const char *src)
 {
 	char *dest_oregin = dest;
@@ -151,6 +151,7 @@ char *StrCat(char *dest, const char *src)
 
 }
 
+/*aprovde by roman*/
 char *StrnCat(char *dest, const char *src, size_t n)
 {
 	char *dest_oregin = dest;
@@ -174,7 +175,7 @@ char *StrnCat(char *dest, const char *src, size_t n)
 
 }
 
-
+/*aprovde by ANNA*/
 char *StrStr(const char *haystack, const char *needle)
 {
 	char *location_first_char_needle = NULL;
@@ -190,12 +191,18 @@ char *StrStr(const char *haystack, const char *needle)
 	}
 
 	needle_size = strlen(needle);	
+	
 	location_first_char_needle = (char *)haystack;
 	
 	while ('\0' != *location_first_char_needle)
 	{
 		location_first_char_needle = strchr(location_first_char_needle,
-																	 needle[0]);
+																      *needle);
+		
+		if(NULL == location_first_char_needle)
+		{
+			return location_first_char_needle;		
+		}	
 		
 		if (strncmp(location_first_char_needle, needle, needle_size) == 0)
 		{	
@@ -206,4 +213,3 @@ char *StrStr(const char *haystack, const char *needle)
 	}	
 	return NULL;
 }
-
