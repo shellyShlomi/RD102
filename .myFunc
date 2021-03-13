@@ -3,11 +3,11 @@
 #alias
 
 alias gconGun='git config --global user.name'
-alias GiCam='git commit -am'
-alias Gip='git push -u origin master'
+alias gic='git commit -am'
+alias gip='git push -u origin master'
 alias GSi='git status --ignored'
 alias GS='git status'
-alias GAall='git add .'
+alias ga='git add .'
     
 alias gd='gcc -ansi -pedantic-errors -Wall -Wextra -g'
 alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -o3'

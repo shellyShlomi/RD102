@@ -274,8 +274,8 @@ void TestStrCaseCmp()
 
 void TestStrChr()
 {	
-	char strings_array[][20] = {"cCCCCCcccccccccc", "hellyworld"};
-	char chars_array[] = {'C', '\0'};
+	char strings_array[][20] = {"cCCCCCcccceccccc", "hellyworld", "dheh"};
+	char chars_array[] = {'C', '\0', 'e'};
 
 	size_t size = sizeof(chars_array);
 	
@@ -307,40 +307,25 @@ void TestStrChr()
 
 void TestStrDup()
 {	
-	int comparison_my_and_original = 0;
+
 	int comparison_my_and_source_string = 0;
-	char strings_array[][5] = {"cccc", "hlrld"};
+	char strings_array[][5] = {"cccc", "hlrld","\0"};
 	
 	size_t size = sizeof(strings_array) / sizeof(strings_array[0]);
 
 	char *ptr_my_function = NULL;
-	char *ptr_origenal = NULL;
+
 	
 	
 	while (0 < size)
 	{
 		ptr_my_function = StrDup(strings_array[size-1]);
-		ptr_origenal = strdup(strings_array[size-1]);
+
 		assert(ptr_my_function);
-		assert(ptr_origenal);
-		
-		comparison_my_and_original = strcmp(ptr_origenal, ptr_my_function); 
+
 		comparison_my_and_source_string = strcmp(strings_array[size-1],
 															   ptr_my_function); 
-				
-		switch (comparison_my_and_original)
-		{	
-			case 0:
-			{
-				printf("YESSSSSS\n");
-				break;
-			}
-			default:
-			{
-				printf("ERROR\n");
-				break;
-			}
-		}
+
 		switch (comparison_my_and_source_string)
 		{	
 			case 0:
@@ -356,8 +341,6 @@ void TestStrDup()
 		}
 		--size;
 		
-		free(ptr_origenal);
-		ptr_origenal = NULL;
 		free(ptr_my_function);
 		ptr_my_function = NULL;
 	}

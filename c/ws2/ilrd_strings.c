@@ -51,10 +51,10 @@ char *StrCpy(char *dest, const char *src)
 	return dest_oregin;
 }
 
-
 char *StrnCpy(char *dest, const char *src, size_t n)
 {
 	char *dest_oregin = dest;
+	
 	assert(src);
 	assert(dest);
 	
@@ -64,7 +64,6 @@ char *StrnCpy(char *dest, const char *src, size_t n)
 		++dest;
 		++src;
 		--n;
-		
 	}
 	
 	while ( 0 < n )
@@ -73,9 +72,9 @@ char *StrnCpy(char *dest, const char *src, size_t n)
 		++dest;
 		--n;
 	}
+	
 	return dest_oregin;
 }
-
 
 int StrCaseCmp(const char *str1, const char *str2)
 {
@@ -96,39 +95,44 @@ int StrCaseCmp(const char *str1, const char *str2)
 }
 
 
-
 char *StrChr(const char *src, int c)
 {
 	assert(src);
 	
-	while ( (char)'\0' <= *src )
+	while ('\0' != *src)
 	{
-		if ((char)c == *src)
+		if (c == *src)
 		{
 			return (char *)src;
 		} 
 		++src;
 	}
 	
+	if ('\0' == c)
+	{
+		return (char *)src;
+	}	
+	
 	return NULL;
 }
 
+
 char *StrDup(const char *str)
 {
-		char *new_string = NULL;
-		size_t size = strlen(str) + 1;;
+	char *new_string = NULL;
+	size_t size = strlen(str) + 1;;
 		
-		assert(str);
+	assert(str);
 		
-		new_string = (char *)malloc(size);
+	new_string = (char *)malloc(size);
 		
-		if (new_string == NULL) 
-		{
-			/*fprintf(errno, "malloc failed\n");*/
-			return NULL;
-		}
+	if (!new_string) 
+	{
+		printf("malloc failed\n");
+		return NULL;
+	}
 
-return (char *)strcpy(new_string, str);
+	return (char *)strcpy(new_string, str);
 
 }
 
