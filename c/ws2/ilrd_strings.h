@@ -19,17 +19,6 @@ char *StrCat(char *dest, const char *src);
 char *StrnCat(char *dest, const char *src, size_t n);
 char *StrStr(const char *haystack, const char *needle);
 
-void TestFunction();
-void TestStrLenAndStrCmp();
-void TestStrCpy();	
-void TestStrnCpy();
-void TestStrCaseCmp();
-void TestStrChr();
-void TestStrDup();
-void TestStrCat();
-void TestStrnCat();
-void TestStrStr();
-
 #endif
 
 

@@ -1,5 +1,16 @@
 #include "ilrd_strings.h" /*the function declaration*/
 
+void TestFunction();
+void TestStrLenAndStrCmp();
+void TestStrCpy();	
+void TestStrnCpy();
+void TestStrCaseCmp();
+void TestStrChr();
+void TestStrDup();
+void TestStrCat();
+void TestStrnCat();
+void TestStrStr();
+
 int main()
 {
 	TestFunction();	
