@@ -253,28 +253,30 @@ void TestStrCaseCmp()
 	const char array2[][10] = {"LongString", "world", "Shelly", "","world"};
 	
 	size_t string_array_size = sizeof(array2) / sizeof(array2[i]);
-	
-	
+
 	while (i < string_array_size)
 	{
-		switch (StrCaseCmp(array1[i], array2[i]) - 
-											   strcasecmp(array1[i], array2[i]))
-		{	
-			case 0:
-			{
+		if ((StrCaseCmp(array1[i], array2[i]) > 0 )&& 
+										(strcasecmp(array1[i], array2[i]) > 0 ))
+		{
 			printf("YESSSSSS\n");
-			      break;
-
-			}
-			default:
-			{
-				printf("ERROR\n");
-				break;
-			}
+		}
+		else if ((StrCaseCmp(array1[i], array2[i]) < 0 )&& 
+										(strcasecmp(array1[i], array2[i]) < 0 ))
+		{
+			printf("YESSSSSS\n");
+		}
+		else if (StrCaseCmp(array1[i], array2[i]) == 
+											   strcasecmp(array1[i], array2[i]))
+		{
+			printf("YESSSSSS\n");
+		}
+		else
+		{
+			printf("ERROR\n");
 		}
 		++i;
 	}
-
 }
 
 void TestStrChr()
