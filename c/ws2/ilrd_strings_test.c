@@ -39,6 +39,8 @@ void TestFunction()
 	TestStrnCat();
 	printf("\nTest for StrStr\n\n");	
 	TestStrStr();
+	
+	return;
 }
 
 void TestStrLenAndStrCmp()
@@ -115,6 +117,8 @@ void TestStrLenAndStrCmp()
 	{
 		printf("ERROR\n");
 	}
+	
+	return;
 }
 
 
@@ -168,6 +172,8 @@ void TestStrCpy()
 	{
 		printf("ERROR\n");
 	}
+	
+	return;
 }
 
 void TestStrnCpy()
@@ -252,6 +258,8 @@ void TestStrnCpy()
 		{
 			printf("ERROR\n");
 		}	
+	
+	return;	
 }	
 
 
@@ -288,6 +296,7 @@ void TestStrCaseCmp()
 		}
 		++i;
 	}
+	return;
 }
 
 void TestStrChr()
@@ -318,7 +327,7 @@ void TestStrChr()
 		}
 		--size;
 	}
-
+	return;
 }
 
 
@@ -362,7 +371,7 @@ void TestStrDup()
 		free(ptr_my_function);
 		ptr_my_function = NULL;
 	}
-	
+	return;	
 }
 
 void TestStrCat()
@@ -397,6 +406,7 @@ void TestStrCat()
 		}
 		--size;
 	}
+	return;
 }
 
 void TestStrnCat()
@@ -440,7 +450,7 @@ void TestStrnCat()
 		}
 		--size;
 	}
-
+	return;
 }
 
 
@@ -493,6 +503,7 @@ void TestStrStr()
 				break;
 			}
 		}
+	return;
 }
 
 
