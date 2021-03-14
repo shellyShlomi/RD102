@@ -396,7 +396,7 @@ void TestStrnCat()
 
 	const char array_source[][10] = {"Shelly", " shlomi", "1 2 3 4 5" };
 
-	size_t array_of_bytes[] = {3, 7, 10};
+	size_t array_of_bytes[] = {3, 8, 10};
 	
 	size_t size = sizeof(array_source) / sizeof(array_source[0]);
 	
