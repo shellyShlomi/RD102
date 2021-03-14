@@ -117,6 +117,7 @@ char *StrChr(const char *src, int c)
 }
 
 /*aprovde by roman*/
+
 char *StrDup(const char *str)
 {
 	char *new_string = NULL;

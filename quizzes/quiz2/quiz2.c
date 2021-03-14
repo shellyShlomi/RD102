@@ -51,9 +51,14 @@ void ReversString(char str[])
 		temp = str[length - i];
 		str[length - i] = str[i];
 		str[i] = temp;
-
+		
 		++i;
 	}
-
+	
+	if ( 0 != (size % 2))
+	{
+		str[size / 2] = tolower(str[size / 2]);
+	}
+	
 	printf("%s", str);
 }
