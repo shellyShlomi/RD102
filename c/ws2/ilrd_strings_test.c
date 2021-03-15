@@ -514,15 +514,16 @@ void TestStrStr()
 
 void TestStrSpn()
 {	
-	char s[]= "as\0schh";
-	char accept[][5] = {"cas", "assc", "ashe"};
+	char s[][8]= {"asschh", "asschh", "", "", "jdjdjk"};
+	char accept[][8] = {"cas", "ac", "ashe", "", ""};
     char a[]={'a','s'};
 
 	size_t size = sizeof(accept)/sizeof(accept[0]);
 	
 	while (0 < size)
 	{
-		switch (strspn(s,accept[size - 1]) - StrSpn(s,accept[size -1]))
+		switch (strspn(s[size - 1],accept[size - 1]) - 
+											StrSpn(s[size - 1],accept[size -1]))
 		{	
 			case 0:
 			{
@@ -538,7 +539,7 @@ void TestStrSpn()
 		--size;
 	}
 	
-	if ((strspn(s,a) - StrSpn(s,a)) == 0)
+	if ((strspn(s[0],a) - StrSpn(s[0],a)) == 0)
 	{
 		printf("YESSSSSS\n");
 	}
