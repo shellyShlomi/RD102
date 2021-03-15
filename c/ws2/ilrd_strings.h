@@ -4,8 +4,6 @@
 #include <string.h> /*for strlen strcmp*/
 #include <assert.h> /*assret function*/
 #include <ctype.h> /*tolower function*/
-#include <strings.h> /*strcasecmp function*/
-#include <errno.h> 	/*strdup function*/
 #include <stdlib.h> /*malloc function*/
 
 int StrCmp(const char *str1, const char *str2);
@@ -19,6 +17,6 @@ char *StrCat(char *dest, const char *src);
 char *StrnCat(char *dest, const char *src, size_t n);
 char *StrStr(const char *haystack, const char *needle);
 
-#endif
+#endif /*__ILRD_STRINGS_H__*/
 
 

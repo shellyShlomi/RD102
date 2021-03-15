@@ -1,4 +1,6 @@
 #include "ilrd_strings.h" /*the function declaration*/
+#include <errno.h> 	/*strdup function*/
+#include <strings.h> /*strcasecmp function*/
 
 void TestFunction();
 void TestStrLenAndStrCmp();

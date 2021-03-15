@@ -1,3 +1,4 @@
+#include <errno.h> 	/*strdup function*/
 #include "ilrd_strings.h" /*the function declaration*/
 
 int StrCmp(const char *str1, const char *str2)
@@ -95,6 +96,7 @@ int StrCaseCmp(const char *str1, const char *str2)
 }
 
 
+
 char *StrChr(const char *src, int c)
 {
 	assert(src);
@@ -121,7 +123,7 @@ char *StrChr(const char *src, int c)
 char *StrDup(const char *str)
 {
 	char *new_string = NULL;
-	size_t size = strlen(str) + 1;;
+	size_t size = StrLen(str) + 1;;
 
 	assert(str);
 		
