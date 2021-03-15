@@ -2,7 +2,7 @@
 
 int main()
 {
-	char str[] = "HiII THERe!";
+	char str[] = "HiII THEReR";
 	PrintNumbres(6);
 	printf("\n");
 	PrintNumbres(-8);

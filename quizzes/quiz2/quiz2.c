@@ -36,7 +36,7 @@ void ReversString(char str[])
 	size_t i = 0;
 	size_t size = strlen(str);
 	size_t length = size - 1;
-
+	
 	while (i < (size / 2))
 	{
 		if (str[length - i] <= 90 && str[length - i] >= 65)

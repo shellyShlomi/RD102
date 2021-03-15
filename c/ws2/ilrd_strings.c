@@ -216,3 +216,35 @@ char *StrStr(const char *haystack, const char *needle)
 	}	
 	return NULL;
 }
+
+
+int IsPolindrom(char *str)
+{
+	size_t i = 0;
+	size_t size = StrLen(str);
+	char *length = str + (size -1);
+	char *start = str;
+
+	
+	if (0 == (size) )
+	{
+		return 1;
+	}
+	
+	while (i < (size / 2))
+	{
+		if (*start == *length)
+		{
+			++start;
+			--length;
+		}
+		else
+		{
+			return 1;
+		}
+		
+		++i;
+	}
+	
+	return 0;
+}

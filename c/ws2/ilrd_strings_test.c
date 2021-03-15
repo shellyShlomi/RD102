@@ -12,6 +12,7 @@ void TestStrDup();
 void TestStrCat();
 void TestStrnCat();
 void TestStrStr();
+void TestIsPolindrom();
 
 int main()
 {
@@ -41,6 +42,8 @@ void TestFunction()
 	TestStrnCat();
 	printf("\nTest for StrStr\n\n");	
 	TestStrStr();
+	printf("\nTest for IsPolindrom\n\n");	
+	TestIsPolindrom();
 	
 	return;
 }
@@ -506,8 +509,5 @@ void TestStrStr()
 		}
 	return;
 }
-
-
-
 
 
