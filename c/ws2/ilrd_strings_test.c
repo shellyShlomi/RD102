@@ -12,7 +12,7 @@ void TestStrDup();
 void TestStrCat();
 void TestStrnCat();
 void TestStrStr();
-void TestIsPolindrom();
+void TestStrSpn();
 
 int main()
 {
@@ -42,8 +42,10 @@ void TestFunction()
 	TestStrnCat();
 	printf("\nTest for StrStr\n\n");	
 	TestStrStr();
-	printf("\nTest for IsPolindrom\n\n");	
-	TestIsPolindrom();
+	printf("\nTest for StrSpn\n\n");	
+	TestStrSpn();
+
+
 	
 	return;
 }
@@ -510,4 +512,41 @@ void TestStrStr()
 	return;
 }
 
+void TestStrSpn()
+{	
+	char s[]= "as\0schh";
+	char accept[][5] = {"cas", "assc", "ashe"};
+    char a[]={'a','s'};
+
+	size_t size = sizeof(accept)/sizeof(accept[0]);
+	
+	while (0 < size)
+	{
+		switch (strspn(s,accept[size - 1]) - StrSpn(s,accept[size -1]))
+		{	
+			case 0:
+			{
+			printf("YESSSSSS\n");
+				break;
+			}
+			default:
+			{
+				printf("ERROR\n");
+				break;
+			}
+		}
+		--size;
+	}
+	
+	if ((strspn(s,a) - StrSpn(s,a)) == 0)
+	{
+		printf("YESSSSSS\n");
+	}
+	else 
+	{
+		printf("ERROR\n");
+	}
+	
+	return;
+}
 

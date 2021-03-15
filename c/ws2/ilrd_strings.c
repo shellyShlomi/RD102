@@ -1,6 +1,10 @@
 #include <errno.h> 	/*strdup function*/
 #include "ilrd_strings.h" /*the function declaration*/
 
+/* Developer: Shelly Shlomi 
+   Status: aproved by ohad;   
+   Description: strings libery*/
+
 int StrCmp(const char *str1, const char *str2)
 {
 	assert(str1);
@@ -123,10 +127,12 @@ char *StrChr(const char *src, int c)
 char *StrDup(const char *str)
 {
 	char *new_string = NULL;
-	size_t size = StrLen(str) + 1;;
+	size_t size = 0;
 
 	assert(str);
 		
+	size = StrLen(str) + 1;
+	
 	new_string = (char *)malloc(size);
 		
 	if (!new_string) 
@@ -216,35 +222,40 @@ char *StrStr(const char *haystack, const char *needle)
 	}	
 	return NULL;
 }
-
-
-int IsPolindrom(char *str)
+/*aprovde by shir*/
+size_t StrSpn(const char *s, const char *accept)
 {
-	size_t i = 0;
-	size_t size = StrLen(str);
-	char *length = str + (size -1);
-	char *start = str;
+	size_t inisial_size = 0;
+	size_t size = 0;
+	size_t counter = 0;
+	
+	char *inisial_accept = NULL;
 
+	assert(s);
+	assert(accept);
+
+	size = strlen(accept);
+
+	inisial_size = size;
+	inisial_accept = (char *)accept;
 	
-	if (0 == (size) )
-	{
-		return 1;
-	}
-	
-	while (i < (size / 2))
-	{
-		if (*start == *length)
+	while (0 < size)
 		{
-			++start;
-			--length;
+			if (*s == *accept)
+			{
+				++s;
+				++counter;
+				size = inisial_size;
+				accept = inisial_accept;
+			}
+			
+			else
+			{
+				++accept;
+				--size;	
+			}
 		}
-		else
-		{
-			return 1;
-		}
-		
-		++i;
-	}
-	
-	return 0;
+			
+	return counter;
 }
+
