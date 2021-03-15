@@ -27,6 +27,7 @@ void PrintNumbres(int number)
 
 		i = i + sing;
 	}
+	return;
 }
 
 void ReversString(char str[])
