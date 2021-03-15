@@ -15,7 +15,7 @@ int IsPalindrom(char *str)
 
 	
 	if (0 == (*length)) /*the if stement is valid only if you 
-						don't consider empty string as a palindrom*/
+						don't consider empty string ( '\0' ) as a palindrom*/
 	{
 		return 0;
 	}

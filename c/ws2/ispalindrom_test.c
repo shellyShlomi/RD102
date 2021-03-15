@@ -1,11 +1,6 @@
 #include "ispalindrom.h" /*the function declaration*/
 
 
-
-
-
-
-
 void TestIsPalindrom();
 
 int main()
