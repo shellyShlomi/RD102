@@ -14,3 +14,6 @@ alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -o3'
 alias gd9='gcc -std=c99 -pedantic-errors -Wall -Wextra -g'
 alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -o3'
 alias vlg='valgrind --leak-check=yes --track-origins=yes'
+
+alias g='gedit'
+alias h='history'

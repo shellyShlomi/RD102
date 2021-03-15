@@ -61,4 +61,6 @@ void ReversString(char str[])
 	}
 	
 	printf("%s", str);
+
+	return;
 }
