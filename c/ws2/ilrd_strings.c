@@ -225,37 +225,28 @@ char *StrStr(const char *haystack, const char *needle)
 /*aprovde by shir*/
 size_t StrSpn(const char *s, const char *accept)
 {
-	size_t inisial_size = 0;
 	size_t size = 0;
-	size_t counter = 0;
-	
+	char *inisial_s = NULL;
 	char *inisial_accept = NULL;
 
 	assert(s);
 	assert(accept);
-
-	size = strlen(accept);
-
-	inisial_size = size;
-	inisial_accept = (char *)accept;
 	
-	while (0 < size)
+	size = strlen(accept);
+	
+	inisial_accept = (char *)accept;
+	inisial_s = (char *)s;
+	
+	while ('\0' != *s && (size_t)(accept - inisial_accept) < size)
 		{
 			if (*s == *accept)
 			{
 				++s;
-				++counter;
-				size = inisial_size;
 				accept = inisial_accept;
+				continue;
 			}
-			
-			else
-			{
-				++accept;
-				--size;	
-			}
+			++accept;
 		}
 			
-	return counter;
+	return (s - inisial_s);
 }
-

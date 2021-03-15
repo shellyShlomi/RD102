@@ -40,8 +40,8 @@ void TestFunction()
 	TestStrCat();						
 	printf("\nTest for StrnCat\n\n");	
 	TestStrnCat();
-	printf("\nTest for StrStr\n\n");	
-	TestStrStr();
+	/*printf("\nTest for StrStr\n\n");	
+	TestStrStr();*/
 	printf("\nTest for StrSpn\n\n");	
 	TestStrSpn();
 
@@ -526,7 +526,7 @@ void TestStrSpn()
 		{	
 			case 0:
 			{
-			printf("YESSSSSS\n");
+				printf("YESSSSSS\n");
 				break;
 			}
 			default:
