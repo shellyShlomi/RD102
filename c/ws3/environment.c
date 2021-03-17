@@ -6,7 +6,7 @@
 
 /* Developer: Shelly Shlomi 
    Status: aproved by ANNA;   
-   Description: strings libery*/
+   Description:Print Envirement Variables In Lower Case*/
    
 size_t NumberOfElement(char **pointrs);
 void *MemoryAllocation(char **pointrs, size_t i);
