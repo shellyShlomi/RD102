@@ -141,7 +141,7 @@ char *StrDup(const char *str)
 		return NULL;
 	}
 
-	return (char *)strcpy(new_string, str);
+	return strcpy(new_string, str);
 
 }
 /*aprovde by shir*/
