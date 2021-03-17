@@ -83,18 +83,18 @@ void *MemoryAllocation(char **pointrs, size_t i)
 void MemoryRealles(char **str, size_t j)
 {
 	while (j > 0)
-				{
-					free(str[j]);
-					str[j] = NULL;
-					--j;
-				}
+	{
+		free(str[j]);
+		str[j] = NULL;
+		--j;
+	}
 				
-				free(str[j]);
-				str[j] = NULL;
-				free(str);
-				str = NULL;
-			
-				return ;
+		free(str[j]);
+		str[j] = NULL;
+		free(str);
+		str = NULL;
+		
+		return ;
 }
 
 char *StrCpy(char *dest, const char *src)
