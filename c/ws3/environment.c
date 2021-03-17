@@ -5,10 +5,12 @@
 /* Developer: Shelly Shlomi 
    Status: in development;   
    Description: strings libery*/
+   
 char *StrCpy(char *dest, const char *src);
 size_t NumberOfElement(char **pointrs);
 void *MemoryAllocation(char **pointrs, size_t i);
 void PrintEnv(char **pointrs, char **str);
+char *StrDup(const char *str);
 
 int main(int argc, char **argv, char **envp)
 {
@@ -58,7 +60,7 @@ void *MemoryAllocation(char **pointrs, size_t i)
 	{
 		while (j <= i && NULL != *(pointrs + j))
 		{
-			str[j] = (char *)malloc(((strlen(*(pointrs + j))) + 1)*sizeof(char));
+			str[j] = StrDup(*(pointrs + j));
 
 			if (NULL == str[j])
 			{	
@@ -78,7 +80,6 @@ void *MemoryAllocation(char **pointrs, size_t i)
 			}
 			else
 			{
-				StrCpy(*(str + j), *(pointrs + j));
 				++j;
 			}
 		}
@@ -93,8 +94,8 @@ void *MemoryAllocation(char **pointrs, size_t i)
 			--j;
 		}
 
-		free(str[0]);
-		str[0] = NULL;
+		free(str[j]);
+		str[j] = NULL;
 		free(str);
 		str = NULL;
 	}
