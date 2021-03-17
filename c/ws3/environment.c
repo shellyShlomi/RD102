@@ -6,24 +6,17 @@
    Status: in development;   
    Description: strings libery*/
    
-char *StrCpy(char *dest, const char *src);
 size_t NumberOfElement(char **pointrs);
 void *MemoryAllocation(char **pointrs, size_t i);
-void PrintEnv(char **pointrs, char **str);
+void MemoryRealles(char **str, size_t j);
 char *StrDup(const char *str);
+char *StrCpy(char *dest, const char *src);
+void PrintEnv(char **pointrs, char **str);
 
 int main(int argc, char **argv, char **envp)
 {
-	size_t size = 0;
 
-	/*char *str = NULL;
-	char(**arr) = envp;
-	int i = 0;
-	int j = 0;*/
-
-	size = NumberOfElement(envp);
-
-
+	NumberOfElement(envp);
 	return 0;
 }
 
@@ -47,6 +40,7 @@ void *MemoryAllocation(char **pointrs, size_t i)
 {
 	char **str = NULL;
 	size_t j = 0;
+	
 	assert(pointrs);
 
 	str = (char **)malloc((i + 1) * sizeof(char *));
@@ -58,23 +52,14 @@ void *MemoryAllocation(char **pointrs, size_t i)
 	}
 	else
 	{
-		while (j <= i && NULL != *(pointrs + j))
+		while (NULL != pointrs[j])
 		{
-			str[j] = StrDup(*(pointrs + j));
+			str[j] = StrDup(pointrs[j]);
 
 			if (NULL == str[j])
 			{	
-				while (j > 0)
-				{
-					free(str[j]);
-					str[j] = NULL;
-					--j;
-				}
+				MemoryRealles(str, j);
 				
-				free(str[j]);
-				str[j] = NULL;
-				free(str);
-				str = NULL;
 				printf("malloc failed\n");
 				return NULL;
 			}
@@ -85,22 +70,31 @@ void *MemoryAllocation(char **pointrs, size_t i)
 		}
 
 		str[j] = NULL;
+		
 		PrintEnv(pointrs, str);
-		while (j > 0)
-		{
-			free(str[j]);
-			str[j] = NULL;
-
-			--j;
-		}
-
-		free(str[j]);
-		str[j] = NULL;
-		free(str);
-		str = NULL;
+		
+		MemoryRealles(str, j);
+	
 	}
 
 	return NULL;
+}
+
+void MemoryRealles(char **str, size_t j)
+{
+	while (j > 0)
+				{
+					free(str[j]);
+					str[j] = NULL;
+					--j;
+				}
+				
+				free(str[j]);
+				str[j] = NULL;
+				free(str);
+				str = NULL;
+			
+				return ;
 }
 
 char *StrCpy(char *dest, const char *src)
@@ -121,6 +115,26 @@ char *StrCpy(char *dest, const char *src)
 	return dest_oregin;
 }
 
+char *StrDup(const char *str)
+{
+	char *new_string = NULL;
+	size_t size = 0;
+
+	assert(str);
+		
+	size = strlen(str) + 1;
+	
+	new_string = (char *)malloc(size);
+		
+	if (!new_string) 
+	{
+		printf("malloc failed\n");
+		return NULL;
+	}
+
+	return StrCpy(new_string, str);
+
+}
 void PrintEnv(char **pointrs, char **str)
 {
 	size_t j = 0;
@@ -129,20 +143,20 @@ void PrintEnv(char **pointrs, char **str)
 
 	while (NULL != *(pointrs))
 	{
-		printf("%s\n", *pointrs);
+		printf("%lu: %s\n", j, *pointrs);
 		++j;
-		*pointrs = *(pointrs + j);
+		++pointrs;
 	}
-	pointrs = (pointrs - j);
+
 	printf("-------------------------------------------\n");
 	
 	j = 0;
 	
 	while (NULL != *(str))
 	{
-		printf("%s\n", *str);
+		printf("%lu: %s\n", j, *str);
 		++j;
-		*str = *(str + j);
+		++str;
 	}
 
 	return;
