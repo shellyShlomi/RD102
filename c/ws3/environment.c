@@ -1,9 +1,11 @@
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-#include <stdlib.h>
+#include <stdio.h>  /*for print*/
+#include <string.h>	/*for strlen*/
+#include <assert.h>	/*for assert*/
+#include <stdlib.h>	/*for malloc*/
+#include <ctype.h> /*tolower function*/
+
 /* Developer: Shelly Shlomi 
-   Status: in development;   
+   Status: aproved by ANNA;   
    Description: strings libery*/
    
 size_t NumberOfElement(char **pointrs);
@@ -23,7 +25,6 @@ int main(int argc, char **argv, char **envp)
 
 size_t NumberOfElement(char **pointrs)
 {
-
 	size_t i = 0;
 
 	while (NULL != *(pointrs + i))
@@ -63,12 +64,10 @@ void *MemoryAllocation(char **pointrs, size_t i)
 				printf("malloc failed\n");
 				return NULL;
 			}
-			else
-			{
-				++j;
-			}
+			
+			++j;
 		}
-
+		
 		str[j] = NULL;
 		
 		PrintEnv(pointrs, str);
