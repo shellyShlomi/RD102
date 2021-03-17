@@ -93,7 +93,7 @@ void MemoryRealles(char **str, size_t j)
 		free(str);
 		str = NULL;
 		
-		return ;
+		
 }
 
 char *StrCpy(char *dest, const char *src)
@@ -158,6 +158,5 @@ void PrintEnv(char **pointrs, char **str)
 		++str;
 	}
 
-	return;
 }
 
