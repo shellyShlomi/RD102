@@ -1,10 +1,16 @@
 #include "lut.h" /*the function declaration*/
-#include <stdlib.h> /*stty*/
+
 
 int main()
 {	
-	system("stty -icanon -echo");
-	InputOutput();
-	system("stty icanon echo");
+	printf( "From if\n");
+	InputOutputIf();
+
+	printf( "\nFrom swich\n");
+	InputOutputSwich();
+
+	printf( "\nFrom LUT\n");		
+	InputOutputLut();
+
 	return (0);
 }
