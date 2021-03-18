@@ -29,7 +29,7 @@ size_t JosephusProblem(int arr[], size_t size)
     size_t start = 0;
     size_t round = 0;
     
-    while (counter < (size -1))
+    while (counter <= (size -1))
     {
 		if (0 != (round % 2) && 0 != (size % 2))
 		{	
@@ -50,7 +50,7 @@ size_t JosephusProblem(int arr[], size_t size)
 		{
 			arr[to_die] = 0;
 			++counter;
-			kiler =  ((to_die + 1 )/ 2) + counter; 
+			kiler = (kiler + 2) % i;
 			to_die = kiler + round + 1;
 			
 			if (counter == (size - 2))
