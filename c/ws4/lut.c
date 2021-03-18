@@ -4,75 +4,80 @@
    Status: in development;   
    Description: InputOutput + LUT;*/
 
+#define ESC 27
+#define SIZE 256
+
 int getchar(void);
-void PrintA();
-void PrintT();
-void DontPrint();
-void Esc();  
+static void PrintA();
+static void PrintT();
+static void DontPrint();
+static void Esc();  
 
 
-
+        
 void InputOutputIf()
 {	
-	int c = 0;
+	char c = 0;
 	
 	system("stty -icanon -echo");
 	
-	while ( 27 != c )
+	while ( ESC != c && EOF == c)
 	{	
 		c = getchar();
-		
-		if ( 65 == c || 97 == c ) 
+        
+		if ( 'a' == c || 'A' == c ) 
 		{
-			printf( "A was pressd from if\n");
+			printf( "A pressed\n");
 		}
-		else if ( 84 == c || 116 == c )
+		else if ( 't' == c || 'T' == c )
 		{
-			printf( "T was pressd from if\n");
+			printf( "T pressed\n");
 		}
 	}	
+	
 	system("stty icanon echo");
+	
 	return;
 }
 
 
 void InputOutputSwich()
 {	
-	int c = 0;
+	char c = 0;
 	
 	system("stty -icanon -echo");
 	
-	while ( 27 != c )
+	while ( ESC != c && EOF == c )
 	{	
 		c = getchar();
-		
+        
 		switch (c)
 		{	
-			case 65:
+			case 'A':
 			{
-				printf( "A was pressd from swich\n");
+				printf( "A pressed\n");
 				break;
 			}
-			case 84:
+			case 'a':
 			{
-				printf( "T was pressd from swich\n");
+				printf( "A pressed\n");
 				break;
 			}
-			case 97:
+			case 'T':
 			{
-				printf( "A was pressd from swich\n");
+				printf( "T pressed\n");
 				break;
 			}
-			case 116:
+			case 't':
 			{
-				printf( "T was pressd from swich\n");
+				printf( "T pressed\n");
 				break;
 			}
 			default:
 			{
 				;
-				break;
 			}
+			
 		}	
 	}	
 	system("stty icanon echo");
@@ -85,55 +90,58 @@ void InputOutputLut()
 	
 	unsigned char c = '\0';
 	size_t index = 0;
-	void (*arrLut[256])(void) = {0};
-	size_t size = 256;
+	void (*arrLut[SIZE])(void) = {0};
+
  	
 	system("stty -icanon -echo");
 	
-	while (index < size)
+	while (index < SIZE)
 	{
 		arrLut[index]= DontPrint;
 		++index;
 	}
 	
-	arrLut[27] = Esc;
-	arrLut[65] = PrintA;
-	arrLut[84] = PrintT;	
-	arrLut[97] = PrintA;
-	arrLut[116] = PrintT;
+	arrLut[ESC] = Esc;
+	arrLut['A'] = PrintA;
+	arrLut['T'] = PrintT;	
+	arrLut['a'] = PrintA;
+	arrLut['t'] = PrintT;
 	
 
-	while ( 27 != c )
+	while ( ESC != c && EOF == c)
 	{			
  		c = getchar();
+        
 		(*arrLut[c])();	
 	
 	}
 	
-	(*arrLut[27])();
+	(*arrLut[ESC])();
 	
 	
 	return;			
 }
 
 
-void PrintA()
+static void PrintA()
 {
-	printf( "A was pressd from LUT\n");
+	printf( "A pressed\n");
 }
 
-void PrintT()
+static void PrintT()
 {
-	printf( "T was pressd from LUT\n");
+	printf( "T pressed\n");
 }
 
-void DontPrint()
+static void DontPrint()
 {
 	;
 }
 
-void Esc()
+static void Esc()
 {	
 	system("stty icanon echo");
 	return;
 }
+
+
