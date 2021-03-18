@@ -1,6 +1,6 @@
 #ifndef __LUT_H__
 #define __LUT_H__
-#include <stdio.h>  /*for print*//
+#include <stdio.h>  /*for print*/
 
 void InputOutput();
 
