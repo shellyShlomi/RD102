@@ -21,16 +21,11 @@ void InputOutputIf()
 	
 	system("stty -icanon -echo");
 	
-	while ( ESC != c )
+	while ( ESC != c && EOF != c )
 	{	
 		c = getchar();
 		
-		if (EOF == c)
-        { 
-            puts("ERROR!");
-            exit(1);
-        }
-        
+	
 		if ( 'a' == c || 'A' == c ) 
 		{
 			printf( "A pressed\n");
@@ -53,15 +48,9 @@ void InputOutputSwich()
 	
 	system("stty -icanon -echo");
 	
-	while ( ESC != c )
+	while ( ESC != c && EOF != c )
 	{	
 		c = getchar();
-		
-		if (EOF == c)
-        { 
-            puts("ERROR!");
-            exit(1);
-        }
         
 		switch (c)
 		{	
@@ -123,11 +112,7 @@ void InputOutputLut()
 	while ( ESC != c )
 	{			
  		c = getchar();
- 		if (EOF == c)
-        { 
-            puts("ERROR!");
-            exit(1);
-        }
+ 	
         
 		(*arrLut[c])();	
 	
