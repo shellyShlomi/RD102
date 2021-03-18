@@ -1,13 +1,13 @@
 #include "lut.h" /*the function declaration*/
 
 /* Developer: Shelly Shlomi;
-   Status: in development;   
+   Status: aproved by EDEN.W;   
    Description: InputOutput + LUT;*/
 
 #define ESC 27
 #define SIZE 256
 
-int getchar(void);
+int getchar();
 static void PrintA();
 static void PrintT();
 static void DontPrint();
@@ -17,13 +17,19 @@ static void Esc();
         
 void InputOutputIf()
 {	
-	char c = 0;
+	char c = '\0';
 	
 	system("stty -icanon -echo");
 	
-	while ( ESC != c && EOF == c)
+	while ( ESC != c )
 	{	
 		c = getchar();
+		
+		if (EOF == c)
+        { 
+            puts("ERROR!");
+            exit(1);
+        }
         
 		if ( 'a' == c || 'A' == c ) 
 		{
@@ -43,13 +49,19 @@ void InputOutputIf()
 
 void InputOutputSwich()
 {	
-	char c = 0;
+	char c = '\0';
 	
 	system("stty -icanon -echo");
 	
-	while ( ESC != c && EOF == c )
+	while ( ESC != c )
 	{	
 		c = getchar();
+		
+		if (EOF == c)
+        { 
+            puts("ERROR!");
+            exit(1);
+        }
         
 		switch (c)
 		{	
@@ -108,9 +120,14 @@ void InputOutputLut()
 	arrLut['t'] = PrintT;
 	
 
-	while ( ESC != c && EOF == c)
+	while ( ESC != c )
 	{			
  		c = getchar();
+ 		if (EOF == c)
+        { 
+            puts("ERROR!");
+            exit(1);
+        }
         
 		(*arrLut[c])();	
 	
@@ -143,5 +160,4 @@ static void Esc()
 	system("stty icanon echo");
 	return;
 }
-
 
