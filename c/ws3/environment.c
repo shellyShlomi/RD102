@@ -158,7 +158,7 @@ void PrintEnv(char **pointrs, char **str)
 		++str;
 	}
 	
-	returnף
+	return;
 
 }
 
