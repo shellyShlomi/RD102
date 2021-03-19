@@ -12,7 +12,7 @@ int main()
 {
 
 	PrintSizeOf();
-	return 0;
+	return 9;
 }
 void PrintSizeOf()
 {
