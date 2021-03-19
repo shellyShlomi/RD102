@@ -70,11 +70,8 @@ int IsRotation(char *str1, char *str2)
 		printf("\n"); 
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 			return 1;	
 	}
-	else 
-	{
-		printf("NOT a Rotation\n"); 
-		
-	}
+	
+	printf("NOT a Rotation\n"); 
 	printf("\n"); 
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  		return 0;
 }
