@@ -43,6 +43,12 @@ int IsRotation(char *str1, char *str2)
 		
 		return 0;
 	}
+	else if (0 == strlen(str1) && 0 == strlen(str2))
+	{
+		printf("IT'S a Rotation\n");
+		printf("\n"); 
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 			return 1;
+	}
 	
 	sub_string = strchr(str2 , str1[strlen(str1) - 1]) + 1;
 	
