@@ -1,12 +1,11 @@
 /* Developer: Shelly Shlomi 
-   Status: in development;   
+   Status: impl tested;   
    Description: log program */
-
-
-#include "ex2.h"	/*the function declaration*/
+   
 #include <stdlib.h> /*stty*/
 #include <assert.h> /*assert*/
 #include <string.h> /*strlen*/
+#include "ex2.h"	/*the function declaration*/
 
 #define SIZE 5
 #define BUFF 6000
@@ -20,8 +19,10 @@ enum return_val
 	
 }return_val;
 
+/*flow control functions*/
 static int Analyzer(const char *buf , const char *f_name);
 static int Comp(const char *str1, const char *str2); 
+
 /*functions that procces the input and operat on it*/
 static int Logger(const char *file_name, const char *buf);
 static int Remove(const char *file_name, const char *buf);
@@ -37,7 +38,6 @@ struct file_sturct
 };
 
 
-
 int Meneger(const char *file_name)
 {
 	int ret = 0;
@@ -49,16 +49,12 @@ int Meneger(const char *file_name)
 	printf("*** <\t-exit\t-count\t-remove ***\n\n");
 	printf("Enter your text here :\n");
 
-	while (NULL != fgets(buf, BUFF, stdin))
-	{
+	while (ERROR != ret) 
+	{	
+		fgets(buf, BUFF, stdin);
 		ret = Analyzer(buf, file_name);
-		
-		if( (ERROR) == ret )
-		{
-			printf("Something went wrongin your program\n");
-			return 0;
-		}
 	}
+
 	return SUCCESS;
 }
 
@@ -77,15 +73,12 @@ static int Analyzer(const char(*buf), const char(*f_name))
 	assert(f_name);
 	assert(buf);
 
-	while (i < elements)
+	done_looping = arr[i].Compar(arr[i].str, buf);
+	
+	while (i < elements && (!done_looping))
 	{
-		done_looping = arr[i].Compar(arr[i].str, buf);
-
-		if (done_looping)
-		{
-			return arr[i].Operation(f_name, buf);
-		}
 		++i;
+		done_looping = arr[i].Compar(arr[i].str, buf);
 	}
 	
 	return arr[i].Operation(f_name, buf);
@@ -95,15 +88,15 @@ static int Comp(const char *str1, const char *str2)
 {
 	assert(str1);
 	assert(str2);
-			
-	if (0 == strncmp(str1, str2, (strlen(str1) - 1)) 
+	/*test all operator - except <,beas on the length and the content*/
+	if (0 == strncmp(str1, str2, (strlen(str1) - 1))
 			&& strlen(str1) == strlen(str2))
 	{
 		return COMP_SUCCESS;
 	}
 	
-	if (0 == strncmp(str1, str2, (strlen(str1) - 1))
-	 		 && 1 == (strlen(str1) - 1))
+	if (0 == strncmp(str1, str2, (strlen(str1) - 1)) /*test for the < operator*/
+	 		 && 1 == (strlen(str1) - 1))/*beas on the length of the  stract str*/
 	{
 		return COMP_SUCCESS;
 	}
@@ -118,7 +111,6 @@ static int Logger(const char *file_name, const char *buf)
 	assert(buf);
 
 	file_ptr = fopen(file_name, "a");
-	
 	if (NULL == file_ptr)
 	{
 		return ERROR;
@@ -167,13 +159,14 @@ static int AddBeginig(const char *file_name, const char *buf)
 		
 		(char *)++buf;
 		
-		if (SUCCESS == Logger(file_name, buf))
+		if(SUCCESS == Logger(file_name, buf))
 		{
 			printf("Created a new file for you with the name assked for\n");
 			return SUCCESS;			
 		}
 		return ERROR;
 	}
+	
 	ch = getc(file_ptr);
 
 	while (EOF != ch)

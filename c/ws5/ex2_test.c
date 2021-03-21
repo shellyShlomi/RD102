@@ -5,7 +5,7 @@ int main(int argc, char **argv)
 {	
 	UNUSED(argc);
 	
-	if (NULL != argv[1])
+	if (NULL != argv[1]) /*If the user dident enter the file name */
 	{
 		Meneger(argv[1]);
 	}
