@@ -25,7 +25,7 @@ void MyPrintStruct()
    		void (*ptr_print_func)(int); 
 	};
 	 
-	struct print_me arr[SIZE];
+	struct print_me arr[SIZE] = {0};
 	
 	int i = 0; 
 

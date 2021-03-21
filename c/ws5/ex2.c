@@ -1,134 +1,239 @@
-#include "ex2.h" /*the function declaration*/
-#include <stdlib.h> /*stty*/
-
 /* Developer: Shelly Shlomi 
    Status: in development;   
    Description: log program */
 
-int Logger(char **file_name);
 
- /* FILE * fp;
+#include "ex2.h"	/*the function declaration*/
+#include <stdlib.h> /*stty*/
+#include <assert.h> /*assert*/
+#include <string.h> /*strlen*/
 
-   fp = fopen ("file.txt", "w+");
-   fprintf(fp, "%s %s %s %d", "We", "are", "in", 2012);
-   
-   fclose(fp);*/
+#define SIZE 5
+#define BUFF 6000
 
-int Logger(char **file_name)
-{	
-	FILE *file_ptr;
-	char str[6000];
-	char *file_ptr = NULL;	
-	file_ptr = file_name[1];
+enum return_val 
+{
+	SUCCESS,
+	ERROR,
+	COMP_SUCCESS = ERROR,
+	COMP_END = SUCCESS
 	
-	
-	printf("%s\t**print**\n", *file_name);
-	
-	file_ptr = fopen("file.txt" , "r");
-	
-	if(file_ptr == NULL) {
-	perror("Error opening file");
-	
-	return(-1);
-	}
-	system("stty -icanon -echo");
-	
-	if( fgets (str, 6000, file_ptr)!=NULL ) {
+}return_val;
 
-	puts(str);
-	}
-	
-	fclose(file_ptr);
-	system("stty icanon echo");
-	
-	return(0);
-}
+static int Analyzer(const char *buf , const char *f_name);
+static int Comp(const char *str1, const char *str2); 
+/*functions that procces the input and operat on it*/
+static int Logger(const char *file_name, const char *buf);
+static int Remove(const char *file_name, const char *buf);
+static int AddBeginig(const char *file_name, const char *buf);
+static int Count(const char *file_name, const char *buf);
+static int ExitPorg(const char *file_name, const char *buf);
 
-/*
-void Logger()
-{		
-	char *file_name = argv[FILE_NAME];
-	
-	
-	unsigned char c = '\0';
-	size_t index = 0;
-	void (*arrLut[SIZE])(void) = {0};
+struct file_sturct
+{
+	const char *str;
+	int (*Compar)(const char *str1, const char *str2); 
+	int (*Operation)(const char *file_name, const char *buf);
+};
 
- 	
-	system("stty -icanon -echo");
-	
-	while (index < SIZE)
+
+
+int Meneger(const char *file_name)
+{
+	int ret = 0;
+	char buf[BUFF] = {'\0'};
+
+	assert(file_name);
+
+	printf("***The folowing commend can halpe you control your file : ***\n");
+	printf("*** <\t-exit\t-count\t-remove ***\n\n");
+	printf("Enter your text here :\n");
+
+	while (NULL != fgets(buf, BUFF, stdin))
 	{
-		arrLut[index]= DontPrint;
-		++index;
-	}
-	
-	arrLut[ESC] = Esc;
-	arrLut['A'] = PrintA;
-	arrLut['T'] = PrintT;	
-	arrLut['a'] = PrintA;
-	arrLut['t'] = PrintT;
-	
-
-	while ( ESC != c )
-	{			
- 		c = getchar();
- 	
-        
-		(*arrLut[c])();	
-	
-	}
-	
-	(*arrLut[ESC])();
-	
-	
-	return;			
-}
-
-static void PrintA()
-{
-	printf( "A pressed\n");
-}
-
-static void PrintT()
-{
-	printf( "T pressed\n");
-}
-
-static void DontPrint()
-{
-	;
-}
-
-static void Esc()
-{	
-	system("stty icanon echo");
-	return;
-}
-
-   void InputOutputIf()
-{	
-	char c = '\0';
-	
-	system("stty -icanon -echo");
-	
-	while ( ESC != c && EOF != c )
-	{	
-		c = getchar();
+		ret = Analyzer(buf, file_name);
 		
-	
-		if ( 'a' == c || 'A' == c ) 
+		if( (ERROR) == ret )
 		{
-			printf( "A pressed\n");
+			printf("Something went wrongin your program\n");
+			return 0;
 		}
-		else if ( 't' == c || 'T' == c )
-		{
-			printf( "T pressed\n");
-		}
-	}	
-	
-	system("stty icanon echo");
-	
-	return;
+	}
+	return SUCCESS;
 }
-*/
+
+static int Analyzer(const char(*buf), const char(*f_name))
+{	
+	struct file_sturct arr[SIZE] = {{"< ", Comp, AddBeginig},
+								{"-count ", Comp, Count},
+								{"-exit ", Comp, ExitPorg},
+								{"-remove ", Comp, Remove},
+								{"", Comp, Logger}};
+								
+	int done_looping = 0;
+	size_t i = 0;
+	size_t elements = SIZE - 1;
+
+	assert(f_name);
+	assert(buf);
+
+	while (i < elements)
+	{
+		done_looping = arr[i].Compar(arr[i].str, buf);
+
+		if (done_looping)
+		{
+			return arr[i].Operation(f_name, buf);
+		}
+		++i;
+	}
+	
+	return arr[i].Operation(f_name, buf);
+}
+
+static int Comp(const char *str1, const char *str2)
+{
+	assert(str1);
+	assert(str2);
+			
+	if (0 == strncmp(str1, str2, (strlen(str1) - 1)) 
+			&& strlen(str1) == strlen(str2))
+	{
+		return COMP_SUCCESS;
+	}
+	
+	if (0 == strncmp(str1, str2, (strlen(str1) - 1))
+	 		 && 1 == (strlen(str1) - 1))
+	{
+		return COMP_SUCCESS;
+	}
+	return COMP_END;
+}
+/*Addtion of text to the end of the file*/
+static int Logger(const char *file_name, const char *buf)
+{
+	FILE *file_ptr = NULL;
+
+	assert(file_name);
+	assert(buf);
+
+	file_ptr = fopen(file_name, "a");
+	
+	if (NULL == file_ptr)
+	{
+		return ERROR;
+	}
+
+	fputs(buf, file_ptr);
+
+	fclose(file_ptr);
+
+	return SUCCESS;
+}
+/*Remove the file*/
+static int Remove(const char *file_name, const char *buf)
+{
+	assert(file_name);
+	UNUSED(buf);
+	
+	if (!remove(file_name))
+	{	
+		return SUCCESS;
+		printf("The file is Deleted successfully\n");
+	}
+
+	
+	printf("the file is not Deleted / There is no such file\n");
+	return SUCCESS;
+
+	
+}
+
+/*Addtion of text to the begining of the file*/
+static int AddBeginig(const char *file_name, const char *buf)
+{	
+	FILE *file_ptr = NULL;
+	size_t i = 0;
+	char ch = '\0'; /* To store the character read from file */
+	char buffer[BUFF] = {'\n'}; /* To store the read from file */
+
+	assert(file_name);
+	assert(buf);
+
+	file_ptr = fopen(file_name, "r+");
+	if (NULL == file_ptr)
+	{
+		printf("No such file\n");
+		
+		(char *)++buf;
+		
+		if (SUCCESS == Logger(file_name, buf))
+		{
+			printf("Created a new file for you with the name assked for\n");
+			return SUCCESS;			
+		}
+		return ERROR;
+	}
+	ch = getc(file_ptr);
+
+	while (EOF != ch)
+	{
+		buffer[i] = ch;
+		++i;
+		ch = getc(file_ptr);
+	}
+	fseek(file_ptr, 0, SEEK_SET);
+
+	(char *)++buf;
+	
+	fputs(buf, file_ptr);
+
+	fputs(buffer, file_ptr);
+	fclose(file_ptr);
+	
+	return SUCCESS;
+}
+
+/* count the lines in the file*/
+static int Count(const char *file_name, const char *buf)
+{
+	FILE *file_ptr = NULL;
+	int line_count = 0;
+	char ch = '\0'; /* To store a character read from file */
+
+	assert(file_name);
+	assert(buf);
+
+	file_ptr = fopen(file_name, "r+");
+	
+	if (NULL == file_ptr)
+	{	
+		printf("No such file\n");
+		return SUCCESS;
+	}
+
+	ch = getc(file_ptr);
+
+	while (EOF != ch)
+	{
+		if (ch == '\n') /* Increment counter if this character is newline*/
+		{
+			++line_count;
+		}
+		ch = getc(file_ptr);
+	}
+	printf("num of lines in your file is: %d\n", line_count);
+
+	fclose(file_ptr);
+	
+	return SUCCESS;
+}
+
+static int ExitPorg(const char *file_name, const char *buf)
+{
+	UNUSED(buf);
+	UNUSED(file_name);
+	exit(SUCCESS);
+}
+
+

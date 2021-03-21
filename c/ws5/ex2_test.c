@@ -1,10 +1,15 @@
 #include "ex2.h" /*the function declaration*/
 
 
-int main(int argc, char **arg)
+int main(int argc, char **argv)
 {	
-
-	Logger(arg);
+	UNUSED(argc);
+	
+	if (NULL != argv[1])
+	{
+		Meneger(argv[1]);
+	}
+	
 
 	return (0);
 }

@@ -7,32 +7,39 @@
 /* Developer: Shelly Shlomi 
    Status: aproved by ANNA;   
    Description:Print Envirement Variables In Lower Case*/
+
+#define UNUSED(x) (void)(x)
    
-size_t NumberOfElement(char **pointrs);
-void *MemoryAllocation(char **pointrs, size_t i);
-void MemoryRealles(char **str, size_t j);
-char *StrDup(const char *str);
-char *StrCpy(char *dest, const char *src);
-void PrintEnv(char **pointrs, char **str);
+static size_t Execute(char **pointrs);
+static void *MemoryAllocation(char **pointrs, size_t i);
+static void MemoryRealles(char **str, size_t j);
+static char *StrDupToLower(const char *str);
+static char *StrCpy(char *dest, const char *src);
+static void PrintEnv(char **pointrs);
 
 int main(int argc, char **argv, char **envp)
-{
+{	
+	int err = 0;
+	UNUSED(argc);
+	UNUSED(argv);
 
-	NumberOfElement(envp);
+	err = Execute(envp);
 	return 0;
 }
 
 
-size_t NumberOfElement(char **pointrs)
+size_t Execute(char **pointrs)
 {
 	size_t i = 0;
-
-	while (NULL != *(pointrs + i))
+	char *err = NULL;
+	while (NULL != *pointrs)
 	{
+		++pointrs;
 		++i;
 	}
-
-	MemoryAllocation(pointrs, i);
+	pointrs -= i;
+	err = MemoryAllocation(pointrs, i);
+	assert(err);
 
 	return i;
 }
@@ -44,39 +51,34 @@ void *MemoryAllocation(char **pointrs, size_t i)
 	
 	assert(pointrs);
 
-	str = (char **)malloc((i + 1) * sizeof(char *));
+	str = (char **)malloc((i + 1) * sizeof(char *));/*adding 1 for null pointer*/
 
 	if (NULL == str)
 	{	
 		printf("malloc failed.\n");
 		return NULL;
 	}
-	else
-	{
-		while (NULL != pointrs[j])
-		{
-			str[j] = StrDup(pointrs[j]);
 
-			if (NULL == str[j])
-			{	
-				MemoryRealles(str, j);
-				
-				printf("malloc failed\n");
-				return NULL;
-			}
-			
-			++j;
+	while (NULL != pointrs[j])
+	{
+		str[j] = StrDupToLower(pointrs[j]);
+
+		if (NULL == str[j])
+		{	
+			MemoryRealles(str, j);
+			return NULL;
 		}
 		
-		str[j] = NULL;
-		
-		PrintEnv(pointrs, str);
-		
-		MemoryRealles(str, j);
-	
+		++j;
 	}
+	
+	str[j] = NULL;
+	
+	PrintEnv(pointrs);
+	PrintEnv(str);
+	MemoryRealles(str, j);
 
-	return NULL;
+	return pointrs;
 }
 
 void MemoryRealles(char **str, size_t j)
@@ -93,7 +95,7 @@ void MemoryRealles(char **str, size_t j)
 		free(str);
 		str = NULL;
 		
-		
+	return ; 	
 }
 
 char *StrCpy(char *dest, const char *src)
@@ -114,16 +116,16 @@ char *StrCpy(char *dest, const char *src)
 	return dest_oregin;
 }
 
-char *StrDup(const char *str)
+char *StrDupToLower(const char *str)
 {
 	char *new_string = NULL;
 	size_t size = 0;
 
 	assert(str);
 		
-	size = strlen(str) + 1;
+	size = strlen(str);
 	
-	new_string = (char *)malloc(size);
+	new_string = (char *)malloc(size + 1);
 		
 	if (!new_string) 
 	{
@@ -134,28 +136,17 @@ char *StrDup(const char *str)
 	return StrCpy(new_string, str);
 
 }
-void PrintEnv(char **pointrs, char **str)
+void PrintEnv(char **pointrs)
 {
 	size_t j = 0;
 	assert(pointrs);
-	assert(str);
+
 
 	while (NULL != *(pointrs))
 	{
 		printf("%lu: %s\n", j, *pointrs);
 		++j;
 		++pointrs;
-	}
-
-	printf("-------------------------------------------\n");
-	
-	j = 0;
-	
-	while (NULL != *(str))
-	{
-		printf("%lu: %s\n", j, *str);
-		++j;
-		++str;
 	}
 	
 	return;

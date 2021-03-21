@@ -54,22 +54,14 @@ void InputOutputSwich()
         
 		switch (c)
 		{	
+			case 'a':		
 			case 'A':
 			{
 				printf( "A pressed\n");
 				break;
 			}
-			case 'a':
-			{
-				printf( "A pressed\n");
-				break;
-			}
-			case 'T':
-			{
-				printf( "T pressed\n");
-				break;
-			}
 			case 't':
+			case 'T':
 			{
 				printf( "T pressed\n");
 				break;
