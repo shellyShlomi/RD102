@@ -8,14 +8,15 @@
 #include "ex2.h"	/*the function declaration*/
 
 #define SIZE 5
-#define BUFF 6000
+#define BUFF 101
+#define TEMP ".tmp"
 
 enum return_val 
 {
 	SUCCESS,
 	ERROR,
 	COMP_SUCCESS = ERROR,
-	COMP_END = SUCCESS
+	COMP_FALS = SUCCESS
 	
 }return_val;
 
@@ -24,19 +25,19 @@ static int Analyzer(const char *buf , const char *f_name);
 static int Comp(const char *str1, const char *str2); 
 
 /*functions that procces the input and operat on it*/
-static int Logger(const char *file_name, const char *buf);
-static int Remove(const char *file_name, const char *buf);
-static int AddBeginig(const char *file_name, const char *buf);
-static int Count(const char *file_name, const char *buf);
-static int ExitPorg(const char *file_name, const char *buf);
+static enum return_val Logger(const char *file_name, const char *buf);
+static enum return_val Remove(const char *file_name, const char *buf);
+static enum return_val AddBeginig(const char *file_name, const char *buf);
+static enum return_val Count(const char *file_name, const char *buf);
+static enum return_val ExitPorg(const char *file_name, const char *buf);
+
 
 struct file_sturct
 {
 	const char *str;
 	int (*Compar)(const char *str1, const char *str2); 
-	int (*Operation)(const char *file_name, const char *buf);
+	enum return_val (*Operation)(const char *file_name, const char *buf);
 };
-
 
 int Meneger(const char *file_name)
 {
@@ -47,7 +48,7 @@ int Meneger(const char *file_name)
 
 	printf("***The folowing commend can halpe you control your file : ***\n");
 	printf("*** <\t-exit\t-count\t-remove ***\n\n");
-	printf("Enter your text here :\n");
+	printf("Enter your text here (top 100):\n");
 
 	while (ERROR != ret) 
 	{	
@@ -60,18 +61,25 @@ int Meneger(const char *file_name)
 
 static int Analyzer(const char(*buf), const char(*f_name))
 {	
-	struct file_sturct arr[SIZE] = {{"< ", Comp, AddBeginig},
-								{"-count ", Comp, Count},
-								{"-exit ", Comp, ExitPorg},
-								{"-remove ", Comp, Remove},
-								{"", Comp, Logger}};
+	static struct file_sturct arr[SIZE] =
+	{
+		{"-exit ", Comp, ExitPorg},
+		{"< ", Comp, AddBeginig},
+		{"-count ", Comp, Count},
+		{"-remove ", Comp, Remove},
+		{"", Comp, Logger} 
+	};
 								
-	int done_looping = 0;
+	int done_looping = COMP_FALS;
 	size_t i = 0;
 	size_t elements = SIZE - 1;
 
 	assert(f_name);
-	assert(buf);
+	
+	if (NULL == buf)
+	{
+		return ERROR;
+	}
 
 	done_looping = arr[i].Compar(arr[i].str, buf);
 	
@@ -96,17 +104,17 @@ static int Comp(const char *str1, const char *str2)
 	}
 	
 	if (0 == strncmp(str1, str2, (strlen(str1) - 1)) /*test for the < operator*/
-	 		 && 1 == (strlen(str1) - 1))/*beas on the length of the  stract str*/
+	 		 && 1 == (strlen(str1) - 1))/*based on the length of the stract str*/
 	{
 		return COMP_SUCCESS;
 	}
-	return COMP_END;
+	return COMP_FALS;
 }
 /*Addtion of text to the end of the file*/
-static int Logger(const char *file_name, const char *buf)
+static enum return_val Logger(const char *file_name, const char *buf)
 {
 	FILE *file_ptr = NULL;
-
+	
 	assert(file_name);
 	assert(buf);
 
@@ -116,14 +124,17 @@ static int Logger(const char *file_name, const char *buf)
 		return ERROR;
 	}
 
-	fputs(buf, file_ptr);
+	if (EOF == fputs(buf, file_ptr))
+	{
+		return ERROR;
+	}
 
 	fclose(file_ptr);
 
 	return SUCCESS;
 }
 /*Remove the file*/
-static int Remove(const char *file_name, const char *buf)
+static enum return_val Remove(const char *file_name, const char *buf)
 {
 	assert(file_name);
 	UNUSED(buf);
@@ -134,30 +145,27 @@ static int Remove(const char *file_name, const char *buf)
 		printf("The file is Deleted successfully\n");
 	}
 
-	
 	printf("the file is not Deleted / There is no such file\n");
 	return SUCCESS;
 
-	
 }
-
 /*Addtion of text to the begining of the file*/
-static int AddBeginig(const char *file_name, const char *buf)
+static enum return_val AddBeginig(const char *file_name, const char *buf)
 {	
 	FILE *file_ptr = NULL;
-	size_t i = 0;
-	char ch = '\0'; /* To store the character read from file */
-	char buffer[BUFF] = {'\n'}; /* To store the read from file */
+	FILE *temp_ptr = NULL;
+	int ret = 1;
+	char buffer[BUFF] = {'\0'}; /* To store the character read from file */
 
 	assert(file_name);
 	assert(buf);
-
+	
+	(char *)++buf; /* To exlude the < char from the file*/
+	
 	file_ptr = fopen(file_name, "r+");
 	if (NULL == file_ptr)
 	{
 		printf("No such file\n");
-		
-		(char *)++buf;
 		
 		if(SUCCESS == Logger(file_name, buf))
 		{
@@ -167,28 +175,40 @@ static int AddBeginig(const char *file_name, const char *buf)
 		return ERROR;
 	}
 	
-	ch = getc(file_ptr);
-
-	while (EOF != ch)
+	if(SUCCESS != Logger(TEMP, buf)) /*adding the user string to a new file*/
 	{
-		buffer[i] = ch;
-		++i;
-		ch = getc(file_ptr);
+		return ERROR;
 	}
-	fseek(file_ptr, 0, SEEK_SET);
-
-	(char *)++buf;
 	
-	fputs(buf, file_ptr);
+	temp_ptr = fopen(TEMP, "a"); /*opening the new file created by Logger*/
+	if (NULL == temp_ptr)
+	{
+		return ERROR;
+	}
 
-	fputs(buffer, file_ptr);
+	while (NULL != fgets(buffer, BUFF, file_ptr))
+	{
+		if (EOF == fputs(buffer, temp_ptr))
+		{
+			return ERROR;
+		}
+	}
+	
+	ret = rename(TEMP, file_name);
+	if(0 != ret) 
+	{
+      return ERROR;
+    } 
+    
+	fclose(temp_ptr);
 	fclose(file_ptr);
 	
 	return SUCCESS;
 }
 
+
 /* count the lines in the file*/
-static int Count(const char *file_name, const char *buf)
+static enum return_val Count(const char *file_name, const char *buf)
 {
 	FILE *file_ptr = NULL;
 	int line_count = 0;
@@ -222,11 +242,11 @@ static int Count(const char *file_name, const char *buf)
 	return SUCCESS;
 }
 
-static int ExitPorg(const char *file_name, const char *buf)
+static enum return_val ExitPorg(const char *file_name, const char *buf)
 {
 	UNUSED(buf);
 	UNUSED(file_name);
-	exit(SUCCESS);
+	return ERROR;
 }
 
 
