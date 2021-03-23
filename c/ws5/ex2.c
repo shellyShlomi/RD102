@@ -1,8 +1,8 @@
 /* Developer: Shelly Shlomi 
-   Status: impl tested;   
+   Status: APPROVED BY OHAD;   
    Description: log program */
    
-#include <stdlib.h> /*stty*/
+#include <stdlib.h> /*fopen*/
 #include <assert.h> /*assert*/
 #include <string.h> /*strlen*/
 #include "ex2.h"	/*the function declaration*/
@@ -11,35 +11,33 @@
 #define BUFF 101
 #define TEMP ".tmp"
 
-enum return_val 
+typedef enum return_val 
 {
 	SUCCESS,
-	ERROR,
-	COMP_SUCCESS = ERROR,
-	COMP_FALS = SUCCESS
+	ERROR
 	
-}return_val;
+}return_t;
 
 /*flow control functions*/
-static int Analyzer(const char *buf , const char *f_name);
-static int Comp(const char *str1, const char *str2); 
+static return_t Analyzer(const char *buf , const char *f_name);
+static return_t Comp(const char *str, const char *uesr_str); 
 
 /*functions that procces the input and operat on it*/
-static enum return_val Logger(const char *file_name, const char *buf);
-static enum return_val Remove(const char *file_name, const char *buf);
-static enum return_val AddBeginig(const char *file_name, const char *buf);
-static enum return_val Count(const char *file_name, const char *buf);
-static enum return_val ExitPorg(const char *file_name, const char *buf);
+static return_t Logger(const char *file_name, const char *buf);
+static return_t Remove(const char *file_name, const char *buf);
+static return_t AddBeginig(const char *file_name, const char *buf);
+static return_t Count(const char *file_name, const char *buf);
+static return_t ExitPorg(const char *file_name, const char *buf);
 
 
 struct file_sturct
 {
 	const char *str;
-	int (*Compar)(const char *str1, const char *str2); 
-	enum return_val (*Operation)(const char *file_name, const char *buf);
+	return_t (*Compar)(const char *str, const char *uesr_str); 
+	return_t (*Operation)(const char *file_name, const char *buf);
 };
 
-int Meneger(const char *file_name)
+void Meneger(const char *file_name)
 {
 	int ret = 0;
 	char buf[BUFF] = {'\0'};
@@ -55,63 +53,62 @@ int Meneger(const char *file_name)
 		fgets(buf, BUFF, stdin);
 		ret = Analyzer(buf, file_name);
 	}
-
-	return SUCCESS;
+	
+	return ;
 }
 
-static int Analyzer(const char(*buf), const char(*f_name))
+static return_t Analyzer(const char(*buf), const char(*f_name))
 {	
 	static struct file_sturct arr[SIZE] =
 	{
-		{"-exit ", Comp, ExitPorg},
-		{"< ", Comp, AddBeginig},
-		{"-count ", Comp, Count},
-		{"-remove ", Comp, Remove},
+		{"-exit", Comp, ExitPorg},
+		{"<", Comp, AddBeginig},
+		{"-count", Comp, Count},
+		{"-remove", Comp, Remove},
 		{"", Comp, Logger} 
 	};
 								
-	int done_looping = COMP_FALS;
 	size_t i = 0;
 	size_t elements = SIZE - 1;
 
 	assert(f_name);
-	
+
 	if (NULL == buf)
 	{
 		return ERROR;
 	}
-
-	done_looping = arr[i].Compar(arr[i].str, buf);
 	
-	while (i < elements && (!done_looping))
+	while (i < elements && (arr[i].Compar(arr[i].str, buf)))
 	{
 		++i;
-		done_looping = arr[i].Compar(arr[i].str, buf);
 	}
 	
 	return arr[i].Operation(f_name, buf);
 }
 
-static int Comp(const char *str1, const char *str2)
+static return_t Comp(const char *str, const char *uesr_str)
 {
-	assert(str1);
-	assert(str2);
-	/*test all operator - except <,beas on the length and the content*/
-	if (0 == strncmp(str1, str2, (strlen(str1) - 1))
-			&& strlen(str1) == strlen(str2))
-	{
-		return COMP_SUCCESS;
-	}
+	size_t str_len = 0;
+	size_t uesr_len = 0;
 	
-	if (0 == strncmp(str1, str2, (strlen(str1) - 1)) /*test for the < operator*/
-	 		 && 1 == (strlen(str1) - 1))/*based on the length of the stract str*/
+	assert(str);
+	assert(uesr_str);
+	
+	str_len = strlen(str);
+	uesr_len = strlen(uesr_str) - 1;
+		
+	/*test all operator beased on the length and the content*/
+	if (str_len == uesr_len || 1 == str_len)
 	{
-		return COMP_SUCCESS;
-	}
-	return COMP_FALS;
+		if (0 == strncmp(str, uesr_str, str_len))
+		{
+			return SUCCESS;			 
+		}
+	}	
+	return ERROR;
 }
 /*Addtion of text to the end of the file*/
-static enum return_val Logger(const char *file_name, const char *buf)
+static return_t Logger(const char *file_name, const char *buf)
 {
 	FILE *file_ptr = NULL;
 	
@@ -134,15 +131,15 @@ static enum return_val Logger(const char *file_name, const char *buf)
 	return SUCCESS;
 }
 /*Remove the file*/
-static enum return_val Remove(const char *file_name, const char *buf)
+static return_t Remove(const char *file_name, const char *buf)
 {
 	assert(file_name);
 	UNUSED(buf);
 	
 	if (!remove(file_name))
 	{	
-		return SUCCESS;
 		printf("The file is Deleted successfully\n");
+		return SUCCESS;
 	}
 
 	printf("the file is not Deleted / There is no such file\n");
@@ -150,11 +147,10 @@ static enum return_val Remove(const char *file_name, const char *buf)
 
 }
 /*Addtion of text to the begining of the file*/
-static enum return_val AddBeginig(const char *file_name, const char *buf)
+static return_t AddBeginig(const char *file_name, const char *buf)
 {	
 	FILE *file_ptr = NULL;
 	FILE *temp_ptr = NULL;
-	int ret = 1;
 	char buffer[BUFF] = {'\0'}; /* To store the character read from file */
 
 	assert(file_name);
@@ -162,10 +158,11 @@ static enum return_val AddBeginig(const char *file_name, const char *buf)
 	
 	(char *)++buf; /* To exlude the < char from the file*/
 	
-	file_ptr = fopen(file_name, "r+");
+	file_ptr = fopen(file_name, "r");
+	
 	if (NULL == file_ptr)
 	{
-		printf("No such file\n");
+		printf("ERROR Opening File\n");
 		
 		if(SUCCESS == Logger(file_name, buf))
 		{
@@ -181,6 +178,7 @@ static enum return_val AddBeginig(const char *file_name, const char *buf)
 	}
 	
 	temp_ptr = fopen(TEMP, "a"); /*opening the new file created by Logger*/
+	
 	if (NULL == temp_ptr)
 	{
 		return ERROR;
@@ -193,14 +191,13 @@ static enum return_val AddBeginig(const char *file_name, const char *buf)
 			return ERROR;
 		}
 	}
+	fclose(temp_ptr);
 	
-	ret = rename(TEMP, file_name);
-	if(0 != ret) 
+	if(ERROR == rename(TEMP, file_name)) 
 	{
       return ERROR;
     } 
     
-	fclose(temp_ptr);
 	fclose(file_ptr);
 	
 	return SUCCESS;
@@ -208,7 +205,7 @@ static enum return_val AddBeginig(const char *file_name, const char *buf)
 
 
 /* count the lines in the file*/
-static enum return_val Count(const char *file_name, const char *buf)
+static return_t Count(const char *file_name, const char *buf)
 {
 	FILE *file_ptr = NULL;
 	int line_count = 0;
@@ -217,7 +214,7 @@ static enum return_val Count(const char *file_name, const char *buf)
 	assert(file_name);
 	assert(buf);
 
-	file_ptr = fopen(file_name, "r+");
+	file_ptr = fopen(file_name, "r");
 	
 	if (NULL == file_ptr)
 	{	
@@ -225,15 +222,12 @@ static enum return_val Count(const char *file_name, const char *buf)
 		return SUCCESS;
 	}
 
-	ch = getc(file_ptr);
-
-	while (EOF != ch)
+	while (EOF != (ch = getc(file_ptr)))
 	{
-		if (ch == '\n') /* Increment counter if this character is newline*/
+		if ('\n' == ch) /* Increment counter if this character is newline*/
 		{
 			++line_count;
 		}
-		ch = getc(file_ptr);
 	}
 	printf("num of lines in your file is: %d\n", line_count);
 
@@ -242,10 +236,11 @@ static enum return_val Count(const char *file_name, const char *buf)
 	return SUCCESS;
 }
 
-static enum return_val ExitPorg(const char *file_name, const char *buf)
+static return_t ExitPorg(const char *file_name, const char *buf)
 {
 	UNUSED(buf);
 	UNUSED(file_name);
+	
 	return ERROR;
 }
 

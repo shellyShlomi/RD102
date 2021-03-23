@@ -3,7 +3,7 @@
 #include <stdio.h>  /*for print*/
 #define UNUSED(x) (void)(x)
 
-int Meneger(const char *file_name);
+void Meneger(const char *file_name);
 
 #endif /*__EX2_H__*/
 
