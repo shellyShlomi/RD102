@@ -1,121 +1,77 @@
+/* Developer: Shelly Shlomi 
+   Status: approved by NIR;   
+   Description: josephus problem */
+
 #include <stdio.h>  /*for print*/
 
-
-/* Developer: Shelly Shlomi 
-   Status: in development;   
-   Description: josephus problem */
-   
-int Josephus(int n, size_t k);
-int FilingArray();
-size_t JosephusProblem(int arr[], size_t size);
+static void FilingArray(int arr[], size_t size);
+void JosephusProblem(int arr[], size_t size);
 
 int main()
 {	
-	printf("%lu\n",	FilingArray());
+	int arr[17] = {0};
+	int arr1[100] = {0};
+	int arr2[2] = {0};
+	int arr3[3] = {0};
+	int arr4[1] = {0};	
+	
+	size_t arr_size = 17;
+	size_t arr_size1 = 100;
+	size_t arr_size2 = 2;
+	size_t arr_size3 = 3;
+	size_t arr_size4 = 1;
+	
+	JosephusProblem(arr, arr_size);
+	printf("\n");
+	
+	JosephusProblem(arr1, arr_size1);	
+	printf("\n");
+	
+	JosephusProblem(arr2, arr_size2);	
+	printf("\n");
+
+	JosephusProblem(arr3, arr_size3);
+	printf("\n");
+	
+	JosephusProblem(arr4, arr_size4);	
+
+	
 	return 0;
 }
 
-/*int josephus(size_t n, int k) {
-    int res = 0;
-    for (int i = 1; i <= n; ++i)
-      res = (res + k) % i;
-    return res + 1;
-}*/
-size_t JosephusProblem(int arr[], size_t size)
+void JosephusProblem(int arr[], size_t size)
 {	
-	size_t kiler = 0;
-	size_t counter = 0;  /*indicate the number of kills prepormde*/
-    size_t to_die = 1;  /*indicate the element which are going to be killed */
-    size_t start = 0;
-    size_t round = 0;
-    
-    while (counter <= (size -1))
-    {
-		if (0 != (round % 2) && 0 != (size % 2))
-		{	
-			arr[start] = 0;
-			++counter;
-			start = start +(2*round);
-			kiler =  start; 
-			to_die = kiler + start;
-		
-			if (counter == (size - 2))
-			{	
-			    return kiler;
-			}	
-		}
-		
-			
-		if (arr[kiler] == arr[to_die] && counter < (size -1))
-		{
-			arr[to_die] = 0;
-			++counter;
-			kiler = (kiler + 2) % i;
-			to_die = kiler + round + 1;
-			
-			if (counter == (size - 2))
-			{	
-			    return kiler;
-			}	
-			
-			if ((kiler) == (size - 1))
-			{	
-				
-				++round;
-				start = start +(2*round);
-				kiler = start + 2 + round;
-				to_die = start + 3 + round;
-				continue;
-			}
-			else if ((kiler) > (size - 1))
-			{	
-				++round;
-				start = start +(2*round);
-				 kiler = start + 2 + round;
-				 
-				continue;
-			}
-		}
-		else 
-		{
-			++to_die;
-			if ((to_die) > (size - 1))
-			{
-				to_die = 0;
-			}	
-		}
-		
+	size_t i = 0;
+	
+	FilingArray(arr, size);
+	
+	while(arr[i] != arr[arr[i]])
+	{	
+		arr[i] = arr[arr[i]]; /*pass the sword*/
+		i = arr[i]; 
 	}
-    
-    return 90;
-
+	
+	printf("when array size is %ld the lucky soldier is at: %d\n", size, arr[i]);
+	
+	return ;
 }
 
-int FilingArray()
+static void FilingArray(int arr[], size_t size)
 {
-	size_t index = 0;
-	int arr[18] = {0};
-	size_t size = 0;
-	int res = 0;
-	int i = 0;
-	size = sizeof(arr) / sizeof(int);
-	
-	while (index < size)
-	{
-		*(arr + index) = 1;
-		++index;
-	}
-	i=1;
-	while (i  <= size)
-	{
-		 res = (res + 2) % i;
-		++i;
-	}
+	size_t num = 1;
 
-  return res + 1;
-    
+	while (num < (size))
+	{		
+		*arr = num;
+
+		++arr;
+		++num;
+	}
 	
+	*arr = 0;
+	arr = arr - (num - 1);
 	
+  return ;
 	
 }
 
