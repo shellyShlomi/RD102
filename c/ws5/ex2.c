@@ -1,7 +1,7 @@
 /* Developer: Shelly Shlomi 
    Status: APPROVED BY OHAD;   
    Description: log program */
-   
+#include <stdio.h>  /*for print*/
 #include <stdlib.h> /*fopen*/
 #include <assert.h> /*assert*/
 #include <string.h> /*strlen*/
