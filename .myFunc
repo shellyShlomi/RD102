@@ -3,23 +3,23 @@
 #alias
 
 alias gconGun='git config --global user.name'
-alias gic='git commit -am'
+alias gic='git commit -m'
 alias gip='git push -u origin master'
-alias GSi='git status --ignored'
-alias GS='git status'
+alias gsi='git status --ignored'
+alias gs='git status'
 alias gia='git add .'
 
 alias gd='gcc -ansi -pedantic-errors -Wall -Wextra -g'
-alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -o3'
+alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3'
 alias gd9='gcc -std=c99 -pedantic-errors -Wall -Wextra -g'
-alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -o3'
+alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -O3'
 alias vlg='valgrind --leak-check=yes --track-origins=yes'
 
 alias g='gedit'
 alias h='history'
 alias l='ll'
 alias c='cd'
-alias gc='cd git/c'
-alias gq='c git/quizzes/'
+alias gcw='f(){ cd git/c/ws$@;unset -f f; }; f'
+alias gq='f(){ cd  git/quizzes/quiz$@;unset -f f; }; f'
 alias gs='c git/shelly/'
-
+#'f(){cd git/c/ws"$@" f; }; f'
