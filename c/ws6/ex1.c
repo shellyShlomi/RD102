@@ -1,7 +1,7 @@
 
-/* Developer: Shelly Shlomi 
-   Status: final approved by anna;   
-   Description: bit exercies*/
+/* Developer: Shelly Shlomi         */
+/* Status: final approved by anna;  */
+/* Description: bit exercies        */
    
 #include <stdio.h>  /*print*/
 #include "ex1.h" /*function declaration*/
@@ -9,6 +9,7 @@
 #define SIZE 256
 #define BYTE_ON 0xFF
 #define BIT_IN_BYTE 8
+#define BIT_IN_int 32
 
 static unsigned char *ByteMirrorArrLut();
 static unsigned int *CountBitsNoLoopArrLut();
@@ -153,7 +154,7 @@ int IsBit2And6On(unsigned char byte)
 /*approved by anna*/
 int IsBit2Or6On(unsigned char byte)
 {
-	return ((64 == (byte & 64)) || ( 4 == (byte & 4)));
+	return ((64 == (byte & 64)) || (4 == (byte & 4)));
 }
 
 /*approved by ohad*/
@@ -164,10 +165,10 @@ unsigned char Swap3And5(unsigned char byte)
 	unsigned char mirror_byte = '\0';
 	b =  (byte >> 5) & 1;
 	a = (byte >> 3) & 1;
-	mirror_byte = a ^ b;
+	mirror_byte = a ^ b; /*to test if the 3 & 5 bit are the same*/
 	mirror_byte = ( mirror_byte << 3 ) | (mirror_byte << 5);
 
-	return (byte ^ mirror_byte);
+	return (byte ^ mirror_byte); /*to flip the 3 & 5 bit or do nothing*/
 }
 
 /*approved by ohad*/
@@ -192,16 +193,18 @@ void Swap(unsigned int *x, unsigned int *y)
 /*approved by ohad*/
 unsigned int CountBitsLoop(int num)
 {	
+    unsigned int num_local = (unsigned int)num;
 	unsigned int counter = 0;
-		
-	while (0 != num)
-	{				
-		counter += (num & 1); 		
-		num = num >> 1;
-	}	
-			
-	return counter;
+
+    while (0 < num_local)
+    {
+        counter += (num_local & 1);
+        num_local = num_local >> 1;
+    }
+
+    return counter;
 }
+
 /*approved by ohad*/
 static unsigned int *CountBitsNoLoopArrLut()
 {
@@ -248,8 +251,8 @@ void PrintFloatBits(float f)
 			
 	for(count_loop = 31; 0 <= count_loop; --count_loop)
 	{	
-		temp = *local_float & (1 << count_loop);/*taking the lest bit*/
-		switch(temp >> count_loop)/*chenging it to be the first (0 or 1)*/
+		temp = *local_float & (1 << count_loop);/*taking bits starts from last*/
+		switch(temp >> count_loop)		/*chenging it to be the first (0 or 1)*/
 		{	
 			case 1:
 			{	

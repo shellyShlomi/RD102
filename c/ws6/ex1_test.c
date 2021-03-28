@@ -106,34 +106,7 @@ static void TestPow2()
 	if(0 == err)
 	{
 		printf("All good\n");
-	}
-	
-	
-	/*printf("Pow2 result :\t");
-	Print(Pow2(5, 3));
-	printf("expected :\t");
-	Print((long)(5*pow(2, 3)));
-	
-	printf("Pow2 result :\t");
-	Print(Pow2(2, 5));
-	printf("expected :\t");
-	Print((long)(2*pow(2, 5)));
-	
-	printf("Pow2 result :\t");
-	Print(Pow2(8, 32));
-	printf("expected :\t");
-	Print((long)(8*pow(2, 32)));
-	
-	printf("Pow2 result :\t");
-	Print(Pow2(0, 3));
-	printf("expected :\t");
-	Print((long)(0*pow(2, 3)));
-	
-	printf("Pow2 result :\t");
-	Print(Pow2(7, 0));
-	printf("expected :\t");
-	Print((long)(7*pow(2, 0)));*/
-	
+	}	
 	return ;	
 }
 
@@ -234,8 +207,8 @@ static void TestPrintThreeOn()
 
 static void TestCountBitsLoop()
 {	
-	unsigned int num_arr[] = {8, 12, 3, 20, 20453, 127, 659, 0};
-	unsigned int exp_arr[] = {1, 2, 2, 2, 10, 7, 5, 0};
+	unsigned int num_arr[] = {8, 12, 3, 20, 20453, 127, 659, 0, -2};
+	unsigned int exp_arr[] = {1, 2, 2, 2, 10, 7, 5, 0, 31};
 	size_t i = 0;
 	size_t size = sizeof(exp_arr) / (sizeof(exp_arr[i]));
 	int err = 0;
