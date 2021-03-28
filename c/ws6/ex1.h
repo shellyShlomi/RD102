@@ -1,5 +1,6 @@
 #ifndef __EX1_H__
 #define __EX1_H__
+#include <stddef.h>  /*size_t*/
 
 long Pow2(unsigned int x, unsigned int y);
 int IsPow2Loop(unsigned int n);
