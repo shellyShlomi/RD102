@@ -130,6 +130,7 @@ static return_t Logger(const char *file_name, const char *buf)
 
 	return SUCCESS;
 }
+
 /*Remove the file*/
 static return_t Remove(const char *file_name, const char *buf)
 {
@@ -193,7 +194,7 @@ static return_t AddBeginig(const char *file_name, const char *buf)
 	}
 	fclose(temp_ptr);
 	
-	if(ERROR == rename(TEMP, file_name)) 
+	if(SUCCESS != rename(TEMP, file_name)) 
 	{
       return ERROR;
     } 
