@@ -30,7 +30,7 @@ void TestRotation()
 	return;
 }
 
-int IsRotation(char *str1, char *str2)
+int IsRotation(const char *str1,const char *str2)
 {	
 	size_t length_sub = 0;
 	size_t length1 = 0;
@@ -62,8 +62,7 @@ int IsRotation(char *str1, char *str2)
 	}
 	
 	sub_string = strchr(str2 , str1[length1 - 1]) + 1;
-	length_sub = strlen(sub_string); 
-	
+
 	if (NULL == sub_string)
 	{	
 		printf("NOT a Rotation\n");
@@ -71,6 +70,8 @@ int IsRotation(char *str1, char *str2)
 		
 		return 0;
 	}
+	
+	length_sub = strlen(sub_string); 
 	
 	first_comp = strncmp( sub_string, str1, length_sub );
 	second_comp = strncmp( str2, (str1 + length_sub), (length1 - length_sub) );
