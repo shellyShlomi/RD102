@@ -255,12 +255,19 @@ static void PrintString(const element_t *val)
 static int AddToAll(element_t *element_arr, size_t size, int to_add)
 {
 	size_t i = 0;
+	int fale = -1;
 	
 	assert(element_arr);
 	
 	for (i = 0 ;i < size; ++i)	
 	{
-		element_arr[i].add(element_arr + i, to_add);
+		fale = element_arr[i].add(element_arr + i, to_add);
+		
+		if (!fale)
+		{
+			/* CleanAll(); */
+
+		}
 	}
 	return 1;
 }
@@ -289,8 +296,27 @@ static int AddToFloat(element_t *val, int to_add)
 }
 static int AddToString(element_t *val, int to_add)
 {
+	size_t i = 0;
+	size_t lengt = 0;
+	int addition = to_add;
 	
-		
+	assert(val);
+  	
+  	lengt = strlen(val->data);
+  	
+  	(0 > addition) ? ++i : 0 ;
+  	
+  	while(0 != to_add)
+  	{
+  		to_add /= 10;
+  		++i; 
+  	}
+
+  	val->data = realloc(val->data,lengt + 1 + i);
+   	
+   
+    sprintf((char *)(val->data) + lengt, "%d", addition);
+
 	return 0;
 }
 
