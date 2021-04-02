@@ -109,7 +109,7 @@ static int InitAll(element_t *element_arr, size_t size)
 	int location = INT_ELEMENT + FLOAT_ELEMENT;	
 	int fail = 0;
 	
-	assert(element_arr);
+	assert(NULL != element_arr);
 	
 	InitInt(element_arr, INT_ELEMENT);
 	InitFloat(element_arr + INT_ELEMENT, FLOAT_ELEMENT);
@@ -128,7 +128,7 @@ static void InitInt(element_t *element_arr, size_t ele_num)
 	size_t i = 0;
 	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 8, 0, 53};
 
-	assert(element_arr);
+	assert(NULL != element_arr);
 
 	for (i = 0; i < ele_num; ++i)
 	{
@@ -147,7 +147,7 @@ static void InitFloat(element_t *element_arr, size_t ele_num)
 	size_t i = 0;
 	static float float_arr[] = {5.03, 3.88, 9.93, 8.93, 53.66, 8.02};
 	
-	assert(element_arr);
+	assert(NULL != element_arr);
 	
 	for(i = 0 ; i < ele_num; ++i)
 	{
@@ -166,7 +166,7 @@ static int InitString(element_t *element_arr, size_t size, size_t to_add)
 	char *heap = NULL;
 	char *str[] = {"Hello", "Shelly", "Shelly Shlomi", "Shlomi", "Hi"};
 
-	assert(element_arr);
+	assert(NULL != element_arr);
 	
 	for(i = 0 ; i < size ; ++i)
 	{	
@@ -193,7 +193,7 @@ static void PrintAll(element_t *element_arr, size_t size)
 {
 	size_t i = 0;
 	
-	assert(element_arr);
+	assert(NULL != element_arr);
 	
 	for (i = 0 ;i < size; ++i)	
 	{
@@ -205,7 +205,7 @@ static void PrintAll(element_t *element_arr, size_t size)
 
 static void PrintInt(const element_t *val)
 {
-	assert(val);
+	assert(NULL != val);
 	
 	printf("%d\n", *(int *)val->data);
 	
@@ -213,7 +213,7 @@ static void PrintInt(const element_t *val)
 }
 static void PrintFloat(const element_t *val)
 {
-	assert(val);
+	assert(NULL != val);
 	
 	printf("%.2f\n", *(float *)val->data);
 	
@@ -221,7 +221,7 @@ static void PrintFloat(const element_t *val)
 }
 static void PrintString(const element_t *val)
 {
-	assert(val);
+	assert(NULL != val);
 	
 	printf("%s\n", (char *)val->data);
 	
@@ -234,7 +234,7 @@ static int AddToAll(element_t *element_arr, size_t size, int to_add)
 	size_t i = 0;
 	int fale = 0;
 	
-	assert(element_arr);
+	assert(NULL != element_arr);
 	
 	for (i = 0 ;i < size; ++i)	
 	{
@@ -254,7 +254,7 @@ static int AddToInt(element_t *val, int to_add)
 {
 	int *int_addition = NULL;
 
-	assert(val);
+	assert(NULL != val);
 
 	int_addition = (int *)val->data;
 	*int_addition  += to_add;
@@ -265,7 +265,7 @@ static int AddToFloat(element_t *val, int to_add)
 {	
 	float *float_addition = NULL;
 
-	assert(val);
+	assert(NULL != val);
 
 	float_addition = (float *)val->data;
 	*float_addition  += to_add;
@@ -279,7 +279,7 @@ static int AddToString(element_t *val, int to_add)
 	int addition = to_add;
 	int fale = 0;
 	
-	assert(val);
+	assert(NULL != val);
   	
   	lengt = strlen((char *)val->data);
   	
@@ -312,7 +312,7 @@ static void CleanAll(element_t *element_arr, size_t size, size_t to_add)
 {
 	size_t i = 0;
 	
-	assert(element_arr);
+	assert(NULL != element_arr);
 	
 	for (i = size - 1 ;i > 0; --i)	
 	{
@@ -326,7 +326,7 @@ static void CleanHeap(element_t *val, size_t to_add)
 {
 	UNUSED(to_add);
 
-	assert(val);
+	assert(NULL != val);
 
 	free(((char *)val->data));
 	val->data = NULL;
@@ -336,7 +336,7 @@ static void CleanHeap(element_t *val, size_t to_add)
 
 static void CleanFloatAndInt(element_t *val, size_t to_add)
 {
-	assert(val);
+	assert(NULL != val);
 
 	val->add(val, -to_add);
 
