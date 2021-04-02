@@ -106,14 +106,14 @@ void Manage()
 static int InitAll(element_t *element_arr, size_t size)
 {
 
-	int element = INT_ELEMENT + FLOAT_ELEMENT;
+	int elements = INT_ELEMENT + FLOAT_ELEMENT;
 	int fail = 0;
 
 	assert(NULL != element_arr);
 
 	InitInt(element_arr, INT_ELEMENT);
 	InitFloat(element_arr + INT_ELEMENT, FLOAT_ELEMENT);
-	fail = InitString(element_arr + element, size - element);
+	fail = InitString(element_arr + elements, size - element);
 
 	if (fail)
 	{
