@@ -102,7 +102,7 @@ void Manage()
 /*  initalation funcs definition */
 
 /*  InitAll ***USES #define*** the minimal size for arrays **HAS** to be	*/ 
-/*	at least as the #define size											*/
+/*	at least as the #define size of the equivalent type						*/
 static int InitAll(element_t *element_arr, size_t size)
 {
 
