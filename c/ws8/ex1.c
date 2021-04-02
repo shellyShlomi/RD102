@@ -337,7 +337,7 @@ static void CleanHeap(element_t *val)
 	return;
 }
 
-/*  */static void CleanNothing(element_t *val)
+static void CleanNothing(element_t *val)
 {
 	UNUSED(val);
 	
