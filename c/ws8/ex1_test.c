@@ -4,8 +4,8 @@
 
 int main()
 {
-	Manage(); /*can call multipul times and the vals stays the same*/
-	
+	Manage(); 
+
     return 0;
 }
 
