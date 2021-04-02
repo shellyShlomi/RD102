@@ -12,7 +12,7 @@
 
 #include "ex1.h" /*  the function declaration */
 
-#define SIZE 20
+#define SIZE 20 
 
 /* num of elements in the data arr USED IN INITALL */
 #define INT_ELEMENT 10
@@ -100,7 +100,9 @@ void Manage()
 }
 
 /*  initalation funcs definition */
-/*  InitAll ***USES define*** */
+
+/*  InitAll ***USES #define*** the minimal size for arrays **HAS** to be	*/ 
+/*	at least as the #define size											*/
 static int InitAll(element_t *element_arr, size_t size)
 {
 
@@ -205,7 +207,7 @@ static void PrintInt(const element_t *val)
 {
 	assert(NULL != val);
 
-	printf("%d\n", *(int *)val->data);
+	printf("Int is:  %d\n", *(int *)val->data);
 
 	return;
 }
@@ -214,7 +216,7 @@ static void PrintFloat(const element_t *val)
 {
 	assert(NULL != val);
 
-	printf("%.2f\n", *(float *)val->data);
+	printf("Float is:  %.2f\n", *(float *)val->data);
 
 	return;
 }
@@ -223,7 +225,7 @@ static void PrintString(const element_t *val)
 {
 	assert(NULL != val);
 
-	printf("%s\n", (char *)val->data);
+	printf("String is:  %s\n", (char *)val->data);
 
 	return;
 }
