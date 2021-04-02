@@ -132,10 +132,10 @@ static void InitInt(element_t *element_arr, size_t ele_num)
 
 	for (i = 0; i < ele_num; ++i)
 	{
-		element_arr[i].data = (void *)(int_arr + i);
-		element_arr[i].add = AddToInt;
-		element_arr[i].print = PrintInt;
-		element_arr[i].clean = CleanFloatAndInt;
+		(element_arr + i)->data = (void *)(int_arr + i);
+		(element_arr + i)->add = AddToInt;
+		(element_arr + i)->print = PrintInt;
+		(element_arr + i)->clean = CleanFloatAndInt;
 	}
 
 	return ;
@@ -151,10 +151,10 @@ static void InitFloat(element_t *element_arr, size_t ele_num)
 	
 	for(i = 0 ; i < ele_num; ++i)
 	{
-		element_arr[i].data = (void *)(float_arr + i);
-		element_arr[i].add = AddToFloat;
-		element_arr[i].print = PrintFloat;
-		element_arr[i].clean = CleanFloatAndInt;	
+		(element_arr + i)->data = (void *)(float_arr + i);
+		(element_arr + i)->add = AddToFloat;
+		(element_arr + i)->print = PrintFloat;
+		(element_arr + i)->clean = CleanFloatAndInt;	
 	}
 	
 	return ;
@@ -179,10 +179,10 @@ static int InitString(element_t *element_arr, size_t size, size_t to_add)
 		}
 		
 		strcpy(heap, str[i]);
-		element_arr[i].data = (void *)heap;
-		element_arr[i].add = AddToString;
-		element_arr[i].print = PrintString;
-		element_arr[i].clean = CleanHeap;
+		(element_arr + i)->data = (void *)heap;
+		(element_arr + i)->add = AddToString;
+		(element_arr + i)->print = PrintString;
+		(element_arr + i)->clean = CleanHeap;
 	}
 	
 	return SUCCESS;
@@ -197,7 +197,7 @@ static void PrintAll(element_t *element_arr, size_t size)
 	
 	for (i = 0 ;i < size; ++i)	
 	{
-		element_arr[i].print(element_arr + i);
+		(element_arr + i)->print(element_arr + i);
 	}
 		
 	return ;
@@ -238,7 +238,7 @@ static int AddToAll(element_t *element_arr, size_t size, int to_add)
 	
 	for (i = 0 ;i < size; ++i)	
 	{
-		fale = element_arr[i].add(element_arr + i, to_add);
+		fale = (element_arr + i)->add(element_arr + i, to_add);
 		
 		if (fale)
 		{	
@@ -316,7 +316,7 @@ static void CleanAll(element_t *element_arr, size_t size, size_t to_add)
 	
 	for (i = size - 1 ;i > 0; --i)	
 	{
-		element_arr[i].clean((element_arr + i), to_add);
+		(element_arr + i)->clean((element_arr + i), to_add);
 	}
 
 	return ;
