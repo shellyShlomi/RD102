@@ -36,12 +36,11 @@ struct element
 	clean_t clean;
 };
 
-typedef enum 
+enum return_val
 {
 	SUCCESS,
 	ERROR
-	
-}return_val_t;
+};
 
 /* callee funcs of Manage*/
 static int InitAll(element_t *element_arr, size_t size);
