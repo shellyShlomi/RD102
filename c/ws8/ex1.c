@@ -49,9 +49,9 @@ static void PrintAll(element_t *element_arr, size_t size);
 static void CleanAll(element_t *element_arr, size_t size);
 
 /*initalation funcs*/
-static void InitInt(element_t *element_arr, int *int_arr);
-static void InitFloat(element_t *element_arr, float *float_arr);
-static int InitString(element_t *element_arr, char **str, size_t size);
+static void InitInt(element_t *element_arr, size_t ele_num);
+static void InitFloat(element_t *element_arr, size_t ele_num);
+static int InitString(element_t *element_arr, size_t size);
 
 /*struct iner funcs addition funcs*/
 static int AddToInt(element_t *val, int to_add);
@@ -101,23 +101,18 @@ void Manage()
 	return ;	
 }
 
-/* initalation funcs definition 			*/
-/* InitAll manage the data for the program	*/
+/* initalation funcs definition */
 static int InitAll(element_t *element_arr, size_t size)
 {	
-	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 8, 0, 53};
-	static float float_arr[] = {5.03, 3.88, 9.93, 8.93, 53.66};
-	char *local[] = {"Hello", "Shelly", "Shelly Shlomi", "Shlomi", "Hi"};
+
 	int location = INT_ELEMENT + FLOAT_ELEMENT;	
 	int fail = 0;
 	
 	assert(element_arr);
 	
-	InitInt(element_arr, int_arr);
-
-	InitFloat(element_arr + INT_ELEMENT, float_arr);
-	
-	fail = InitString(element_arr + location, local, size - location);
+	InitInt(element_arr, INT_ELEMENT);
+	InitFloat(element_arr + INT_ELEMENT, FLOAT_ELEMENT);
+	fail = InitString(element_arr + location, size - location);
 
 	if (fail)
 	{
@@ -127,15 +122,14 @@ static int InitAll(element_t *element_arr, size_t size)
 	return SUCCESS;
 }
 
-/* use define */
-static void InitInt(element_t *element_arr, int *int_arr)
+static void InitInt(element_t *element_arr, size_t ele_num)
 {
 	size_t i = 0;
-	
+	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 8, 0, 53};
+
 	assert(element_arr);
-	assert(int_arr);
-	
-	for (i = 0; i < INT_ELEMENT; ++i)
+
+	for (i = 0; i < ele_num; ++i)
 	{
 		element_arr[i].data = (void *)(int_arr + i);
 		element_arr[i].add = AddToInt;
@@ -146,15 +140,15 @@ static void InitInt(element_t *element_arr, int *int_arr)
 	return ;
 }
 
-/* use define */
-static void InitFloat(element_t *element_arr, float *float_arr)
+
+static void InitFloat(element_t *element_arr, size_t ele_num)
 {
 	size_t i = 0;
+	static float float_arr[] = {5.03, 3.88, 9.93, 8.93, 53.66};
 	
 	assert(element_arr);
-	assert(float_arr);
 	
-	for(i = 0 ; i < FLOAT_ELEMENT; ++i)
+	for(i = 0 ; i < ele_num; ++i)
 	{
 		element_arr[i].data = (void *)(float_arr + i);
 		element_arr[i].add = AddToFloat;
@@ -165,13 +159,13 @@ static void InitFloat(element_t *element_arr, float *float_arr)
 	return ;
 }
 
-static int InitString(element_t *element_arr, char **str, size_t size)
+static int InitString(element_t *element_arr, size_t size)
 {
 	size_t i = 0;
 	char *heap = NULL;
-	
+	char *str[] = {"Hello", "Shelly", "Shelly Shlomi", "Shlomi", "Hi"};
+
 	assert(element_arr);
-	assert(str);
 	
 	for(i = 0 ; i < size ; ++i)
 	{	
@@ -248,6 +242,7 @@ static int AddToAll(element_t *element_arr, size_t size, int to_add)
 		if (fale)
 		{	
 			CleanAll(element_arr, size);
+			
 			return ERROR;			
 		}
 	}
@@ -307,6 +302,7 @@ static int AddToString(element_t *val, int to_add)
 	{
 		return ERROR;
 	}
+	
 	return SUCCESS;
 }
 
