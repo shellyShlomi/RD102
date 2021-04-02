@@ -102,6 +102,7 @@ void Manage()
 }
 
 /* initalation funcs definition */
+/* InitAll ***USES define*** */
 static int InitAll(element_t *element_arr, size_t size)
 {	
 
