@@ -2,6 +2,7 @@
 /* Developer: Shelly Shlomi;									*/
 /* Status: in development;										*/
 /* Date Of Creation:31.03.21;									*/
+/* Date Of Creation:02.04.21;									*/
 /* Date Of Approval: --.--.--;									*/
 /* Description: print array of struct befor and after addtion;	*/
 
@@ -19,31 +20,32 @@
 #define FLOAT_ELEMENT 5
 #define STR_ELEMENT 5 
 #define TO_ADD 10
-
+#define UNUSED(x) (void)(x)
 
 typedef struct element element_t;
+
+typedef void (*print_t)(const element_t *data);
+typedef int (*add_t)(element_t *data, int to_add);
+typedef void (*clean_t)(element_t *data);
 
 struct element 
 {
 	void *data;
-	int (*add)(element_t *data, int to_add);
-	void (*print)(const element_t *data);
-	void (*clean)(element_t *data);
-
+	add_t add;
+	print_t print;
+	clean_t clean;
 };
 
 /* callee funcs of Manage*/
-static int InitAll(element_t *element_arr, size_t size_global_arr);
+static int InitAll(element_t *element_arr, size_t size_glob_arr);
 static int AddToAll(element_t *element_arr, size_t size, int to_add);
-static int PrintAll(element_t *element_arr, size_t size);
-static int CleanAll(element_t *element_arr, size_t size);
+static void PrintAll(element_t *element_arr, size_t size);
+static void CleanAll(element_t *element_arr, size_t size);
 
 /*initalation funcs*/
-static void InitInt(element_t *element_arr, size_t size_global_arr,
-			int *int_arr, size_t size_int_arr);
+static void InitInt(element_t *element_arr, size_t size, int *int_arr);
 
-static void InitFloat(element_t *element_arr, size_t size_global_arr,
-			float *float_arr, size_t size_float_arr);
+static void InitFloat(element_t *element_arr, size_t size, float *float_arr);
 
 static void InitString(element_t *element_arr, char *str);
 
@@ -58,20 +60,14 @@ static void PrintFloat(const element_t *val);
 static void PrintString(const element_t *val);
 
 /*struct iner clean funcs*/
-/*static void CleanNothing(element_t *val);
-static void CleanHeap(element_t *val);*/
+static void CleanNothing(element_t *val);
+static void CleanHeap(element_t *val);
 
-
-
-/*struct iner clean funcs*/
-static void CleanNothing(element_t *val)
-{
-printf("CleanNothing\n");
-}
-static void CleanHeap(element_t *val)
-{
-printf("CleanHeap\n");
-}
+/* INER funcs */
+/* counter func */
+static int CountChrInNum(int to_add);
+/* String Data func */
+static int StringData(element_t *element_arr, size_t size);
 
 
 void Manage()
@@ -97,26 +93,38 @@ void Manage()
 	
 	PrintAll(element_arr, SIZE);
 	
+	CleanAll(element_arr, SIZE);
 		
 	return ;	
 }
 /* initalation funcs definition */
-/* InitAll manage all the data for the program */
-static int InitAll(element_t *element_arr, size_t size_global_arr)
+/* InitAll manage the data of ints & floats for the program */
+static int InitAll(element_t *element_arr, size_t size_glob_arr)
 {	
-	size_t size_float_arr = 0;
-	size_t size_int_arr = 0;
-	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 6, 8, 3, 7};
-	static float float_arr[] = {5.03, 3.88, 9.93, -2.86, 4.00, 1.92, 10.86};
-	int element_location = INT_ELEMENT + FLOAT_ELEMENT;
+	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 8, 0, 53};
+	static float float_arr[] = {5.03, 3.88, 9.93, 8.93, 53.66};
 	
+	assert(element_arr);
+	
+	InitInt(element_arr, size_glob_arr, int_arr);
+
+	InitFloat(element_arr + INT_ELEMENT, size_glob_arr, float_arr);
+	StringData(element_arr, size_glob_arr);
+
+	
+	return 1;
+}
+/*StringData func iner func*/
+static int StringData(element_t *element_arr, size_t size)
+{
+	int element_location = INT_ELEMENT + FLOAT_ELEMENT;	
 	/*string to copy from it*/
 	char local0[] = "Hello";
 	char local1[] = "Shelly";
 	char local2[] = "Shelly Shlomi";
 	char local3[] = "Shlomi";
 	char local4[] = "Hi";
-	
+	/*{ "Shelly", "Shelly Shlomi", "Shlomi", "Hi"};*/
 	/*malloc to copy to it from local str*/
 	char *str0 = (char *)malloc(strlen(local0) + 1);
 	char *str1 = (char *)malloc(strlen(local1) + 1);
@@ -124,15 +132,9 @@ static int InitAll(element_t *element_arr, size_t size_global_arr)
 	char *str3 = (char *)malloc(strlen(local3) + 1);
 	char *str4 = (char *)malloc(strlen(local4) + 1);
 	
-		
-	assert(element_arr);
-	
-	size_int_arr = sizeof(int_arr) / (sizeof(int_arr[0]));
-	size_float_arr = sizeof(float_arr) / (sizeof(float_arr[0]));
-	
-
 	if (!str0 || !str1 || !str2 || !str3 || !str4) 
-	{
+	{	
+		CleanAll(element_arr, size);
 		return 0;
 	}
 	
@@ -141,33 +143,24 @@ static int InitAll(element_t *element_arr, size_t size_global_arr)
 	strcpy(str2, local2);
 	strcpy(str3, local3);
 	strcpy(str4, local4);
-
 	
-	InitInt(element_arr, size_global_arr, int_arr, size_int_arr);
-	
-	InitFloat(element_arr + INT_ELEMENT, size_global_arr, float_arr,
-																size_float_arr);
-	
-	InitString(element_arr +element_location, str0);
+	InitString(element_arr + element_location, str0);
 	InitString(element_arr + element_location + 1, str1);	
 	InitString(element_arr + element_location + 2, str2);
 	InitString(element_arr + element_location + 3, str3);
 	InitString(element_arr + element_location + 4, str4);
 	
 	return 1;
+	
 }
-
-
-
-static void InitInt(element_t *element_arr, size_t size_global_arr,
-	int int_arr[], size_t size_int_arr)
+static void InitInt(element_t *element_arr, size_t size, int *int_arr)
 {
 	size_t i = 0;
 	
 	assert(element_arr);
 	assert(int_arr);
 	
-	for(i = 0; i < INT_ELEMENT && i < size_global_arr && i < size_int_arr; ++i)
+	for(i = 0; i < INT_ELEMENT && INT_ELEMENT < size; ++i)
 	{
 		element_arr[i].data = (void *)(int_arr + i);
 		element_arr[i].add = AddToInt;
@@ -177,16 +170,14 @@ static void InitInt(element_t *element_arr, size_t size_global_arr,
 
 	return ;
 }
-static void InitFloat(element_t *element_arr, size_t size_global_arr,
-										float float_arr[], size_t size_float_arr)
+static void InitFloat(element_t *element_arr, size_t size, float *float_arr)
 {
 	size_t i = 0;
-
+	
 	assert(element_arr);
 	assert(float_arr);
 	
-	for(i = 0 ; i < FLOAT_ELEMENT && i < size_global_arr && i < size_float_arr;
-																			 ++i)
+	for(i = 0 ; i < FLOAT_ELEMENT && FLOAT_ELEMENT < size ; ++i)
 	{
 		element_arr[i].data = (void *)(float_arr + i);
 		element_arr[i].add = AddToFloat;
@@ -212,7 +203,7 @@ static void InitString(element_t *element_arr, char *str)
 	return ;
 }
 /*Print funcs definition*/
-static int PrintAll(element_t *element_arr, size_t size)
+static void PrintAll(element_t *element_arr, size_t size)
 {
 	size_t i = 0;
 	
@@ -223,7 +214,7 @@ static int PrintAll(element_t *element_arr, size_t size)
 		element_arr[i].print(element_arr + i);
 	}
 		
-	return 0;
+	return ;
 }
 
 static void PrintInt(const element_t *val)
@@ -255,7 +246,7 @@ static void PrintString(const element_t *val)
 static int AddToAll(element_t *element_arr, size_t size, int to_add)
 {
 	size_t i = 0;
-	int fale = -1;
+	int fale = 0;
 	
 	assert(element_arr);
 	
@@ -263,10 +254,10 @@ static int AddToAll(element_t *element_arr, size_t size, int to_add)
 	{
 		fale = element_arr[i].add(element_arr + i, to_add);
 		
-		if (!fale)
-		{
-			/* CleanAll(); */
-
+		if (fale)
+		{	
+			CleanAll(element_arr, size);
+			return 1;			
 		}
 	}
 	return 1;
@@ -296,28 +287,80 @@ static int AddToFloat(element_t *val, int to_add)
 }
 static int AddToString(element_t *val, int to_add)
 {
-	size_t i = 0;
+	size_t i = 1;
 	size_t lengt = 0;
 	int addition = to_add;
+	int fale = 0;
 	
 	assert(val);
   	
-  	lengt = strlen(val->data);
+  	lengt = strlen((char *)val->data);
   	
-  	(0 > addition) ? ++i : 0 ;
-  	
-  	while(0 != to_add)
+  	if (0 > to_add)
+	{
+		++i;
+	}
+	
+	i += CountChrInNum(to_add);
+	
+  	val->data = realloc(val->data, lengt + i);
+	
+	if (!val->data)
+	{
+		return 1;
+	}	
+	
+	fale = sprintf((char *)(val->data) + lengt, "%d", addition);
+	
+	if (0 > fale)
+	{
+		return 1;
+	}
+	return 0;
+}
+
+/*struct iner clean funcs*/
+static void CleanAll(element_t *element_arr, size_t size)
+{
+	size_t i = 0;
+	
+	assert(element_arr);
+	
+	for (i = 0 ;i < size; ++i)	
+	{
+		element_arr[i].clean(element_arr + i);
+	}
+
+	return ;
+}
+
+static void CleanHeap(element_t *val)
+{
+	assert(val);
+	
+	free(((char *)val->data));
+	val->data = NULL;
+	
+	return ;
+}
+
+static void CleanNothing(element_t *val)
+{
+	UNUSED(val);
+	return ;
+}
+
+
+/*counter func iner func*/
+static int CountChrInNum(int to_add)
+{
+	size_t i = 0;
+	
+	while(0 != to_add)
   	{
   		to_add /= 10;
   		++i; 
   	}
-
-  	val->data = realloc(val->data,lengt + 1 + i);
-   	
-   
-    sprintf((char *)(val->data) + lengt, "%d", addition);
-
-	return 0;
+  	
+  	return i;
 }
-
-/*sprintf*/
