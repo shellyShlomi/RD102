@@ -26,7 +26,7 @@ typedef struct element element_t;
 
 typedef void (*print_t)(const element_t *data);
 typedef int (*add_t)(element_t *data, int to_add);
-typedef void (*clean_t)(element_t *data);
+typedef void (*clean_t)(element_t *val, size_t to_add);
 
 struct element 
 {
@@ -35,6 +35,7 @@ struct element
 	print_t print;
 	clean_t clean;
 };
+
 typedef enum 
 {
 	SUCCESS,
@@ -46,12 +47,12 @@ typedef enum
 static int InitAll(element_t *element_arr, size_t size);
 static int AddToAll(element_t *element_arr, size_t size, int to_add);
 static void PrintAll(element_t *element_arr, size_t size);
-static void CleanAll(element_t *element_arr, size_t size);
+static void CleanAll(element_t *element_arr, size_t size, size_t to_add);
 
 /*initalation funcs*/
 static void InitInt(element_t *element_arr, size_t ele_num);
 static void InitFloat(element_t *element_arr, size_t ele_num);
-static int InitString(element_t *element_arr, size_t size);
+static int InitString(element_t *element_arr, size_t size, size_t to_add);
 
 /*struct iner funcs addition funcs*/
 static int AddToInt(element_t *val, int to_add);
@@ -64,8 +65,8 @@ static void PrintFloat(const element_t *val);
 static void PrintString(const element_t *val);
 
 /*struct iner clean funcs*/
-static void CleanNothing(element_t *val);
-static void CleanHeap(element_t *val);
+static void CleanFloatAndInt(element_t *val, size_t to_add);
+static void CleanHeap(element_t *val, size_t to_add);
 
 /* INER funcs */
 /* counter func */
@@ -96,7 +97,7 @@ void Manage()
 	
 	PrintAll(element_arr, SIZE);
 	
-	CleanAll(element_arr, SIZE);
+	CleanAll(element_arr, SIZE, TO_ADD);
 		
 	return ;	
 }
@@ -113,7 +114,7 @@ static int InitAll(element_t *element_arr, size_t size)
 	
 	InitInt(element_arr, INT_ELEMENT);
 	InitFloat(element_arr + INT_ELEMENT, FLOAT_ELEMENT);
-	fail = InitString(element_arr + location, size - location);
+	fail = InitString(element_arr + location, size - location, TO_ADD);
 
 	if (fail)
 	{
@@ -135,7 +136,7 @@ static void InitInt(element_t *element_arr, size_t ele_num)
 		element_arr[i].data = (void *)(int_arr + i);
 		element_arr[i].add = AddToInt;
 		element_arr[i].print = PrintInt;
-		element_arr[i].clean = CleanNothing;
+		element_arr[i].clean = CleanFloatAndInt;
 	}
 
 	return ;
@@ -145,7 +146,7 @@ static void InitInt(element_t *element_arr, size_t ele_num)
 static void InitFloat(element_t *element_arr, size_t ele_num)
 {
 	size_t i = 0;
-	static float float_arr[] = {5.03, 3.88, 9.93, 8.93, 53.66};
+	static float float_arr[] = {5.03, 3.88, 9.93, 8.93, 53.66, 8.02};
 	
 	assert(element_arr);
 	
@@ -154,13 +155,13 @@ static void InitFloat(element_t *element_arr, size_t ele_num)
 		element_arr[i].data = (void *)(float_arr + i);
 		element_arr[i].add = AddToFloat;
 		element_arr[i].print = PrintFloat;
-		element_arr[i].clean = CleanNothing;	
+		element_arr[i].clean = CleanFloatAndInt;	
 	}
 	
 	return ;
 }
 
-static int InitString(element_t *element_arr, size_t size)
+static int InitString(element_t *element_arr, size_t size, size_t to_add)
 {
 	size_t i = 0;
 	char *heap = NULL;
@@ -174,7 +175,7 @@ static int InitString(element_t *element_arr, size_t size)
 		
 		if (!heap) 
 		{	
-			CleanAll(element_arr, size);
+			CleanAll(element_arr, SIZE, to_add);
 			return ERROR;
 		}
 		
@@ -242,7 +243,7 @@ static int AddToAll(element_t *element_arr, size_t size, int to_add)
 		
 		if (fale)
 		{	
-			CleanAll(element_arr, size);
+			CleanAll(element_arr, size, to_add);
 			
 			return ERROR;			
 		}
@@ -308,36 +309,40 @@ static int AddToString(element_t *val, int to_add)
 }
 
 /*struct iner clean funcs*/
-static void CleanAll(element_t *element_arr, size_t size)
+static void CleanAll(element_t *element_arr, size_t size, size_t to_add)
 {
 	size_t i = 0;
 	
 	assert(element_arr);
 	
-	for (i = 0 ;i < size; ++i)	
+	for (i = size - 1 ;i > 0; --i)	
 	{
-		element_arr[i].clean(element_arr + i);
+		element_arr[i].clean((element_arr + i), to_add);
 	}
 
 	return ;
 }
 
-static void CleanHeap(element_t *val)
+static void CleanHeap(element_t *val, size_t to_add)
 {
+	UNUSED(to_add);
+
 	assert(val);
-	
+
 	free(((char *)val->data));
 	val->data = NULL;
 	
 	return ;
 }
 
-static void CleanNothing(element_t *val)
+static void CleanFloatAndInt(element_t *val, size_t to_add)
 {
-	UNUSED(val);
+	assert(val);
+
+	val->add(val, -to_add);
+
 	return ;
 }
-
 
 /*counter func iner func*/
 static int CountChrInNum(int to_add)
