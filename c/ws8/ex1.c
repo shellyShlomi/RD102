@@ -133,7 +133,7 @@ static void InitInt(element_t *element_arr, size_t ele_num)
 		(element_arr + i)->data = (void *)(int_arr + i);
 		(element_arr + i)->add = AddToInt;
 		(element_arr + i)->print = PrintInt;
-		(element_arr + i)->clean = CleanFloatAndInt;
+		(element_arr + i)->clean = CleanNothing;
 	}
 
 	return;
@@ -151,7 +151,7 @@ static void InitFloat(element_t *element_arr, size_t ele_num)
 		(element_arr + i)->data = (void *)(float_arr + i);
 		(element_arr + i)->add = AddToFloat;
 		(element_arr + i)->print = PrintFloat;
-		(element_arr + i)->clean = CleanFloatAndInt;
+		(element_arr + i)->clean = CleanNothing;
 	}
 
 	return;
@@ -167,7 +167,7 @@ static int InitString(element_t *element_arr, size_t size)
 
 	for (i = 0; i < size; ++i)
 	{
-		heap = (char *)malloc(strlen(str[i]) + 1);
+		heap = (char *)malloc(strlen(*(str + i)) + 1);
 
 		if (!heap)
 		{
