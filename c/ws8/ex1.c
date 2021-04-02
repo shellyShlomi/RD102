@@ -2,7 +2,7 @@
 /*  Status: in development;										*/
 /*  Date Of Creation:31.03.21;									*/
 /*  Date Of Approval: 02.04.21;									*/
-/*  Approved By: ROMAN;									*/
+/*  Approved By: ROMAN;											*/
 /*  Description: print array of struct befor and after addtion;	*/
 
 #include <stdio.h>		/*	print	*/
