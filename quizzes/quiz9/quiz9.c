@@ -1,5 +1,5 @@
 /*	Developer: Shelly Shlomi;		*/
-/*	Status: Done ;					*/   
+/*	Status: Done;					*/   
 /*	Description: MAX SUB ARR		*/
 
 #include <stdio.h>	/*	printf	*/
@@ -58,6 +58,7 @@ void Test()
     int arr1[]= {-2, 1, -3, 4, -1, 2, 3, -5, 4};
 	int arr2[] = {-1, -2, -4, 0, -5, -6, -2, -5};
 	int arr3[] = {10, -2, -4, -4, -5, -6, -2, -5};
+	int arr4[] = {10, -2, -4, 0, -5, -6, -2, 100};
 	
 	size_t i = 0;
 	size_t start = 0;
@@ -121,6 +122,21 @@ void Test()
     printf("\n");
 	
 	printf("The bast max is: %d\n", maxSubArray(arr3 , size, &start, &end));
+	printf("the first index is: %lu\n", start);
+	printf("the secound index is: %lu\n\n",  end);
+	
+	size = sizeof(arr4) / sizeof(int);
+		
+	printf("for tha array :");
+    
+    for(i = 0; i < size; ++i)
+    {
+    	printf("%d ", arr4[i]);
+    }
+    
+    printf("\n");
+	
+	printf("The bast max is: %d\n", maxSubArray(arr4 , size, &start, &end));
 	printf("the first index is: %lu\n", start);
 	printf("the secound index is: %lu\n\n",  end);
 		
