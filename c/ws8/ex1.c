@@ -10,7 +10,7 @@
 #include <string.h>		/*	strcpy	*/
 #include <stdlib.h>		/*	malloc	*/
 
-#include "ex1.h" /*  the function declaration */
+#include "ex1.h" /* the function declaration */
 
 #define SIZE 20 
 
@@ -138,10 +138,10 @@ static void InitInt(element_t *element_arr, size_t ele_num)
 		(element_arr + i)->print = PrintInt;
 		(element_arr + i)->clean = CleanNothing;
 	}
-	
+		/*illustrate smaller num the the define*/
 		(element_arr + i)->data = (void *)(int_arr + i);
 		(element_arr + i)->add = AddToInt;
-		(element_arr + i)->print = PrintJank;
+		(element_arr + i)->print = PrintJank;     
 		(element_arr + i)->clean = CleanNothing;
 	
 	return;
