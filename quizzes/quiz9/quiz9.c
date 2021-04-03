@@ -1,5 +1,5 @@
 /*	Developer: Shelly Shlomi;		*/
-/*	Status: Done;					*/   
+/*	Status: Done;					*/
 /*	Description: MAX SUB ARR		*/
 
 #include <stdio.h>	/*	printf	*/
