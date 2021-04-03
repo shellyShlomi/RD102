@@ -46,7 +46,7 @@ enum return_val
 static int InitAll(element_t *element_arr, size_t size);
 static int AddToAll(element_t *element_arr, size_t size, int to_add);
 static void PrintAll(element_t *element_arr, size_t size);
-static void CleanAll(element_t *element_arr, size_t size);
+static void CleanAll(element_t *element_arr, size_t size, size_t delta);
 
 /* initalation funcs */
 static void InitInt(element_t *element_arr, size_t ele_num);
@@ -62,7 +62,7 @@ static int AddToString(element_t *val, int to_add);
 static void PrintInt(const element_t *val);
 static void PrintFloat(const element_t *val);
 static void PrintString(const element_t *val);
-
+static void PrintJank(const element_t *val);
 /* struct iner clean funcs */
 static void CleanNothing(element_t *val);
 static void CleanHeap(element_t *val);
@@ -94,7 +94,7 @@ void Manage()
 
 	PrintAll(element_arr, SIZE);
 
-	CleanAll(element_arr, SIZE);
+	CleanAll(element_arr, SIZE , 0);
 
 	return;
 }
@@ -102,7 +102,8 @@ void Manage()
 /*  initalation funcs definition */
 
 /*  InitAll ***USES #define*** the minimal size for arrays **HAS** to be	*/ 
-/*	at least as the #define size of the equivalent type						*/
+/*	at least as the #define size of the equivalent type,(espesialy in the	*/
+/*	str array)																*/
 static int InitAll(element_t *element_arr, size_t size)
 {
 
@@ -113,7 +114,7 @@ static int InitAll(element_t *element_arr, size_t size)
 
 	InitInt(element_arr, INT_ELEMENT);
 	InitFloat(element_arr + INT_ELEMENT, FLOAT_ELEMENT);
-	fail = InitString(element_arr + elements, size - element);
+	fail = InitString(element_arr + elements, size - elements);
 
 	if (fail)
 	{
@@ -125,19 +126,24 @@ static int InitAll(element_t *element_arr, size_t size)
 
 static void InitInt(element_t *element_arr, size_t ele_num)
 {
-	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 8, 0, 53};
+	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 8, 0};
 	size_t i = 0;
 
 	assert(NULL != element_arr);
 
-	for (i = 0; i < ele_num; ++i)
+	for (i = 0; i < ele_num - 1; ++i)
 	{
 		(element_arr + i)->data = (void *)(int_arr + i);
 		(element_arr + i)->add = AddToInt;
 		(element_arr + i)->print = PrintInt;
 		(element_arr + i)->clean = CleanNothing;
 	}
-
+	
+		(element_arr + i)->data = (void *)(int_arr + i);
+		(element_arr + i)->add = AddToInt;
+		(element_arr + i)->print = PrintJank;
+		(element_arr + i)->clean = CleanNothing;
+	
 	return;
 }
 
@@ -173,7 +179,7 @@ static int InitString(element_t *element_arr, size_t size)
 
 		if (!heap)
 		{
-			CleanAll(element_arr, SIZE);
+			CleanAll(element_arr, SIZE, size - i);
 			return ERROR;
 		}
 
@@ -212,6 +218,14 @@ static void PrintInt(const element_t *val)
 	return;
 }
 
+static void PrintJank(const element_t *val)
+{
+	assert(NULL != val);
+
+	printf("This Is Jank: %d\n", *(int *)val->data);
+
+	return;
+}
 static void PrintFloat(const element_t *val)
 {
 	assert(NULL != val);
@@ -230,6 +244,8 @@ static void PrintString(const element_t *val)
 	return;
 }
 
+
+
 /* Print funcs definition */
 static int AddToAll(element_t *element_arr, size_t size, int to_add)
 {
@@ -244,7 +260,7 @@ static int AddToAll(element_t *element_arr, size_t size, int to_add)
 
 		if (fale)
 		{
-			CleanAll(element_arr, size);
+			CleanAll(element_arr, size, size - i);
 
 			return ERROR;
 		}
@@ -312,13 +328,13 @@ static int AddToString(element_t *val, int to_add)
 }
 
 /* struct iner clean funcs */
-static void CleanAll(element_t *element_arr, size_t size)
+static void CleanAll(element_t *element_arr, size_t size, size_t delta)
 {
 	size_t i = 0;
 
 	assert(NULL != element_arr);
 
-	for (i = size - 1; i > 0; --i)
+	for (i = size - delta - 1; i > 0; --i)
 	{
 		(element_arr + i)->clean(element_arr + i);
 	}
