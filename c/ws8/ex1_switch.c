@@ -36,11 +36,27 @@ struct element
 	clean_t clean;
 };
 
+enum return_val
+{
+	SUCCESS,
+	ERROR
+};
+
+enum controler
+{
+	PRINT,
+	ADD
+};
 
 /* callee funcs of Manage */
 static int InitAll(element_t *element_arr, size_t size);
-static void PrintAll(element_t *element_arr, size_t size);
-static int AddToAll(element_t *element_arr, size_t size, int to_add);
+
+static void PrintAll(element_t *element_arr, size_t size ,int control);
+
+static int AddToAll(element_t *element_arr, size_t size, int to_add, 
+																int control);
+static int InvokeOper(element_t *element_arr, size_t size, int to_add,
+																int control);
 static void CleanAll(element_t *element_arr, size_t size, size_t delta);
 
 /* initalation funcs */
@@ -78,16 +94,16 @@ void Manage()
 		return;
 	}
 
-	PrintAll(element_arr, SIZE );
+	PrintAll(element_arr, SIZE , PRINT);
 
-	fail = AddToAll(element_arr, SIZE, TO_ADD);
+	fail = AddToAll(element_arr, SIZE, TO_ADD, ADD);
 
 	if (fail)
 	{
 		return;
 	}
 
-	PrintAll(element_arr, SIZE);
+	PrintAll(element_arr, SIZE, PRINT);
 
 	CleanAll(element_arr, SIZE , 0);
 
@@ -113,10 +129,10 @@ static int InitAll(element_t *element_arr, size_t size)
 
 	if (fail)
 	{
-		return EXIT_FAILURE;
+		return ERROR;
 	}
 
-	return EXIT_SUCCESS;
+	return SUCCESS;
 }
 
 static void InitInt(element_t *element_arr, size_t ele_num)
@@ -175,8 +191,7 @@ static int InitString(element_t *element_arr, size_t size)
 		if (!heap)
 		{
 			CleanAll(element_arr, SIZE, size - i);
-			
-			return EXIT_FAILURE;
+			return ERROR;
 		}
 
 		strcpy(heap, str[i]);
@@ -187,12 +202,22 @@ static int InitString(element_t *element_arr, size_t size)
 		(element_arr + i)->clean = CleanHeap;
 	}
 
-	return EXIT_SUCCESS;
+	return SUCCESS;
 }
 
 /* Print funcs definition */
 
-static void PrintAll(element_t *element_arr, size_t size)
+static void PrintAll(element_t *element_arr, size_t size ,int control)
+{	
+	
+	assert(NULL != element_arr);
+	
+	InvokeOper(element_arr, size, 0, control);
+	
+	return;
+}
+/*
+static int PrintAll(element_t *element_arr, size_t size)
 {
 	size_t i = 0;
 
@@ -203,8 +228,9 @@ static void PrintAll(element_t *element_arr, size_t size)
 		(element_arr + i)->print(element_arr + i);
 	}
 
-	return ;
+	return 0;
 }
+*/
 
 static void PrintInt(const element_t *val)
 {
@@ -244,7 +270,7 @@ static void PrintString(const element_t *val)
 
 
 
-/* Add funcs definition */
+/* Add funcs definition *//*
 static int AddToAll(element_t *element_arr, size_t size, int to_add)
 {
 	size_t i = 0;
@@ -260,10 +286,69 @@ static int AddToAll(element_t *element_arr, size_t size, int to_add)
 		{
 			CleanAll(element_arr, size, 0);
 
-			return EXIT_FAILURE;
+			return ERROR;
 		}
 	}
-	return EXIT_SUCCESS;
+	return SUCCESS;
+}
+*/
+static int AddToAll(element_t *element_arr, size_t size, int to_add, 
+																int control)
+{
+	int fail = 0;
+	
+	assert(NULL != element_arr);
+
+	fail = InvokeOper(element_arr, size, to_add, control);
+	
+	if (fail)
+	{
+		return ERROR;
+	}
+
+	return SUCCESS;
+}
+
+static int InvokeOper(element_t *element_arr, size_t size, int to_add,
+																	int control)
+{
+	size_t i = 0;
+	int fail = 0;
+
+	assert(NULL != element_arr);
+
+	for (i = 0; i < size; ++i)
+	{
+		switch (control)
+		{
+			case PRINT:
+			{
+				(element_arr + i)->print(element_arr + i);
+				
+				break;
+			}
+			
+			case ADD:
+			{		
+				fail = (element_arr + i)->add(element_arr + i, to_add);
+				if (fail)
+				{
+					CleanAll(element_arr, size, 0);
+
+					return ERROR;
+				}
+				
+				break;
+			}
+			
+			default :
+			{
+				break;
+			} 		
+		}
+	}
+	
+	return SUCCESS;
 }
 
 static int AddToInt(element_t *val, int to_add)
@@ -275,7 +360,7 @@ static int AddToInt(element_t *val, int to_add)
 	int_addition = (int *)val->data;
 	*int_addition += to_add;
 
-	return EXIT_SUCCESS;
+	return SUCCESS;
 }
 
 static int AddToFloat(element_t *val, int to_add)
@@ -287,7 +372,7 @@ static int AddToFloat(element_t *val, int to_add)
 	float_addition = (float *)val->data;
 	*float_addition += to_add;
 
-	return EXIT_SUCCESS;
+	return SUCCESS;
 }
 
 static int AddToString(element_t *val, int to_add)
@@ -312,17 +397,17 @@ static int AddToString(element_t *val, int to_add)
 
 	if (!val->data)
 	{
-		return EXIT_FAILURE;
+		return ERROR;
 	}
 
 	fail = sprintf((char *)(val->data) + length, "%d", addition);
 
 	if (0 > fail)
 	{
-		return EXIT_FAILURE;
+		return ERROR;
 	}
 
-	return EXIT_SUCCESS;
+	return SUCCESS;
 }
 
 /* struct iner clean funcs */
