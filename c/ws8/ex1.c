@@ -260,7 +260,7 @@ static int AddToAll(element_t *element_arr, size_t size, int to_add)
 
 		if (fale)
 		{
-			CleanAll(element_arr, size, size - i);
+			CleanAll(element_arr, size, 0);
 
 			return ERROR;
 		}
