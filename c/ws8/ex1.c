@@ -57,7 +57,7 @@ static int AddToString(element_t *val, int to_add);
 static void PrintInt(const element_t *val);
 static void PrintFloat(const element_t *val);
 static void PrintString(const element_t *val);
-static void PrintJank(const element_t *val);
+
 /* struct iner clean funcs */
 static void CleanNothing(element_t *val);
 static void CleanHeap(element_t *val);
@@ -121,23 +121,18 @@ static int InitAll(element_t *element_arr, size_t size)
 
 static void InitInt(element_t *element_arr, size_t ele_num)
 {
-	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 8, 0};
+	static int int_arr[] = {5, 3, 9, -2, 4, 1, 10, 8, 0, 50000};
 	size_t i = 0;
 
 	assert(NULL != element_arr);
 
-	for (i = 0; i < ele_num - 1; ++i)
+	for (i = 0; i < ele_num; ++i)
 	{
 		(element_arr + i)->data = (void *)(int_arr + i);
 		(element_arr + i)->add = AddToInt;
 		(element_arr + i)->print = PrintInt;
 		(element_arr + i)->clean = CleanNothing;
-	}
-		/* illustrate smaller arr size then define */
-		(element_arr + i)->data = (void *)(int_arr + i);
-		(element_arr + i)->add = AddToInt;
-		(element_arr + i)->print = PrintJank;     
-		(element_arr + i)->clean = CleanNothing;
+	}	
 	
 	return;
 }
@@ -211,15 +206,6 @@ static void PrintInt(const element_t *val)
 	assert(NULL != val);
 
 	printf("Int is:  %d\n", *(int *)val->data);
-
-	return;
-}
-
-static void PrintJank(const element_t *val)
-{
-	assert(NULL != val);
-
-	printf("This Is Jank:  %d\n", *(int *)val->data);
 
 	return;
 }
