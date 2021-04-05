@@ -7,11 +7,11 @@
 
 #include <assert.h> /* assert */
 #include "ex.h"     /* function declaration */
-
+/* Approved By: NIR */
 void *MemSet(void *s, int c, size_t n)
 {
     size_t word_size = sizeof(size_t);
-    size_t mask = 0xFF;
+    size_t word = 0xFF;
     char original_byte_c = 0;
     char *ptr_s = NULL;
 
@@ -19,18 +19,18 @@ void *MemSet(void *s, int c, size_t n)
 
     ptr_s = (char *)s;
 
-    mask &= c;
-    original_byte_c = (char)mask;
+    word &= c;
+    original_byte_c = (char)word;
 
     while (0 != c)
     {
         c <<= 8;
-        mask |= c;
+        word |= c;
     }
     
-	mask = mask | (mask << 32);
+	word = word | (word << 32);
 
-    while (0 < n && (0 != ((size_t)s % word_size)))
+    while (0 < n && (0 != ((size_t)ptr_s % word_size)))
     {
         *ptr_s = original_byte_c;
         ++ptr_s;
@@ -39,7 +39,7 @@ void *MemSet(void *s, int c, size_t n)
 
     while (0 < (n / word_size))
     {
-        *(size_t *)ptr_s = mask;
+        *(size_t *)ptr_s = word;
         ptr_s += word_size;
         n -= word_size;
     }
@@ -54,50 +54,43 @@ void *MemSet(void *s, int c, size_t n)
     return s;
 }
 
-
-void *MemSet(void *s, int c, size_t n)
+/* approved by Ohad */
+void *MemCpy(void *dest, const void *src, size_t n)
 {
+	char *ptr_s = NULL;
+	char *ptr_d = NULL;
     size_t word_size = sizeof(size_t);
-    size_t mask = 0xFF;
-    char original_byte_c = 0;
-    char *ptr_s = NULL;
-
-    assert(NULL != s);
-
-    ptr_s = (char *)s;
-
-    mask &= c;
-    original_byte_c = (char)mask;
-
-    while (0 != c)
-    {
-        c <<= 8;
-        mask |= c;
-    }
     
-	mask = mask | (mask << 32);
+	assert(NULL != src);
+	assert(NULL != dest);
 
-    while (0 < n && (0 != ((size_t)s % word_size)))
-    {
-        *ptr_s = original_byte_c;
-        ++ptr_s;
-        --n;
-    }
+	ptr_s = (char *)src;
+	ptr_d = (char *)dest;
+	
+	while (0 < n && (0 != ((size_t)ptr_s % word_size)))
+	{
+		*ptr_d = *ptr_s;
+		++ptr_s;
+		++ptr_d;
+		--n;
+	}
 
-    while (0 < (n / word_size))
-    {
-        *(size_t *)ptr_s = mask;
-        ptr_s += word_size;
-        n -= word_size;
-    }
+	while (0 < (n / word_size))
+	{
+		*(size_t *)ptr_d = *(size_t *)ptr_s;
+		ptr_s += word_size;
+		ptr_d += word_size;
+		n -= word_size;
+	}
 
-    while (0 < n)
-    {
-        *ptr_s = original_byte_c;
-        ++ptr_s;
-        --n;
-    }
+	while (0 < n)
+	{
+		*ptr_d = *ptr_s;
+		++ptr_s;
+		++ptr_d;
+		--n;
+	}
 
-    return s;
+	return dest;
 }
 
