@@ -1,10 +1,9 @@
 
-#include <stdio.h>	/* printf */
-#include <stdint.h>	/* SIZE_MAX */
-#include <string.h>	/* memcmp */
+#include <stdio.h>  /* printf */
+#include <stdint.h> /* SIZE_MAX */
+#include <string.h> /* memcmp */
 
 #include "bit_array.h"
-
 
 static void Test();
 static void TestSetOff();
@@ -26,29 +25,28 @@ static size_t err = 0;
 
 int main()
 {
-	Test();
-	
-	return 0;
+    Test();
 
+    return 0;
 }
 static void Test()
 {
-	TestSetOn();
-	TestSetOff();
-	TestSetBit();
-	TestSetAll();
-	TestResetAll();
-	TestToString();
-	TestGetVal();
-	TestFlipBit();
-	TestRotR();
-	TestRotL();
-	TestCountOn();
-	TestCountOff();
-	TestMirror();
-	
-	TestIndicator();
-	
+    TestSetOn();
+    TestSetOff();
+    TestSetBit();
+    TestSetAll();
+    TestResetAll();
+    TestToString();
+    TestGetVal();
+    TestFlipBit();
+    TestRotR();
+    TestRotL();
+    TestCountOn();
+    TestCountOff();
+    TestMirror();
+
+    TestIndicator();
+
     return;
 }
 
@@ -60,7 +58,7 @@ static void TestSetOff()
     size_t arr_set[] = {63, 0, 3};
     size_t expected_result[] = {0, 0, 0x7};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -68,7 +66,7 @@ static void TestSetOff()
         {
             printf("Test SetOff() failed at index %ld\n", i);
             ++err;
-        } 
+        }
 
         ++i;
     }
@@ -84,7 +82,7 @@ static void TestSetOn()
     size_t arr_set[] = {63, 0, 0, 3};
     size_t expected_result[] = {0x8000000000000000, 1, 1, 0xf};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -92,14 +90,13 @@ static void TestSetOn()
         {
             printf("Test SetOn() failed at index %ld\n", i);
             ++err;
-        } 
+        }
 
         ++i;
     }
 
     return;
 }
-
 
 /* lest bit when on and off, first bit when on and off, and a rendom midel bit */
 static void TestSetBit()
@@ -109,7 +106,7 @@ static void TestSetBit()
     size_t arr_set[] = {63, 0, 3};
     size_t expected_result[] = {0x8000000000000000, 1, 0xf};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -121,20 +118,19 @@ static void TestSetBit()
 
         ++i;
     }
-    
-	i = 0;
-	
-	while (i < size)
-	{
-		if (SetBit(expected_result[i], arr_set[i], 0) != arr[i])
-		{
-			printf("Test SetBit() failed to tern off at index %ld\n", i);
-			++err;
-		}
 
-		++i;
-	}
+    i = 0;
 
+    while (i < size)
+    {
+        if (SetBit(expected_result[i], arr_set[i], 0) != arr[i])
+        {
+            printf("Test SetBit() failed to tern off at index %ld\n", i);
+            ++err;
+        }
+
+        ++i;
+    }
 
     return;
 }
@@ -144,7 +140,7 @@ static void TestSetAll()
     size_t arr[] = {SIZE_MAX, 0, 0x7};
     size_t expected_result[] = {SIZE_MAX, SIZE_MAX, SIZE_MAX};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -152,20 +148,20 @@ static void TestSetAll()
         {
             printf("Test SetAll() failed at index %ld\n", i);
             ++err;
-        } 
+        }
 
         ++i;
     }
-	return;
+    return;
 }
-  
+
 /* all bits on, all bits off, random numbers */
 static void TestResetAll()
 {
     size_t arr[] = {SIZE_MAX, 0, 0x7, 1};
     size_t expected_result[] = {0, 0, 0, 0};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -173,41 +169,39 @@ static void TestResetAll()
         {
             printf("Test ResetAll() failed at index %ld\n", i);
             ++err;
-        } 
+        }
 
         ++i;
     }
-	return;
+    return;
 }
- 
+
 /* all bits on, all bits off, random numbers */
 static void TestToString()
 {
     size_t i = 0;
     char dest[65] = {'\0'};
     size_t arr[] = {SIZE_MAX, 0, 0x7, 0x8000000000000000, 68467311635};
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
-    char *expected_result[] = 
-    {	
-		"1111111111111111111111111111111111111111111111111111111111111111", 
-		"0000000000000000000000000000000000000000000000000000000000000000",
-		"0000000000000000000000000000000000000000000000000000000000000111",
-		"1000000000000000000000000000000000000000000000000000000000000000",
-		"0000000000000000000000000000111111110000111110000100010000010011"
-    };
+    size_t size = sizeof(arr) / sizeof(arr[0]);
+    char *expected_result[] =
+        {
+            "1111111111111111111111111111111111111111111111111111111111111111",
+            "0000000000000000000000000000000000000000000000000000000000000000",
+            "0000000000000000000000000000000000000000000000000000000000000111",
+            "1000000000000000000000000000000000000000000000000000000000000000",
+            "0000000000000000000000000000111111110000111110000100010000010011"};
 
     while (i < size)
     {
-        if (0 != strcmp(ToString(arr[i], dest) ,expected_result[i]))
+        if (0 != strcmp(ToString(arr[i], dest), expected_result[i]))
         {
             printf("Test ToString() failed at index %ld\n", i);
             ++err;
-        } 
+        }
 
         ++i;
     }
     return;
-
 }
 
 /* lest bit when on and off, first bit when on and off, and a rendom midel bit */
@@ -217,7 +211,7 @@ static void TestGetVal()
     size_t arr_set[] = {63, 63, 0, 0, 2, 5};
     int expected_result[] = {1, 0, 1, 0, 1, 0};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -229,8 +223,8 @@ static void TestGetVal()
 
         ++i;
     }
-    
-	return;
+
+    return;
 }
 
 /* lest bit when on and off, first bit when on and off, and a rendom midel bit */
@@ -239,15 +233,14 @@ static void TestFlipBit()
     size_t arr[] = {SIZE_MAX, 0, SIZE_MAX, 0, 0x7, 0x7};
     size_t arr_set[] = {63, 63, 0, 0, 2, 5};
     size_t expected_result[] = {
-    							 0x7fffffffffffffff, 
-    							 0x8000000000000000, 
-    							 0xfffffffffffffffe, 
-    							 0x01, 
-    							 0x03, 
-    							 0x27
-    							};
+        0x7fffffffffffffff,
+        0x8000000000000000,
+        0xfffffffffffffffe,
+        0x01,
+        0x03,
+        0x27};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -259,8 +252,8 @@ static void TestFlipBit()
 
         ++i;
     }
-    
-	return;
+
+    return;
 }
 /* shift with larg val the 64, whit exsectly 64, less then 64, & 0 */
 static void TestRotR()
@@ -268,14 +261,13 @@ static void TestRotR()
     size_t arr[] = {0xFF0F84413, 1, 0xbc, 0x7, SIZE_MAX};
     size_t arr_rotation[] = {5000, 65, 0, 5, 63};
     size_t expected_result[] = {
-									0x130000000FF0F844, 
-									0x8000000000000000,
-									0xbc,
-									0x3800000000000000, 
-									SIZE_MAX
-    							};
+        0x130000000FF0F844,
+        0x8000000000000000,
+        0xbc,
+        0x3800000000000000,
+        SIZE_MAX};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -287,8 +279,8 @@ static void TestRotR()
 
         ++i;
     }
-    
-	return;
+
+    return;
 }
 
 /* shift with larg val the 64, whit exsectly 64, less then 64, & 0 */
@@ -297,14 +289,13 @@ static void TestRotL()
     size_t arr[] = {0xFF0F84413, 1, 0xbc, 0x7, SIZE_MAX};
     size_t arr_rotation[] = {5000, 65, 0, 5, 64};
     size_t expected_result[] = {
-									0xFF0F8441300, 
-									0x02,
-									0xbc,
-									0xe0, 
-									SIZE_MAX
-    							};
+        0xFF0F8441300,
+        0x02,
+        0xbc,
+        0xe0,
+        SIZE_MAX};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -316,8 +307,8 @@ static void TestRotL()
 
         ++i;
     }
-    
-	return;
+
+    return;
 }
 
 /* all bits on, no bits on, 1 bit on, rendom num */
@@ -326,7 +317,7 @@ static void TestCountOn()
     size_t arr[] = {0xFF0F84413, 1, 0xbc, 0x7, 0, SIZE_MAX};
     size_t expected_result[] = {18, 1, 5, 3, 0, 64};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -338,8 +329,8 @@ static void TestCountOn()
 
         ++i;
     }
-    
-	return;
+
+    return;
 }
 
 /* all bits on, no bits on, 1 bit on, rendom num */
@@ -348,7 +339,7 @@ static void TestCountOff()
     size_t arr[] = {0xFF0F84413, 1, 0xbc, 0x7, SIZE_MAX};
     size_t expected_result[] = {46, 63, 59, 61, 0};
     size_t i = 0;
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
 
     while (i < size)
     {
@@ -360,45 +351,43 @@ static void TestCountOff()
 
         ++i;
     }
-    
-	return;
+
+    return;
 }
 /* all bits on, no bits on, 1 bit on, rendom num */
 static void TestMirror()
 {
     size_t i = 0;
     size_t arr[] = {0xFF0F84413, 1, 0xbc, SIZE_MAX, 0};
-    size_t size = sizeof(arr) / sizeof(arr[0]); 
+    size_t size = sizeof(arr) / sizeof(arr[0]);
     size_t expected_result[] = {
-									0xC8221F0FF0000000, 
-									0x8000000000000000, 
-									0x3d00000000000000, 
-									SIZE_MAX,
-									0
-    							};
+        0xC8221F0FF0000000,
+        0x8000000000000000,
+        0x3d00000000000000,
+        SIZE_MAX,
+        0};
 
     while (i < size)
     {
         if (Mirror(arr[i]) != expected_result[i])
         {
-            printf("Test Mirror() failed at index %ld %lu\n", i,Mirror(arr[i]));
+            printf("Test Mirror() failed at index %ld %lu\n", i, Mirror(arr[i]));
             ++err;
         }
 
         ++i;
     }
-    
-	return;
+
+    return;
 }
 
 static void TestIndicator()
 {
-	if (0 == err)
+    if (0 == err)
     {
         printf("All good\n");
     }
-    
+
     return;
 }
-
 
