@@ -132,7 +132,8 @@ size_t CountOn(bit_arr_t bit_array)
             2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
             3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
             3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-            4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
+            4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
+		};
 
     for (i = 0; i < CHAR_BIT; ++i)
     {
@@ -194,7 +195,8 @@ bit_arr_t Mirror(bit_arr_t bit_array)
             0x3b, 0xbb, 0x7b, 0xfb, 0x7, 0x87, 0x47, 0xc7, 0x27, 0xa7,
             0x67, 0xe7, 0x17, 0x97, 0x57, 0xd7, 0x37, 0xb7, 0x77, 0xf7,
             0xf, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef, 0x1f, 0x9f,
-            0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff};
+            0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff
+		};
 
     /* i = CHAR_BIT - 1 : from 7-0 includ for shifting at the corect offset */
     for (i = CHAR_BIT - 1; 0 <= i; --i)
