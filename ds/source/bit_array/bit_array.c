@@ -116,7 +116,7 @@ size_t CountOn(bit_arr_t bit_array)
     size_t counter = 0;
 
     static unsigned char count_lut[256] =
-        {
+		{
             0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
             1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
             1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
@@ -169,7 +169,7 @@ bit_arr_t Mirror(bit_arr_t bit_array)
     bit_arr_t return_mirror = 0;
 
     static unsigned char mirror_lut[256] =
-        {
+		{
             0x0, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0, 0x10, 0x90,
             0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0, 0x8, 0x88, 0x48, 0xc8,
             0x28, 0xa8, 0x68, 0xe8, 0x18, 0x98, 0x58, 0xd8, 0x38, 0xb8,
