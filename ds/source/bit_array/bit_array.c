@@ -4,7 +4,8 @@
 /*  Date Of Creation:06.04.21;									*/
 /*  Date Of Approval: 07.04.21;									*/
 /*  Approved By: final approved (run only bit_array.c) by anna	*/
-/*  Description: bit array data strctur;						*/
+/*  Description: bit array data structure *complexity is			*/
+/*	relativ to the num of bits*;								*/
 
 #include <limits.h> /* CHAR_BIT */
 #include <stdint.h> /* SIZE_MAX */
@@ -15,6 +16,7 @@
 #define UNUSED(x) (void)(x)
 #define WORD_SIZE sizeof(bit_arr_t) * CHAR_BIT
 #define BYTE_MAX 255
+#define NUM_OF_BYTE sizeof(bit_arr_t)
 
 /* O(1) time & space - approved by geta */
 bit_arr_t SetOn(bit_arr_t bit_array, size_t index)
@@ -36,14 +38,14 @@ bit_arr_t SetOff(bit_arr_t bit_array, size_t index)
 bit_arr_t SetAll(bit_arr_t bit_array)
 {
     UNUSED(bit_array);
-    return SIZE_MAX;
+    return (bit_arr_t)SIZE_MAX;
 }
 
 /* O(1) time & space - approved by geta */
 bit_arr_t ResetAll(bit_arr_t bit_array)
 {
     UNUSED(bit_array);
-    return 0;
+    return (bit_arr_t)0;
 }
 
 /* O(1) time & space - approved by geta */
@@ -55,7 +57,7 @@ bit_arr_t SetBit(bit_arr_t bit_array, size_t index, int value)
             ((bit_arr_t)value << index));
 }
 
-/* O(n) time , O(1)space - approved by anna */
+/* O(n) time , O(1) space - approved by anna */
 
 char *ToString(bit_arr_t bit_array, char *dest)
 {
@@ -199,7 +201,7 @@ bit_arr_t Mirror(bit_arr_t bit_array)
 		};
 
     /* i = CHAR_BIT - 1 : from 7-0 includ for shifting at the corect offset */
-    for (i = CHAR_BIT - 1; 0 <= i; --i)
+    for (i = NUM_OF_BYTE - 1; 0 <= i; --i)
     {
         mirror = ((bit_arr_t)mirror_lut[(unsigned char)(BYTE_MAX & bit_array)]);
         return_mirror |= mirror << CHAR_BIT * i;
