@@ -4,8 +4,8 @@
 /*  Date Of Creation:06.04.21;									*/
 /*  Date Of Approval: 07.04.21;									*/
 /*  Approved By: final approved (run only bit_array.c) by anna	*/
-/*  Description: bit array data structure *complexity is			*/
-/*	relativ to the num of bits*;								*/
+/*  Description: bit array data structure *complexity is		*/
+/*	relative to the num of bits*;								*/
 
 #include <limits.h> /* CHAR_BIT */
 #include <stdint.h> /* SIZE_MAX */
