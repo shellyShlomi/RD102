@@ -19,7 +19,7 @@
 #define NUM_OF_BYTE sizeof(bit_arr_t)
 
 /* O(1) time & space - approved by geta */
-bit_arr_t SetOn(bit_arr_t bit_array, size_t index)
+bit_arr_t BitArrSetOn(bit_arr_t bit_array, size_t index)
 {
     assert(WORD_SIZE > index);
 
@@ -27,7 +27,7 @@ bit_arr_t SetOn(bit_arr_t bit_array, size_t index)
 }
 
 /* O(1) time & space - approved by geta */
-bit_arr_t SetOff(bit_arr_t bit_array, size_t index)
+bit_arr_t BitArrSetOff(bit_arr_t bit_array, size_t index)
 {
     assert(WORD_SIZE > index);
 
@@ -35,21 +35,21 @@ bit_arr_t SetOff(bit_arr_t bit_array, size_t index)
 }
 
 /* O(1) time & space - approved by geta */
-bit_arr_t SetAll(bit_arr_t bit_array)
+bit_arr_t BitArrSetAll(bit_arr_t bit_array)
 {
     UNUSED(bit_array);
     return (bit_arr_t)SIZE_MAX;
 }
 
 /* O(1) time & space - approved by geta */
-bit_arr_t ResetAll(bit_arr_t bit_array)
+bit_arr_t BitArrResetAll(bit_arr_t bit_array)
 {
     UNUSED(bit_array);
     return (bit_arr_t)0;
 }
 
 /* O(1) time & space - approved by geta */
-bit_arr_t SetBit(bit_arr_t bit_array, size_t index, int value)
+bit_arr_t BitArrSetBit(bit_arr_t bit_array, size_t index, int value)
 {
     assert(WORD_SIZE > index);
     assert(3 > value && value > -1);
@@ -59,7 +59,7 @@ bit_arr_t SetBit(bit_arr_t bit_array, size_t index, int value)
 
 /* O(n) time , O(1) space - approved by anna */
 
-char *ToString(bit_arr_t bit_array, char *dest)
+char *BitArrToString(bit_arr_t bit_array, char *dest)
 {
 
     char *dest_orig = dest;
@@ -80,7 +80,7 @@ char *ToString(bit_arr_t bit_array, char *dest)
 }
 
 /* O(1) time & space - approved by anna */
-int GetVal(bit_arr_t bit_array, size_t index)
+int BitArrGetVal(bit_arr_t bit_array, size_t index)
 {
     assert(WORD_SIZE > index);
 
@@ -88,7 +88,7 @@ int GetVal(bit_arr_t bit_array, size_t index)
 }
 
 /* O(1) time & space - approved by roman */
-bit_arr_t FlipBit(bit_arr_t bit_array, size_t index)
+bit_arr_t BitArrFlipBit(bit_arr_t bit_array, size_t index)
 {
     assert(WORD_SIZE > index);
 
@@ -96,7 +96,7 @@ bit_arr_t FlipBit(bit_arr_t bit_array, size_t index)
 }
 
 /* O(1) time & space - approved by roman */
-bit_arr_t RotR(bit_arr_t bit_array, size_t shifts)
+bit_arr_t BitArrRotR(bit_arr_t bit_array, size_t shifts)
 {
     size_t shift = shifts & (WORD_SIZE - 1);
 
@@ -104,7 +104,7 @@ bit_arr_t RotR(bit_arr_t bit_array, size_t shifts)
 }
 
 /* O(1) time & space - approved by roman */
-bit_arr_t RotL(bit_arr_t bit_array, size_t shifts)
+bit_arr_t BitArrRotL(bit_arr_t bit_array, size_t shifts)
 {
     size_t shift = shifts & (WORD_SIZE - 1);
 
@@ -112,7 +112,7 @@ bit_arr_t RotL(bit_arr_t bit_array, size_t shifts)
 }
 
 /* O(1) time & space - approved by roman */
-size_t CountOn(bit_arr_t bit_array)
+size_t BitArrCountOn(bit_arr_t bit_array)
 {
     size_t i = 0;
     size_t counter = 0;
@@ -148,7 +148,7 @@ size_t CountOn(bit_arr_t bit_array)
 
 /* O(n) time *when all bits are on where n is bit num - 64*, O(1) space 
 	- approved by roman */
-size_t CountOff(bit_arr_t bit_array)
+size_t BitArrCountOff(bit_arr_t bit_array)
 {
     size_t counter = 0;
     bit_arr_t not_bit_array = ~bit_array;
@@ -163,7 +163,7 @@ size_t CountOff(bit_arr_t bit_array)
 }
 
 /* O(1) time & space - approved by anna */
-bit_arr_t Mirror(bit_arr_t bit_array)
+bit_arr_t BitArrMirror(bit_arr_t bit_array)
 {
     int i = 0; /* can't be size_t - cuas a infinet loop */
 

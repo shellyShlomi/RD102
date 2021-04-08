@@ -62,7 +62,7 @@ static void TestSetOff()
 
     while (i < size)
     {
-        if (SetOff(arr[i], arr_set[i]) != expected_result[i])
+        if (BitArrSetOff(arr[i], arr_set[i]) != expected_result[i])
         {
             printf("Test SetOff() failed at index %ld\n", i);
             ++err;
@@ -86,7 +86,7 @@ static void TestSetOn()
 
     while (i < size)
     {
-        if (SetOn(arr[i], arr_set[i]) != expected_result[i])
+        if (BitArrSetOn(arr[i], arr_set[i]) != expected_result[i])
         {
             printf("Test SetOn() failed at index %ld\n", i);
             ++err;
@@ -110,7 +110,7 @@ static void TestSetBit()
 
     while (i < size)
     {
-        if (SetBit(arr[i], arr_set[i], 1) != expected_result[i])
+        if (BitArrSetBit(arr[i], arr_set[i], 1) != expected_result[i])
         {
             printf("Test SetBit() with 1 failed to tern on at index %ld\n", i);
             ++err;
@@ -123,7 +123,7 @@ static void TestSetBit()
 
     while (i < size)
     {
-        if (SetBit(expected_result[i], arr_set[i], 0) != arr[i])
+        if (BitArrSetBit(expected_result[i], arr_set[i], 0) != arr[i])
         {
             printf("Test SetBit() failed to tern off at index %ld\n", i);
             ++err;
@@ -144,7 +144,7 @@ static void TestSetAll()
 
     while (i < size)
     {
-        if (SetAll(arr[i]) != expected_result[i])
+        if (BitArrSetAll(arr[i]) != expected_result[i])
         {
             printf("Test SetAll() failed at index %ld\n", i);
             ++err;
@@ -165,7 +165,7 @@ static void TestResetAll()
 
     while (i < size)
     {
-        if (ResetAll(arr[i]) != expected_result[i])
+        if (BitArrResetAll(arr[i]) != expected_result[i])
         {
             printf("Test ResetAll() failed at index %ld\n", i);
             ++err;
@@ -193,7 +193,7 @@ static void TestToString()
 
     while (i < size)
     {
-        if (0 != strcmp(ToString(arr[i], dest), expected_result[i]))
+        if (0 != strcmp(BitArrToString(arr[i], dest), expected_result[i]))
         {
             printf("Test ToString() failed at index %ld\n", i);
             ++err;
@@ -215,7 +215,7 @@ static void TestGetVal()
 
     while (i < size)
     {
-        if (GetVal(arr[i], arr_set[i]) != expected_result[i])
+        if (BitArrGetVal(arr[i], arr_set[i]) != expected_result[i])
         {
             printf("Test GetVal() failed at index %ld\n", i);
             ++err;
@@ -244,7 +244,7 @@ static void TestFlipBit()
 
     while (i < size)
     {
-        if (FlipBit(arr[i], arr_set[i]) != expected_result[i])
+        if (BitArrFlipBit(arr[i], arr_set[i]) != expected_result[i])
         {
             printf("Test FlipBit() failed at index %ld\n", i);
             ++err;
@@ -271,7 +271,7 @@ static void TestRotR()
 
     while (i < size)
     {
-        if (RotR(arr[i], arr_rotation[i]) != expected_result[i])
+        if (BitArrRotR(arr[i], arr_rotation[i]) != expected_result[i])
         {
             printf("Test RotR()failed at index %ld\n", i);
             ++err;
@@ -299,7 +299,7 @@ static void TestRotL()
 
     while (i < size)
     {
-        if (RotL(arr[i], arr_rotation[i]) != expected_result[i])
+        if (BitArrRotL(arr[i], arr_rotation[i]) != expected_result[i])
         {
             printf("Test RotL() failed at index %ld\n", i);
             ++err;
@@ -321,7 +321,7 @@ static void TestCountOn()
 
     while (i < size)
     {
-        if (CountOn(arr[i]) != expected_result[i])
+        if (BitArrCountOn(arr[i]) != expected_result[i])
         {
             printf("Test CountOn() failed at index %ld\n", i);
             ++err;
@@ -343,7 +343,7 @@ static void TestCountOff()
 
     while (i < size)
     {
-        if (CountOff(arr[i]) != expected_result[i])
+        if (BitArrCountOff(arr[i]) != expected_result[i])
         {
             printf("Test CountOff() failed at index %ld\n", i);
             ++err;
@@ -369,9 +369,9 @@ static void TestMirror()
 
     while (i < size)
     {
-        if (Mirror(arr[i]) != expected_result[i])
+        if (BitArrMirror(arr[i]) != expected_result[i])
         {
-            printf("Test Mirror() failed at index %ld %lu\n", i, Mirror(arr[i]));
+            printf("Test Mirror() failed at index %ld \n", i);
             ++err;
         }
 

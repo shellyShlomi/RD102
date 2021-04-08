@@ -5,19 +5,18 @@
 
 typedef size_t bit_arr_t;
 
-bit_arr_t SetOn		(bit_arr_t bit_array, size_t index);
-bit_arr_t SetOff	(bit_arr_t bit_array, size_t index);
-bit_arr_t SetAll	(bit_arr_t bit_array);
-bit_arr_t ResetAll	(bit_arr_t bit_array);
-bit_arr_t SetBit	(bit_arr_t bit_array, size_t index, int value);
-int 	  GetVal	(bit_arr_t bit_array, size_t index);
-bit_arr_t FlipBit	(bit_arr_t bit_array, size_t index);
-bit_arr_t RotR		(bit_arr_t bit_array, size_t shifts);
-bit_arr_t RotL		(bit_arr_t bit_array, size_t shifts);
-bit_arr_t Mirror	(bit_arr_t bit_array);
-size_t CountOn		(bit_arr_t bit_array);
-size_t CountOff		(bit_arr_t bit_array);
-
-char *ToString		(bit_arr_t bit_array, char *dest);
+bit_arr_t BitArrSetOn		(bit_arr_t bit_array, size_t index);
+bit_arr_t BitArrSetOff		(bit_arr_t bit_array, size_t index);
+bit_arr_t BitArrSetAll		(bit_arr_t bit_array);
+bit_arr_t BitArrResetAll	(bit_arr_t bit_array);
+bit_arr_t BitArrSetBit		(bit_arr_t bit_array, size_t index, int value);
+int 	  BitArrGetVal		(bit_arr_t bit_array, size_t index);
+bit_arr_t BitArrFlipBit		(bit_arr_t bit_array, size_t index);
+bit_arr_t BitArrRotR		(bit_arr_t bit_array, size_t shifts);
+bit_arr_t BitArrRotL		(bit_arr_t bit_array, size_t shifts);
+bit_arr_t BitArrMirror		(bit_arr_t bit_array);
+size_t BitArrCountOn		(bit_arr_t bit_array);
+size_t BitArrCountOff		(bit_arr_t bit_array);
+char *BitArrToString		(bit_arr_t bit_array, char *dest);
 
 #endif /*__BIT_ARR_H__*/
