@@ -58,7 +58,6 @@ bit_arr_t BitArrSetBit(bit_arr_t bit_array, size_t index, int value)
 }
 
 /* O(n) time , O(1) space - approved by anna */
-
 char *BitArrToString(bit_arr_t bit_array, char *dest)
 {
 
@@ -69,7 +68,7 @@ char *BitArrToString(bit_arr_t bit_array, char *dest)
     dest += 64;
     *dest = '\0';
 
-    while (dest_orig <= dest)
+    while (dest_orig < dest)
     {
         --dest;
         *dest = '0' + (bit_array & 1);
@@ -112,7 +111,7 @@ bit_arr_t BitArrRotL(bit_arr_t bit_array, size_t shifts)
 }
 
 /* O(1) time & space - approved by roman */
-size_t BitArrCountOn(bit_arr_t bit_array)
+size_t BitArrCountOnLUT(bit_arr_t bit_array)
 {
     size_t i = 0;
     size_t counter = 0;
@@ -146,6 +145,23 @@ size_t BitArrCountOn(bit_arr_t bit_array)
     return (counter);
 }
 
+
+/* O(n) time *when all bits are on where n is bit num - 64*, O(1) space		*/ 
+/* approved by anna	 														*/
+size_t BitArrCountOn(bit_arr_t bit_arr)	
+{
+	size_t counter = 0;
+
+    while (bit_arr > 0)
+    {
+        bit_arr = bit_arr & (bit_arr - 1);
+        ++counter;
+    }
+
+    return (counter);
+
+}
+
 /* O(n) time *when all bits are on where n is bit num - 64*, O(1) space 
 	- approved by roman */
 size_t BitArrCountOff(bit_arr_t bit_array)
@@ -162,8 +178,25 @@ size_t BitArrCountOff(bit_arr_t bit_array)
     return (counter);
 }
 
+/* O(n) time *when all bits are on where n is bit num - 64*, O(1) space		*/ 
+/* approved by anna															*/
+bit_arr_t BitArrMirror(bit_arr_t bit_arr)
+{
+    size_t i = 0;
+	bit_arr_t mirror = bit_arr;
+
+	for (i = 0; i < WORD_SIZE; bit_arr >>= 1, ++i)
+	{
+		mirror <<= 1;
+		mirror |= 1 & bit_arr;
+	}
+
+	return (mirror);
+
+}
+
 /* O(1) time & space - approved by anna */
-bit_arr_t BitArrMirror(bit_arr_t bit_array)
+bit_arr_t BitArrMirrorLUT(bit_arr_t bit_array)
 {
     int i = 0; /* can't be size_t - cuas a infinet loop */
 
