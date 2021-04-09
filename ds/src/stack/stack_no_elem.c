@@ -1,8 +1,9 @@
+
 /*  Developer: Shelly Shlomi;									*/
 /*  Status:Approved;											*/
 /*  Date Of Creation:08.04.21;									*/
 /*  Date Of Approval:09.04.21;									*/
-/*  Approved By: roman											*/
+/*  Approved By: nir											*/
 /*  Description: stack data structure 							*/
 
 #include <stdlib.h>	/* malloc */
@@ -11,12 +12,11 @@
 #include "stack.h"
 
 #define UNUSED(x) (void)(x)
-
+#define ARR_OFFSET 2
 
 struct stack
 {
     size_t top;
-    void **elements;
     size_t capacity;
 };
  
@@ -29,10 +29,8 @@ stack_t *StackCreate(size_t capacity)
 	{
 		return NULL; 
 	}
-	
-	s->elements = (void **)(1 + s);
 
-	s->top = 0;
+	s->top = ARR_OFFSET;
 	s->capacity = capacity;
 
 	return s;
@@ -53,7 +51,7 @@ size_t StackSize(const stack_t *stack)
 {
 	assert(NULL != stack);
 		
-	return stack->top;
+	return stack->top - ARR_OFFSET;
 }
 
 /* O(1) time & space */
@@ -61,7 +59,7 @@ int StackIsEmpty(const stack_t *stack)
 {
 	assert(NULL != stack);
 
-	return !(stack->top);
+	return !(stack->top - ARR_OFFSET);
 }
 
 /* O(1) time & space */
@@ -77,9 +75,9 @@ void StackPush(stack_t *stack, void *data)
 {
 	assert(NULL != stack);
 
-	assert(stack->capacity != stack->top);
+	assert(stack->capacity != stack->top - ARR_OFFSET);
 
-	*(stack->elements + stack->top) = data;
+	*((void **)stack + stack->top) = data;
 	
 	++(stack->top);
 
@@ -91,7 +89,7 @@ void StackPop(stack_t *stack)
 {
 
 	assert(NULL != stack);
-	assert(0 != stack->top);
+	assert(2 != stack->top);
 	
 	--(stack->top);
 
@@ -103,6 +101,6 @@ void *StackPeek(const stack_t *stack)
 {
 	assert(NULL != stack);
 	
-	return *(stack->elements + stack->top - 1);
+	return *((void **)stack + stack->top - 1);
 }
 

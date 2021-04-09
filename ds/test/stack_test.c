@@ -52,15 +52,19 @@ static int StackManager()
 	}
 	
 
-	StackPush(stack, (void *)str);
 	StackPush(stack, (void *)&data);
+	StackPush(stack, (void *)str);
 	StackPush(stack, (void *)&data2);
 	
 	printf("%lu\n", StackSize(stack));
 	printf("%f\n", *(double *)StackPeek(stack));
 	
 	StackPop(stack);
+	printf("%s\n", (char *)StackPeek(stack));
+	
 	StackPop(stack);
+	printf("%f\n", *(float *)StackPeek(stack));
+	
 	StackPop(stack);
 	
 	printf("%lu\n", StackSize(stack));

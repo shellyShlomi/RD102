@@ -185,10 +185,11 @@ bit_arr_t BitArrMirror(bit_arr_t bit_arr)
     size_t i = 0;
 	bit_arr_t mirror = bit_arr;
 
-	for (i = 0; i < WORD_SIZE; bit_arr >>= 1, ++i)
+	for (i = 0; i < WORD_SIZE; ++i)
 	{
 		mirror <<= 1;
 		mirror |= 1 & bit_arr;
+		bit_arr >>= 1;
 	}
 
 	return (mirror);
