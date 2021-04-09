@@ -5,6 +5,7 @@
 
 #include "bit_array.h"
 
+
 static void Test();
 static void TestSetOff();
 static void TestSetOn();
@@ -18,8 +19,10 @@ static void TestRotR();
 static void TestRotL();
 static void TestCountOn();
 static void TestCountOff();
-static void TestMirror();
+static void TestMirrorLUT();
 static void TestIndicator();
+static void TestCountOnLUT();
+static void TestMirror();
 
 static size_t err = 0;
 
@@ -42,9 +45,11 @@ static void Test()
     TestRotR();
     TestRotL();
     TestCountOn();
+	TestCountOnLUT();
     TestCountOff();
-    TestMirror();
-
+    TestMirrorLUT();
+	TestMirror();
+	
     TestIndicator();
 
     return;
@@ -312,6 +317,28 @@ static void TestRotL()
 }
 
 /* all bits on, no bits on, 1 bit on, rendom num */
+static void TestCountOnLUT()
+{
+    size_t arr[] = {0xFF0F84413, 1, 0xbc, 0x7, 0, SIZE_MAX};
+    size_t expected_result[] = {18, 1, 5, 3, 0, 64};
+    size_t i = 0;
+    size_t size = sizeof(arr) / sizeof(arr[0]);
+
+    while (i < size)
+    {
+        if (BitArrCountOnLUT(arr[i]) != expected_result[i])
+        {
+            printf("Test CountOnLUT() failed at index %ld\n", i);
+            ++err;
+        }
+
+        ++i;
+    }
+
+    return;
+}
+
+/* all bits on, no bits on, 1 bit on, rendom num */
 static void TestCountOn()
 {
     size_t arr[] = {0xFF0F84413, 1, 0xbc, 0x7, 0, SIZE_MAX};
@@ -332,6 +359,7 @@ static void TestCountOn()
 
     return;
 }
+
 
 /* all bits on, no bits on, 1 bit on, rendom num */
 static void TestCountOff()
@@ -355,7 +383,7 @@ static void TestCountOff()
     return;
 }
 /* all bits on, no bits on, 1 bit on, rendom num */
-static void TestMirror()
+static void TestMirrorLUT()
 {
     size_t i = 0;
     size_t arr[] = {0xFF0F84413, 1, 0xbc, SIZE_MAX, 0};
@@ -369,9 +397,9 @@ static void TestMirror()
 
     while (i < size)
     {
-        if (BitArrMirror(arr[i]) != expected_result[i])
+        if (BitArrMirrorLUT(arr[i]) != expected_result[i])
         {
-            printf("Test Mirror() failed at index %ld \n", i);
+            printf("Test MirrorLUT() failed at index %ld \n", i);
             ++err;
         }
 
@@ -381,6 +409,32 @@ static void TestMirror()
     return;
 }
 
+/* all bits on, no bits on, 1 bit on, rendom num */
+static void TestMirror()
+{
+    size_t i = 0;
+    size_t arr[] = {0xFF0F84413, 1, 0xbc, SIZE_MAX, 0};
+    size_t size = sizeof(arr) / sizeof(arr[0]);
+    size_t expected_result[] = {
+									0xC8221F0FF0000000,
+									0x8000000000000000,
+									0x3d00000000000000,
+									SIZE_MAX,
+									0};
+
+    while (i < size)
+    {
+        if (BitArrMirror(arr[i]) != expected_result[i])
+        {
+            printf("Test Mirror() failed at index %ld %lx \n", i,BitArrMirror(arr[i]) );
+            ++err;
+        }
+
+        ++i;
+    }
+
+    return;
+}
 static void TestIndicator()
 {
     if (0 == err)
