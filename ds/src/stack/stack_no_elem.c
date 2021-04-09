@@ -1,7 +1,7 @@
 
 /*  Developer: Shelly Shlomi;									*/
 /*  Status:Approved;											*/
-/*  Date Of Creation:08.04.21;									*/
+/*  Date Of Creation:09.04.21;									*/
 /*  Date Of Approval:09.04.21;									*/
 /*  Approved By: nir											*/
 /*  Description: stack data structure 							*/
@@ -74,7 +74,7 @@ size_t StackGetCapacity(const stack_t *stack)
 void StackPush(stack_t *stack, void *data)
 {
 	assert(NULL != stack);
-
+	assert(data);
 	assert(stack->capacity != stack->top - ARR_OFFSET);
 
 	*((void **)stack + stack->top) = data;

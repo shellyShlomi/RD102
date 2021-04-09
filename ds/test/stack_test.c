@@ -1,21 +1,34 @@
 
 #include <stdio.h> /* printf */
 #include <stdlib.h> /* exit status */
+#include <string.h> /* strcmp */
 
 #include "stack.h"
-	
+
+#define CAPACITY 100
+#define BOL_SUCCESS 1
+
+
 static int StackManager();
 
+enum ELEM
+{
+	FIRST = 1,
+	SECOND,
+	THIRD,
+	FOURTH
+};
 	
 int main()
 {
 	int fail = 0;
 	
-	StackManager();
+	fail = StackManager();
 	
 	if (fail)
 	{	
-		printf("error\n");
+		printf("StackManager error at line: %d\n", __LINE__);
+		
 		return EXIT_FAILURE;
 	}
 	
@@ -24,58 +37,125 @@ int main()
 
 static int StackManager()
 {
-	size_t capacity = 0;
+
 	float data = 20.33;
 	int data1 = 9;
 	double data2 = 601.33333;
 	char *str = "shelly";
-	stack_t *stack = StackCreate(100);
+	stack_t *stack = StackCreate(CAPACITY);
 	
 	if (NULL == stack)
 	{
+		printf("StackCreate error at line: %d\n", __LINE__);
 		return EXIT_FAILURE; 
 	}
 	
-	capacity = StackGetCapacity(stack);
+	if (CAPACITY != StackGetCapacity(stack))
+	{
+		printf("StackGetCapacity error at line: %d\n", __LINE__);
+	}
 	
-	printf("%ld\n", capacity);
+	if (BOL_SUCCESS != StackIsEmpty(stack))
+	{
+		printf("StackIsEmpty error at line: %d\n", __LINE__);
+	}
+	
+	if ((!BOL_SUCCESS) != StackSize(stack))
+	{
+		printf("StackSize error at line: %d\n", __LINE__);
+	}
 	
 	StackPush(stack, (void *)&data1);
 
-	if (StackIsEmpty(stack))
+	if ((!BOL_SUCCESS) != StackIsEmpty(stack))
 	{
-		printf("IS EMPTY\n");
-	}
-	else
-	{
-		printf("NOT EMPTY\n");
+		printf("StackIsEmpty error at line: %d\n", __LINE__);
 	}
 	
+	if (FIRST != StackSize(stack))
+	{
+		printf("StackPush error at line: %d\n", __LINE__);
+	}
 
 	StackPush(stack, (void *)&data);
-	StackPush(stack, (void *)str);
-	StackPush(stack, (void *)&data2);
-	
-	printf("%lu\n", StackSize(stack));
-	printf("%f\n", *(double *)StackPeek(stack));
-	
-	StackPop(stack);
-	printf("%s\n", (char *)StackPeek(stack));
-	
-	StackPop(stack);
-	printf("%f\n", *(float *)StackPeek(stack));
-	
-	StackPop(stack);
-	
-	printf("%lu\n", StackSize(stack));
-	
-	if (StackIsEmpty(stack))
+	if (SECOND != StackSize(stack))
 	{
-		printf("IS EMPTY\n");
+		printf("StackPush error at line: %d\n", __LINE__);
 	}
-	else
+
+	StackPush(stack, (void *)str);
+	if (THIRD != StackSize(stack))
 	{
-		printf("NOT EMPTY\n");
+		printf("StackPush error at line: %d\n", __LINE__);
+	}
+
+	StackPush(stack, (void *)&data2);
+	if (FOURTH != StackSize(stack))
+	{
+		printf("StackPush error at line: %d\n", __LINE__);
+	}
+	
+	if (data2 != *(double *)StackPeek(stack))
+	{
+		printf("StackPeek error at line: %d\n", __LINE__);
+	}
+	
+	StackPop(stack);
+	if (THIRD != StackSize(stack))
+	{
+		printf("StackPop error at line: %d\n", __LINE__);
+	}
+	
+	if (0 != strcmp(str, (char *)StackPeek(stack)))
+	{
+		printf("StackPeek error at line: %d\n", __LINE__);
+	}
+	
+	StackPop(stack);
+	if (SECOND != StackSize(stack))
+	{
+		printf("StackPop error at line: %d\n", __LINE__);
+	}
+	
+	if (data != *(float *)StackPeek(stack))
+	{
+		printf("StackPeek error at line: %d\n", __LINE__);
+	}
+	
+	StackPop(stack);
+	if (FIRST != StackSize(stack))
+	{
+		printf("StackPop error at line: %d\n", __LINE__);
+	}
+	
+	StackPop(stack);
+	if (0 != StackSize(stack))
+	{
+		printf("StackPop error at line: %d\n", __LINE__);
+	}
+	
+	
+	if (BOL_SUCCESS != StackIsEmpty(stack))
+	{
+		printf("StackIsEmpty error at line: %d\n", __LINE__);
+	}
+	
+	StackPush(stack, (void *)&data);
+	if (FIRST != StackSize(stack))
+	{
+		printf("StackPush error at line: %d\n", __LINE__);
+	}
+
+	StackPush(stack, (void *)str);
+	if (SECOND != StackSize(stack))
+	{
+		printf("StackPush error at line: %d\n", __LINE__);
+	}
+
+	StackPush(stack, (void *)&data2);
+	if (THIRD != StackSize(stack))
+	{
+		printf("StackPush error at line: %d\n, ", __LINE__);
 	}
 	
 	StackDestroy(stack);

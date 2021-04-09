@@ -30,10 +30,9 @@ stack_t *StackCreate(size_t capacity)
 		return NULL; 
 	}
 	
-	s->elements = (void **)(1 + s);
-
 	s->top = 0;
 	s->capacity = capacity;
+	s->elements = (void **)(1 + s);
 
 	return s;
 }
@@ -76,7 +75,7 @@ size_t StackGetCapacity(const stack_t *stack)
 void StackPush(stack_t *stack, void *data)
 {
 	assert(NULL != stack);
-
+	assert(data);
 	assert(stack->capacity != stack->top);
 
 	*(stack->elements + stack->top) = data;
