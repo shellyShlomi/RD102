@@ -89,7 +89,7 @@ void StackPop(stack_t *stack)
 {
 
 	assert(NULL != stack);
-	assert(2 != stack->top);
+	assert(ARR_OFFSET != stack->top);
 	
 	--(stack->top);
 
