@@ -1,3 +1,10 @@
+/*  Developer: Shelly Shlomi;									*/
+/*  Status: approved;											*/
+/*  Date Of Creation:11.04.21;									*/
+/*  Date Of Approval: 13.04.21;									*/
+/*  Approved By: NIR 											*/
+/*  Description: styatic librery of memset memcpy memmove;		*/
+
 #include <stdio.h>  /* print */
 #include <assert.h> /* assert */
 #include <limits.h>	/* INT_MIN */
@@ -59,17 +66,18 @@ char *ItoaBaseTil36(int value, char *str, int base)
 {
 
 	char *original_str = str;
-	int sign = 1;
 	size_t chars_in_val = 0;
 	
 	assert(NULL != str);
 	
-	if(0 > value)
-	{
-		sign = -sign;
-		*str = '-';
+	if (0 > value)
+	{	
 		value = -value;
-		++str;
+		if (BASE10 == base)
+		{
+			*str = '-';
+			++str;			
+		}
 	}
 	
 	chars_in_val = CountChrInNum(value, (size_t)base);
@@ -154,8 +162,8 @@ int AtoiBaseTil36(const char *str, int base)
 		isalpha_val = isalpha(*str);
 		
 		/* test if the value of the char is biger then the base */
-		if ((isalpha_val && alpha_val > base) || 
-			(isdigit(*str) && (*str -'0') >= base))
+		if ((isalpha_val && (alpha_val > base)) || 
+			(isdigit(*str) && ((*str -'0') >= base)))
 		{
 			break;
 		}
@@ -230,6 +238,12 @@ int IsLittleEndian()
 static size_t CountChrInNum(int to_add, const size_t base)
 {
 	size_t count = 0;
+
+	if (0 == to_add)
+	{
+		++count;
+		return count;
+	}
 
 	if (0 == to_add)
 	{

@@ -2,18 +2,19 @@
 #include <stdio.h> /* printf */
 #include <stdlib.h> /* exit status */
 #include <string.h> /* strcmp */
+#include <strings.h> /* strncasecmp */
+
 #include "part2.h" 	/* function declaration */
 
+static void TestItoaBase10();
+static void TestAtoiBase10();
+static void TestIsLittleEndian();
+static void TestItoaBaseTil36();
+static void TestAtoiBaseTil36();
+static void TestPrintFirstAndSecond();
 
-static int TestItoaBase10();
-static int TestAtoiBase10();
-static int TestIsLittleEndian();
-static int TestItoaBaseTil36();
-static int TestAtoiBaseTil36();
-static int TestPrintFirstAndSecond();
-
-static int TestMacroIsLittleEndian();
-extern int MacroIsLittleEndian();
+static void TestMacroIsLittleEndian();
+extern void MacroIsLittleEndian();
 
 
 int main()
@@ -31,7 +32,7 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-static int TestItoaBase10()
+static void TestItoaBase10()
 {
 	int num[] = {1024, 1, -100656 , 0};
 	char *str_exp[] = {"1024", "1", "-100656", "0"}; 
@@ -51,14 +52,23 @@ static int TestItoaBase10()
 	}
 
 	
-	return EXIT_SUCCESS; 
+	return; 
 }
 
-static int TestItoaBaseTil36()
+static void TestItoaBaseTil36()
 {
 	int num[] = {1, 300, 300 , -1, -7777, -7777, 0, 5};
 	int base[] = {2, 2, 20 , 30, 36, 10, 17, 2};
-	char *str_exp[] = {"1", "100101100","f0", "-1", "-601", "-7777", "0", "101"}; 
+	char *str_exp[] = {
+						"1",
+						"100101100",
+						"f0", 
+						"1", 
+						"601", 
+						"-7777", 
+						"0", 
+						"101"
+						}; 
 	size_t i = 0;
 	size_t size = sizeof(base)/sizeof(base[i]);
 	char str_res[6][10] = {'\0'}; 
@@ -67,16 +77,16 @@ static int TestItoaBaseTil36()
 	{
 		ItoaBaseTil36(num[i], str_res[i],base[i]);
 		
-		if (0 != strcmp(str_res[i],str_exp[i]))
+		if (0 != strcasecmp(str_res[i],str_exp[i]))
 		{
-			printf("TestItoaBaseTil36 error at index: %ld\n", i);
+			printf("TestItoaBaseTil36 error at index: %ld %s\n", i,ItoaBaseTil36(num[i], str_res[i],base[i]));
 			
 		}
 	}
-	return EXIT_SUCCESS; 
+	return; 
 }
 
-static int TestAtoiBase10()
+static void TestAtoiBase10()
 {
 	char str_arr[][10] =  {
 							"1024", 
@@ -101,11 +111,11 @@ static int TestAtoiBase10()
 		}
 	}
 
-	return EXIT_SUCCESS; 
+	return; 
 }
 
 
-static int TestAtoiBaseTil36()
+static void TestAtoiBaseTil36()
 {
 	char str_arr[][10] = {
 							"1024", 
@@ -132,10 +142,10 @@ static int TestAtoiBaseTil36()
 		}
 	}
 
-	return EXIT_SUCCESS; 
+	return; 
 }
 
-static int TestPrintFirstAndSecond()
+static void TestPrintFirstAndSecond()
 {
 	const char char_arr1[] = {'a', 'v', 'g', '\0', '4', 'c', 'H'};
 	size_t size1 = sizeof(char_arr1);
@@ -146,26 +156,26 @@ static int TestPrintFirstAndSecond()
 	
 	PrintFirstAndSecond(char_arr1, size1, char_arr2, size2, char_arr3, size3);
 	
-	return EXIT_SUCCESS; 
+	return; 
 } 
 
-static int TestIsLittleEndian()
+static void TestIsLittleEndian()
 {
 	if (1 != IsLittleEndian())
 	{
 		printf("IsLittleEndian error\n");
 		
 	}
-	return EXIT_SUCCESS; 
+	return; 
 }
 
-static int TestMacroIsLittleEndian()
+static void TestMacroIsLittleEndian()
 {
 	if (1 != IS_LITTLE_ENDIAN)
 	{
 		printf("MacroIsLittleEndian error\n");
 	}
-	return EXIT_SUCCESS; 
+	return; 
 }
 
 
