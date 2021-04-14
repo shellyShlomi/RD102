@@ -14,14 +14,14 @@
 #include "bit_array.h"
 
 #define UNUSED(x) (void)(x)
-#define WORD_SIZE sizeof(bit_arr_t) * CHAR_BIT
+#define WORD_SIZE_BITS sizeof(bit_arr_t) * CHAR_BIT
 #define BYTE_MAX 255
 #define NUM_OF_BYTE sizeof(bit_arr_t)
 
 /* O(1) time & space - approved by geta */
 bit_arr_t BitArrSetOn(bit_arr_t bit_array, size_t index)
 {
-    assert(WORD_SIZE > index);
+    assert(WORD_SIZE_BITS > index);
 
     return (bit_array | (bit_arr_t)1 << index);
 }
@@ -29,7 +29,7 @@ bit_arr_t BitArrSetOn(bit_arr_t bit_array, size_t index)
 /* O(1) time & space - approved by geta */
 bit_arr_t BitArrSetOff(bit_arr_t bit_array, size_t index)
 {
-    assert(WORD_SIZE > index);
+    assert(WORD_SIZE_BITS > index);
 
     return (bit_array & ~((bit_arr_t)1 << index));
 }
@@ -51,7 +51,7 @@ bit_arr_t BitArrResetAll(bit_arr_t bit_array)
 /* O(1) time & space - approved by geta */
 bit_arr_t BitArrSetBit(bit_arr_t bit_array, size_t index, int value)
 {
-    assert(WORD_SIZE > index);
+    assert(WORD_SIZE_BITS > index);
     assert(3 > value && value > -1);
     return ((bit_array & (~((bit_arr_t)1 << index))) |
             ((bit_arr_t)value << index));
@@ -81,7 +81,7 @@ char *BitArrToString(bit_arr_t bit_array, char *dest)
 /* O(1) time & space - approved by anna */
 int BitArrGetVal(bit_arr_t bit_array, size_t index)
 {
-    assert(WORD_SIZE > index);
+    assert(WORD_SIZE_BITS > index);
 
     return ((bit_array >> index) & 1);
 }
@@ -89,7 +89,7 @@ int BitArrGetVal(bit_arr_t bit_array, size_t index)
 /* O(1) time & space - approved by roman */
 bit_arr_t BitArrFlipBit(bit_arr_t bit_array, size_t index)
 {
-    assert(WORD_SIZE > index);
+    assert(WORD_SIZE_BITS > index);
 
     return bit_array ^ ((bit_arr_t)1 << index);
 }
@@ -97,17 +97,17 @@ bit_arr_t BitArrFlipBit(bit_arr_t bit_array, size_t index)
 /* O(1) time & space - approved by roman */
 bit_arr_t BitArrRotR(bit_arr_t bit_array, size_t shifts)
 {
-    size_t shift = shifts & (WORD_SIZE - 1);
+    size_t shift = shifts & (WORD_SIZE_BITS - 1);
 
-    return ((bit_array >> shift) | (bit_array << ((WORD_SIZE)-shift)));
+    return ((bit_array >> shift) | (bit_array << ((WORD_SIZE_BITS)-shift)));
 }
 
 /* O(1) time & space - approved by roman */
 bit_arr_t BitArrRotL(bit_arr_t bit_array, size_t shifts)
 {
-    size_t shift = shifts & (WORD_SIZE - 1);
+    size_t shift = shifts & (WORD_SIZE_BITS - 1);
 
-    return ((bit_array << shift) | (bit_array >> ((WORD_SIZE)-shift)));
+    return ((bit_array << shift) | (bit_array >> ((WORD_SIZE_BITS)-shift)));
 }
 
 /* O(1) time & space - approved by roman */
@@ -185,7 +185,7 @@ bit_arr_t BitArrMirror(bit_arr_t bit_arr)
     size_t i = 0;
 	bit_arr_t mirror = bit_arr;
 
-	for (i = 0; i < WORD_SIZE; ++i)
+	for (i = 0; i < WORD_SIZE_BITS; ++i)
 	{
 		mirror <<= 1;
 		mirror |= 1 & bit_arr;
