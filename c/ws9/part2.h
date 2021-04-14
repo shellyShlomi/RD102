@@ -1,9 +1,7 @@
 #ifndef __OL102_PART2_H__
 #define __OL102_PART2_H__
 
-#include <stdint.h>	/* uint16_t */
-
-#define IS_LITTLE_ENDIAN (*(uint16_t *)"\0\xF0" > 0x0100)
+#define IS_LITTLE_ENDIAN ((1) == *(((int *)&("\1\0\0\0"))))
 
 char *ItoaBase10          (int value, char *str);
 int   AtoiBase10		  (const char *str);

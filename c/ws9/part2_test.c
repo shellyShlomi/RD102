@@ -79,7 +79,7 @@ static void TestItoaBaseTil36()
 		
 		if (0 != strcasecmp(str_res[i],str_exp[i]))
 		{
-			printf("TestItoaBaseTil36 error at index: %ld %s\n", i,ItoaBaseTil36(num[i], str_res[i],base[i]));
+			printf("TestItoaBaseTil36 error at index: %ld \n", i);
 			
 		}
 	}
@@ -147,9 +147,9 @@ static void TestAtoiBaseTil36()
 
 static void TestPrintFirstAndSecond()
 {
-	const char char_arr1[] = {'a', 'v', 'g', '\0', '4', 'c', 'H'};
+	const char char_arr1[] = {'a', 'v', 'g', '6', '\0', '4', 'c', 'H'};
 	size_t size1 = sizeof(char_arr1);
-	const char char_arr2[] = {'a', 'g', '\0', 'c', 'H'};
+	const char char_arr2[] = {'a', 'g', '\0', '6', 'c', 'H'};
 	size_t size2 = sizeof(char_arr2);
 	const char char_arr3[] = {'u', 'd', 'g', '0', 'e', 'c', 'f'};
 	size_t size3 = sizeof(char_arr3);

@@ -3,7 +3,8 @@
 /*  Date Of Creation:11.04.21;									*/
 /*  Date Of Approval: 13.04.21;									*/
 /*  Approved By: NIR 											*/
-/*  Description: styatic librery of memset memcpy memmove;		*/
+/*  Description:;implament string and num trnsformation			*/
+/* (itoa/atoi) and Endianes, and 3 arrays match and reject		*/
 
 #include <stdio.h>  /* print */
 #include <assert.h> /* assert */
@@ -15,14 +16,10 @@
 
 #define BASE10 10
 #define ITOA_BASE36 36
-#define ASCII_TABLE_SIZE 128
+#define DEC_ELEMS 10
 #define DEC_OFFSET 10
-#define UNUESED(X) (void)(X)
-
-
 
 static size_t CountChrInNum(int to_add,const size_t base);
-
 
 /* Approved By: NIR */
 char *ItoaBase10(int value, char *str)
@@ -61,10 +58,11 @@ char *ItoaBase10(int value, char *str)
 	return original_str;
 }
 
-/* Approved By: oahd */
+/* Approved By: ohad */
 char *ItoaBaseTil36(int value, char *str, int base)
 {
-
+/*	the func neglect miunus if the base is not 10,	*/
+/*	the number is consider positive					*/
 	char *original_str = str;
 	size_t chars_in_val = 0;
 	
@@ -73,6 +71,7 @@ char *ItoaBaseTil36(int value, char *str, int base)
 	if (0 > value)
 	{	
 		value = -value;
+		
 		if (BASE10 == base)
 		{
 			*str = '-';
@@ -91,8 +90,9 @@ char *ItoaBaseTil36(int value, char *str, int base)
 	do
 	{
 		--str;
-		9 < (value % base) ? *str = (value % base) + 'a' - DEC_OFFSET :
-							(*str = (value % base) + '0');
+		(DEC_ELEMS - 1) < (value % base) ? 
+						  (*str = (value % base) + 'a' - DEC_OFFSET) :
+						  (*str = (value % base) + '0');
 		value /= base;
 		
 	}while(0 < value);
@@ -181,7 +181,7 @@ int AtoiBaseTil36(const char *str, int base)
 void PrintFirstAndSecond(const char *arr1, size_t len1, const char *arr2, 
 									size_t len2, const char *arr3, size_t len3)
 {
-	int counter_arr[ASCII_TABLE_SIZE] = {0};
+	int counter_arr['z'] = {0};
 	size_t i = 0;
 	
 	assert(NULL != arr1);
@@ -191,6 +191,26 @@ void PrintFirstAndSecond(const char *arr1, size_t len1, const char *arr2,
 	for (i = 0; i < len3; ++i)
 	{
 		counter_arr[(size_t)arr3[i]] = -1;
+	}
+	/* to riject all non letters chars */
+	{
+		for (i = 0; i < 'A'; ++i)
+		{
+			if (-1 == counter_arr[i])
+			{
+				continue;
+			}
+			counter_arr[i] = -1;
+		}
+		
+		for (i = '['; i < 'a'; ++i)
+		{
+			if (-1 == counter_arr[i])
+			{
+				continue;
+			}
+			counter_arr[i] = -1;
+		}
 	}
 	
 	for (i = 0; i < len1; ++i)
