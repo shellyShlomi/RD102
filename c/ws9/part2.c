@@ -19,6 +19,14 @@
 #define DEC_ELEMS 10
 #define DEC_OFFSET 10
 
+
+enum ELEM
+{
+	REJECT = -1,
+	EXCEPTE = 1
+};
+	
+
 static size_t CountChrInNum(int to_add,const size_t base);
 
 /* Approved By: NIR */
@@ -190,50 +198,50 @@ void PrintFirstAndSecond(const char *arr1, size_t len1, const char *arr2,
 	
 	for (i = 0; i < len3; ++i)
 	{
-		counter_arr[(size_t)arr3[i]] = -1;
+		counter_arr[(size_t)arr3[i]] = REJECT;
 	}
 	/* to riject all non letters chars */
 	{
 		for (i = 0; i < 'A'; ++i)
 		{
-			if (-1 == counter_arr[i])
+			if (REJECT == counter_arr[i])
 			{
 				continue;
 			}
-			counter_arr[i] = -1;
+			counter_arr[i] = REJECT;
 		}
 		
 		for (i = '['; i < 'a'; ++i)
 		{
-			if (-1 == counter_arr[i])
+			if (REJECT == counter_arr[i])
 			{
 				continue;
 			}
-			counter_arr[i] = -1;
+			counter_arr[i] = REJECT;
 		}
 	}
 	
 	for (i = 0; i < len1; ++i)
 	{	
-		if (-1 == counter_arr[(size_t)arr1[i]])
+		if (REJECT == counter_arr[(size_t)arr1[i]])
 		{
 			continue;
 		}
 		
-		counter_arr[(size_t)arr1[i]] = 1;
+		counter_arr[(size_t)arr1[i]] = EXCEPTE;
 	}
 	
 	for (i = 0; i < len2; ++i)
 	{	
-		if (-1 == counter_arr[(size_t)arr2[i]])
+		if (REJECT == counter_arr[(size_t)arr2[i]])
 		{
 			continue;
 		}
 		
-		else if (1 == counter_arr[(size_t)arr2[i]])
+		else if (EXCEPTE == counter_arr[(size_t)arr2[i]])
 		{
 			printf("%c ", arr2[i]);
-			counter_arr[(size_t)arr2[i]] = -1;
+			counter_arr[(size_t)arr2[i]] = REJECT;
 		}
 		
 	}
