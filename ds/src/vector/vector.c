@@ -74,15 +74,11 @@ size_t VectorCapacity(const vector_t *vector)
 
 int VectorPushBack(vector_t *vector, void *data)
 {
-	/*int err = -1;*/
-	
 	assert(NULL != vector);
 	assert(NULL != data);
 
 	if (vector->size == vector->capacity)
 	{
-		/*err = VectorReserve(vector, vector->size * FACTOR);*/
-		
 		if (VectorReserve(vector, vector->size * FACTOR))
 		{
 			return EXIT_FAILURE; 
