@@ -98,7 +98,11 @@ int VectorPushBack(vector_t *vector, void *data)
 	return EXIT_SUCCESS;
 }
 
-/* time: O(n) where n is size ,space: O(n) where n is new capacity */
+/* for incricing :													*
+ * time: O(n) where n is size ,space: O(n) where n is new capacity	*
+ * for reducing :													*
+ * time: O(1) ,space: O(1)											*/
+ 
 int VectorReserve(vector_t *vector, size_t new_capacity)
 {
 	void **arr_temp = NULL;
@@ -158,6 +162,7 @@ void *VectorGetElem(const vector_t *vector, size_t index)
 {
 	assert(NULL != vector);
 	assert(0 != vector->size);
+	assert(NULL != vector->arr);
 	assert(index < vector->size);
 	
 	return *(vector->arr + index);	
@@ -169,6 +174,7 @@ void VectorSetElem(vector_t *vector, size_t index, void *data)
 {
 	assert(NULL != vector);
 	assert(0 != vector->size);
+	assert(NULL != vector->arr);
 	assert(index < vector->size);
 	
 	*(vector->arr + index) = data;
