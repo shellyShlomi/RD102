@@ -7,7 +7,7 @@
 
 #include <stdlib.h>	/* malloc */
 #include <assert.h> /* assert */
-#include <stdlib.h> /* exit status */
+
 
 #include "vector.h"
 
