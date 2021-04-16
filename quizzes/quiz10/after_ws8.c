@@ -23,7 +23,7 @@ int main()
 
 	printf("%d\n",MAX3(5,10,4));
 	
-	printf("%ld\n" , OFFSET(struct s, f));
+	printf("%ld\n" , OFFSET(struct s, i));
 
 	printf("%c\n",TO_LOWER('D'));
 	printf("%c\n",TO_LOWER('?'));
