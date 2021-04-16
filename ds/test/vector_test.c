@@ -1,7 +1,6 @@
 
 #include <stdio.h> /* printf */
 #include <stdlib.h> /* exit status */
-#include <string.h> /* strcmp */
 
 #include "vector.h"
 
@@ -49,8 +48,6 @@ static int VectorManager()
 	char *str1 = "shelly1";
 	char *str2 = "shelly2";
 	char *str3 = "shelly3";
-	
-	
 	
 	vector_t *vector = VectorCreate(CAPACITY);
 	
@@ -102,7 +99,7 @@ static int VectorManager()
 	
 	if (THREE != VectorSize(vector))
 	{
-		printf("VectorSize error at line: %d %ld\n", __LINE__, VectorSize(vector));
+		printf("VectorSize error at line: %d\n", __LINE__);
 	}
 
 
@@ -231,6 +228,15 @@ static int VectorManager()
 		if (TWO != VectorSize(vector))
 		{
 			printf("VectorPopBack to small error at line: %d\n", __LINE__);
+		}
+		
+		/* VectorPopBack													*
+		 * test the reduce the capacity to hafe 1/4 full elems at the arr	*/
+		{
+			if (FIVE != VectorCapacity(vector))
+			{
+				printf("PopBack to small arr size error, line: %d\n", __LINE__);
+			}
 		}
 		
 		if (data != *(float *)VectorGetElem(vector, ONE))

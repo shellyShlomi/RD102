@@ -19,3 +19,4 @@ int         VectorShrinkToFit (vector_t *vector);
 #endif /* __OL102_VECTOR_H__ */
 
 
+
