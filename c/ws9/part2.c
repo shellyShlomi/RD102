@@ -109,6 +109,7 @@ char *ItoaBaseTil36(int value, char *str, int base)
 }
 
 /* Approved By: NIR */
+
 int AtoiBase10(const char *str)
 {
 
@@ -122,12 +123,14 @@ int AtoiBase10(const char *str)
 		++str;
 	}
 	
-	if ('-' == *str)
-	{
+	if ('-' == *str || '+' == *str)
+	{	
+		if ('-' == *str)
+		{
+			sign = -sign;
+		}
 		++str;
-		sign = -sign;
 	}
-
 	
 	while (isdigit(*str))
 	{

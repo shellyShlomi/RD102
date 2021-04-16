@@ -88,8 +88,8 @@ static void TestItoaBaseTil36()
 
 static void TestAtoiBase10()
 {
-	char str_arr[][10] =  {
-							"1024", 
+	char str_arr[][50] =  {
+							"10254", 
 							"    ++1", 
 							"-100656", 
 							"-10H0656", 
@@ -107,7 +107,7 @@ static void TestAtoiBase10()
 	{
 		if (atoi(str_arr[i]) != AtoiBase10(str_arr[i]))
 		{
-			printf("AtoiBase10 error at index: %ld \n", i);
+			printf("AtoiBase10 error at index: %ld\n", i);
 		}
 	}
 
