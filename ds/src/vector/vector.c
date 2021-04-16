@@ -149,7 +149,7 @@ void VectorPopBack(vector_t *vector)
 	--(vector->size);
 	
 	/* reduce the capacity to half if we have only 1/4 full elems at the arr */
-	if ( vector->size <= (vector->capacity / (FACTOR * FACTOR)) )
+	if (vector->size == (vector->capacity / (FACTOR * FACTOR)))
 	{
 		VectorReserve(vector, vector->capacity / FACTOR);
 	}
