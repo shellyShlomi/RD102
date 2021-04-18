@@ -52,7 +52,8 @@ bit_arr_t BitArrResetAll(bit_arr_t bit_array)
 bit_arr_t BitArrSetBit(bit_arr_t bit_array, size_t index, int value)
 {
     assert(WORD_SIZE_BITS > index);
-    assert(3 > value && value > -1);
+    assert(2 > value && value > -1);
+    
     return ((bit_array & (~((bit_arr_t)1 << index))) |
             ((bit_arr_t)value << index));
 }
@@ -65,7 +66,7 @@ char *BitArrToString(bit_arr_t bit_array, char *dest)
 
     assert(NULL != dest);
 
-    dest += 64;
+    dest += WORD_SIZE_BITS;
     *dest = '\0';
 
     while (dest_orig < dest)
@@ -183,7 +184,7 @@ size_t BitArrCountOff(bit_arr_t bit_array)
 bit_arr_t BitArrMirror(bit_arr_t bit_arr)
 {
     size_t i = 0;
-	bit_arr_t mirror = bit_arr;
+	bit_arr_t mirror = 0;
 
 	for (i = 0; i < WORD_SIZE_BITS; ++i)
 	{
