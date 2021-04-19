@@ -1,8 +1,21 @@
 
 
-#include <stdio.h> /* printf */
-#include <stdlib.h> /* exit status */
 
+
+
+
+
+
+
+
+
+
+
+
+/*
+#include <stdio.h> /* printf *//*
+#include <stdlib.h> /* exit status */
+/*
 #include "vector.h"
 
 #define CAPACITY 10
@@ -19,8 +32,8 @@ enum ELEM
 	FOUR, 
 	FIVE
 };
-
-
+*/
+/*
 static int VectorManager();
 	
 int main()
@@ -37,8 +50,8 @@ int main()
 	}
 	
 	return EXIT_SUCCESS;
-}
-
+}*/
+/*
 static int VectorManager()
 {
 
@@ -77,4 +90,5 @@ static int VectorManager()
 	vector = NULL;
 	
 	return EXIT_SUCCESS; 
-}
+}*/
+
