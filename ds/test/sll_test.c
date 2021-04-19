@@ -1,15 +1,50 @@
 
+#include <stdio.h> /* printf */
+#include <stdlib.h> /* exit status */
 
 
+#include "sll.h"
 
 
+#define SUCCESS 0
 
 
+static int SLLManager();
+	
+int main()
+{
+	int fail = 0;
+	
+	fail = SLLManager();
+	
+	if (fail)
+	{	
+		printf("SLLManager error at line: %d\n", __LINE__);
+		
+		return EXIT_FAILURE;
+	}
+	
+	return EXIT_SUCCESS;
+}
 
 
-
-
-
+static int SLLManager()
+{
+	s_list_t *list = SLLCreate();
+	
+	if (NULL == list)
+	{
+		printf("SLLCreate error at line: %d\n", __LINE__);
+		return EXIT_FAILURE; 
+	}
+	
+	
+	
+	SLLDestroy(list);
+	list = NULL;
+	
+	return EXIT_SUCCESS; 
+}
 
 
 /*

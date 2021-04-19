@@ -1,7 +1,9 @@
-18.4.20 19:30 	version_3
+/*19.4.20 11:20 version_5*/
 
-#ifndef __LINKED_LIST_H__
-#define __LINKED_LIST_H__
+#ifndef __OL102_LINKED_LIST_H__
+#define __OL102_LINKED_LIST_H__
+
+#include <stddef.h> /* size_t */
 
 typedef struct s_list s_list_t;
 typedef struct s_list_node *s_list_iter_t;
@@ -22,17 +24,16 @@ int SLLIsSameIter(const s_list_iter_t iter1, const s_list_iter_t iter2); /*O(1)*
 void SLLSetData(s_list_iter_t iter, void *data); /*O(1)*/
 void *SLLGetData(const s_list_iter_t iter); /*O(1)*/
 
-s_list_iter_t SLLRemove(s_list_iter_t iter) /*O(1)*/
-int SLLInsert(s_list_iter_t where, void *data); /*O(1)*/
 
+int SLLInsert(s_list_iter_t where, void *data); /*O(1)*/
 
 s_list_iter_t SLLFind(s_list_iter_t from, /*O(n)*/
 			s_list_iter_t to,
-int (*match_func)(const void * data,void *param),void *param);
+		    	int (*match_func)(const void * data,void *param),void *param);
 int SLLForEach(s_list_iter_t from, /*O(n)*/
 		s_list_iter_t to,
-int (*action_func)(void * data,void *param),void *param);
+		int (*action_func)(void * data,void *param),void *param);
 
 
-#endif /* __LINKED_LIST_H__ */
+#endif /* __OL102_LINKED_LIST_H__ */
 
