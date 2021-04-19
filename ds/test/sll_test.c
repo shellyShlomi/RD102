@@ -7,10 +7,16 @@
 
 
 #define SUCCESS 0
+#define SUCCESS_BOL 1
+
+typedef struct s_list_node *s_list_node_ptr_t;	
 
 
 static int SLLManager();
-	
+
+
+static int PrintInt(void *data,void *param);
+
 int main()
 {
 	int fail = 0;
@@ -30,100 +36,77 @@ int main()
 
 static int SLLManager()
 {
+
+	int data = 9;
 	s_list_t *list = SLLCreate();
+	s_list_node_ptr_t iter = NULL;
+	s_list_node_ptr_t iter1 = NULL;
 	
 	if (NULL == list)
 	{
 		printf("SLLCreate error at line: %d\n", __LINE__);
+		list = NULL;
+		
 		return EXIT_FAILURE; 
 	}
 	
+	/* test SLLIsSameIter on empty list */
+	if (SUCCESS_BOL != SLLIsSameIter(SLLBegin(list), SLLEnd(list)))
+	{
+		printf("SLLCreate error at line: %d\n", __LINE__);
+		 
+	}
 	
+	/* test SLLIsEmpty on empty list  */
+	if (SUCCESS_BOL != SLLIsEmpty(list))
+	{
+		printf("SLLIsEmpty error at line: %d\n", __LINE__);
+		 
+	}
+	
+	/* get the dummy iter - empty list -- for insert */
+	iter = SLLEnd(list);
+	
+	iter = SLLInsert(iter, (void *)data);
+	
+	
+	if (SUCCESS_BOL == SLLIsEmpty(list))
+	{
+		printf("SLLInsert error at line: %d\n", __LINE__);
+		 
+	}
+	
+	SLLRemove(iter);
+		
+	if (SUCCESS_BOL != SLLIsEmpty(list))
+	{
+		printf("SLLRemove error at line: %d\n", __LINE__);
+		 
+	}
+	
+	iter = SLLInsert(SLLBegin(list), (void *)&data);
+	iter1 = SLLInsert(iter, (void *)&data);
+	
+	if (SUCCESS != SLLForEach(SLLBegin(list), SLLEnd(list), PrintInt, NULL))
+	{
+		printf("SLLForEach error at line: %d\n", __LINE__);
+	}
 	
 	SLLDestroy(list);
 	list = NULL;
+
+	iter = NULL;
 	
+
 	return EXIT_SUCCESS; 
 }
 
-
-/*
-#include <stdio.h> /* printf *//*
-#include <stdlib.h> /* exit status */
-/*
-#include "vector.h"
-
-#define CAPACITY 10
-#define CAPACITY_SMALL 2
-#define SUCCESS 0
-
-
-enum ELEM
-{
-	ZERO,
-	ONE,
-	TWO,
-	THREE,
-	FOUR, 
-	FIVE
-};
-*/
-/*
-static int VectorManager();
-	
-int main()
-{
-	int fail = 0;
-	
-	fail = VectorManager();
-	
-	if (fail)
-	{	
-		printf("VectorManager error at line: %d\n", __LINE__);
-		
-		return EXIT_FAILURE;
-	}
-	
-	return EXIT_SUCCESS;
-}*/
-/*
-static int VectorManager()
+static int PrintInt(void *data,void *param)
 {
 
-	float data = 20.33;
-	int data1 = 9;
-	double data2 = 601.33333;
-	char *str = "shelly";
-	char *str1 = "shelly1";
-	char *str2 = "shelly2";
-	char *str3 = "shelly3";
-	
-	vector_t *vector = VectorCreate(CAPACITY);
-	
-	if (NULL == vector)
-	{
-		printf("VectorCreate error at line: %d\n", __LINE__);
-		return EXIT_FAILURE; 
-	}
-	
-	if (CAPACITY != VectorCapacity(vector))
-	{
-		printf("VectorCapacity error at line: %d\n", __LINE__);
-	}
-	
-	if (ZERO != VectorSize(vector))
-	{
-		printf("VectorSize error at line: %d\n", __LINE__);
-	}
+	printf("%d\n", *(int *)data);
 
-	if (SUCCESS != VectorPushBack(vector, (void *)&data1))
-	{
-		printf("VectorPushBack error at line: %d\n", __LINE__);
-	}
-	
-	VectorDestroy(vector);
-	vector = NULL;
-	
 	return EXIT_SUCCESS; 
-}*/
+}
+
 
