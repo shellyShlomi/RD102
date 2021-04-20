@@ -78,7 +78,6 @@ int SLLIsSameIter(const s_list_iter_t iter1, const s_list_iter_t iter2)
 s_list_iter_t SLLBegin(const s_list_t *list)
 {
 	assert(NULL != list);
-	assert(NULL != list->head);
 
 	return list->head;
 }
@@ -87,7 +86,6 @@ s_list_iter_t SLLBegin(const s_list_t *list)
 s_list_iter_t SLLEnd(const s_list_t *list)
 {
 	assert(NULL != list);
-	assert(NULL != list->tail);
 
 	return list->tail;
 }
@@ -193,7 +191,6 @@ s_list_iter_t SLLRemove(s_list_iter_t iter)
 {
 	size_t temp = (size_t)SLLNext(iter);
 	
-	assert(NULL != SLLNext(iter));
 	assert(NULL != iter);
 		
 	*iter = *(SLLNext(iter));
@@ -218,6 +215,7 @@ void SLLDestroy(s_list_t *list)
 {
 	assert(NULL != list);
 	assert(NULL != list->head);
+	assert(NULL != list->tail);
 	
 	while (!SLLIsSameIter(SLLBegin(list), SLLEnd(list)))
 	{
