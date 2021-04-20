@@ -1,9 +1,9 @@
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:in dev;												*
+ *  Status:Approved;											*
  *  Date Of Creation:19.04.21;									*
- *  Date Of Approval:--.04.21;									*
- *  Approved By: ;												*
+ *  Date Of Approval:20.04.21;									*
+ *  Approved By: final approved by NIR;							*
  *  Description: singly link list data structure;				*/
 
 
@@ -14,10 +14,10 @@
 #include "sll.h"
 
 #define FAILE 1
-static int CountNode(void *data,void *param);
 
 typedef struct s_list_node *s_list_node_ptr_t;
-/*typedef s_list_node_t s_list_iter_t; .h*/
+
+static int CountNode(void *data,void *param);
 
 struct s_list_node
 {
@@ -74,6 +74,7 @@ int SLLIsSameIter(const s_list_iter_t iter1, const s_list_iter_t iter2)
 	return (iter1 == iter2);
 }
 
+/* Approved by Shir */
 s_list_iter_t SLLBegin(const s_list_t *list)
 {
 	assert(NULL != list);
@@ -82,6 +83,7 @@ s_list_iter_t SLLBegin(const s_list_t *list)
 	return list->head;
 }
 
+/* Approved by Shir */
 s_list_iter_t SLLEnd(const s_list_t *list)
 {
 	assert(NULL != list);
@@ -127,6 +129,7 @@ void *SLLGetData(const s_list_iter_t iter)
 
 }
 
+/* Approved by Shir */
 s_list_iter_t SLLInsert(s_list_iter_t where, void *data)
 {
 	s_list_node_ptr_t iter = NULL;
@@ -141,6 +144,7 @@ s_list_iter_t SLLInsert(s_list_iter_t where, void *data)
 		{
 			where = SLLNext(where);
 		}
+		
 		return (where);
 				
 	}
@@ -160,6 +164,7 @@ s_list_iter_t SLLInsert(s_list_iter_t where, void *data)
 
 }
 
+/* Approved by Shir */
 int SLLForEach(s_list_iter_t from,
         s_list_iter_t to,
         int (*action_func)(void *data,void *param),void *param)
@@ -174,7 +179,7 @@ int SLLForEach(s_list_iter_t from,
 	{
 		val = (*action_func)(SLLGetData(from), param);
 		
-		if (!(!val))
+		if (0 != val)
 		{
 			return (val);
 		}
@@ -184,15 +189,17 @@ int SLLForEach(s_list_iter_t from,
 	return (val);
 }
 
+/* Approved by Shir */
 s_list_iter_t SLLRemove(s_list_iter_t iter)
 {
 	size_t temp = (size_t)SLLNext(iter);
 	
 	assert(NULL != SLLNext(iter));
+	assert(NULL != iter);
 		
 	*iter = *(SLLNext(iter));
 
-	((s_list_node_ptr_t)temp)->data = NULL;
+	((s_list_node_ptr_t)temp)->data = NULL;/*setdata*/
 	((s_list_node_ptr_t)temp)->next = NULL;
 
 	if (NULL == SLLNext(iter))
@@ -205,6 +212,8 @@ s_list_iter_t SLLRemove(s_list_iter_t iter)
 	return (iter);
 	
 }
+
+/* Approved by Shir */
 void SLLDestroy(s_list_t *list)
 {
 	assert(NULL != list);
@@ -215,6 +224,8 @@ void SLLDestroy(s_list_t *list)
 		SLLRemove(SLLBegin(list));
 	}
 	
+	SLLSetData(SLLBegin(list), NULL);
+	
 	free(SLLBegin(list));
 	
 	list->head = NULL;
@@ -224,23 +235,27 @@ void SLLDestroy(s_list_t *list)
 	
 	return;
 }
+
+/* Approved by Shir */
 size_t SLLCount(const s_list_t *list)
 {
 	size_t param = 0;
+	
+	assert(NULL != list);
 
 	SLLForEach(SLLBegin(list), SLLEnd(list), CountNode, (void *)&param);
 	
 	return param;
 }
 
-
+/* Approved by Shir */
 s_list_iter_t SLLFind(  s_list_iter_t from,
                         s_list_iter_t to,
                         int (*match_func)(const void * data,void *param),    
                         void *param)
 {
 
-	int match = 0;
+	int match = 1;
 	
 	while (!SLLIsSameIter(from, to))
 	{
@@ -255,57 +270,16 @@ s_list_iter_t SLLFind(  s_list_iter_t from,
 	}
 	
 	return to; 
-
 }
-
-
 
 static int CountNode(void *data,void *param)
 {
 	(void)data;
 	
 	*(size_t *)param = *(size_t *)param + 1;
-	
 
 	return EXIT_SUCCESS; 
 }
 
 
 
-
-
-/*distroy not final!*/
-
-/*
-void SLLDestroy(s_list_t *list)
-{
-	s_list_node_ptr_t free_node = list->head;
-	s_list_node_ptr_t temp_node = free_node->next;
-	
-	assert(NULL != list);
-	assert(NULL != list->head);
-
-	while (NULL != free_node->next)
-	{
-		free_node->data = NULL;
-		free_node->next = NULL;
-
-		free(free_node);
-		
-		free_node = temp_node;
-		temp_node = free_node->next;
-	}
-	
-	free_node->data = NULL;
-	
-	free(free_node);
-	
-	list->head = NULL;
-	list->tail = NULL;
-
-	free(list);
-	
-
-	return;
-
-}*/
