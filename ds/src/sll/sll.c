@@ -140,7 +140,7 @@ s_list_iter_t SLLInsert(s_list_iter_t where, void *data)
 	
 	if (NULL == iter)
 	{   
-		while (NULL != SLLNext(where))/* for each */
+		while (NULL != SLLNext(where))
 		{
 			where = SLLNext(where);
 		}
@@ -199,7 +199,8 @@ s_list_iter_t SLLRemove(s_list_iter_t iter)
 		
 	*iter = *(SLLNext(iter));
 
-	((s_list_node_ptr_t)temp)->data = NULL;/*setdata*/
+	SLLSetData((s_list_node_ptr_t)temp, NULL);
+	
 	((s_list_node_ptr_t)temp)->next = NULL;
 
 	if (NULL == SLLNext(iter))
