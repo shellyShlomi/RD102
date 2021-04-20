@@ -84,8 +84,8 @@ static int SLLManager()
 		 
 	}
 	
-	iter = SLLInsert(SLLBegin(list), (void *)&data);
-	iter = SLLInsert(iter, (void *)&data1);
+	iter = SLLInsert(SLLBegin(list), (void *)&data1);
+	iter = SLLInsert(iter, (void *)&data);
 	iter = SLLInsert(iter, (void *)&data);
 	iter = SLLInsert(iter, (void *)&data);
 

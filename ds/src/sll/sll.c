@@ -146,7 +146,6 @@ s_list_iter_t SLLInsert(s_list_iter_t where, void *data)
 		}
 		
 		return (where);
-				
 	}
 
 	if (NULL == SLLNext(where))
@@ -177,7 +176,7 @@ int SLLForEach(s_list_iter_t from,
 	
 	while (!SLLIsSameIter(from, to))
 	{
-		val = (*action_func)(SLLGetData(from), param);
+		val = action_func(SLLGetData(from), param);
 		
 		if (0 != val)
 		{
@@ -260,7 +259,7 @@ s_list_iter_t SLLFind(  s_list_iter_t from,
 	
 	while (!SLLIsSameIter(from, to))
 	{
-		match = (*match_func)(SLLGetData(from), param);
+		match = match_func(SLLGetData(from), param);
 		
 		if ((!FAILE) == match)
 		{
