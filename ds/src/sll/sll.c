@@ -170,7 +170,6 @@ int SLLForEach(s_list_iter_t from,
 	
 	assert(NULL != action_func);
 	assert(NULL != from);
-	assert(NULL != to);
 	
 	while (!SLLIsSameIter(from, to))
 	{
@@ -254,6 +253,9 @@ s_list_iter_t SLLFind(  s_list_iter_t from,
 {
 
 	int match = 1;
+
+	assert(NULL != match_func);
+	assert(NULL != from);
 	
 	while (!SLLIsSameIter(from, to))
 	{
