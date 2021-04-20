@@ -10,9 +10,11 @@
 #include <stdio.h>
 #include <stdlib.h> /*malloc*/
 #include <assert.h> /*assert*/
+
 #include "sll.h"
 
 #define FAILE 1
+static int CountNode(void *data,void *param);
 
 typedef struct s_list_node *s_list_node_ptr_t;
 /*typedef s_list_node_t s_list_iter_t; .h*/
@@ -162,7 +164,7 @@ int SLLForEach(s_list_iter_t from,
         s_list_iter_t to,
         int (*action_func)(void *data,void *param),void *param)
 {
-	int status = 1;
+	int val = 1;
 	
 	assert(NULL != action_func);
 	assert(NULL != from);
@@ -170,16 +172,16 @@ int SLLForEach(s_list_iter_t from,
 	
 	while (!SLLIsSameIter(from, to))
 	{
-		status = (*action_func)(from->data, param);
+		val = (*action_func)(SLLGetData(from), param);
 		
-		if (FAILE == status)
+		if (!(!val))
 		{
-			return (status);
+			return (val);
 		}
 		
 		from = SLLNext(from);
 	}
-	return (status);
+	return (val);
 }
 
 s_list_iter_t SLLRemove(s_list_iter_t iter)
@@ -205,8 +207,6 @@ s_list_iter_t SLLRemove(s_list_iter_t iter)
 }
 void SLLDestroy(s_list_t *list)
 {
-	s_list_node_ptr_t iter = NULL;
-	
 	assert(NULL != list);
 	assert(NULL != list->head);
 	
@@ -224,13 +224,48 @@ void SLLDestroy(s_list_t *list)
 	
 	return;
 }
+size_t SLLCount(const s_list_t *list)
+{
+	size_t param = 0;
+
+	SLLForEach(SLLBegin(list), SLLEnd(list), CountNode, (void *)&param);
+	
+	return param;
+}
 
 
-
-static int PrintInt(void *data,void *param)
+s_list_iter_t SLLFind(  s_list_iter_t from,
+                        s_list_iter_t to,
+                        int (*match_func)(const void * data,void *param),    
+                        void *param)
 {
 
-	printf("%d\n", *(int *)data);
+	int match = 0;
+	
+	while (!SLLIsSameIter(from, to))
+	{
+		match = (*match_func)(SLLGetData(from), param);
+		
+		if ((!FAILE) == match)
+		{
+			return from; 
+		}
+		
+		from = SLLNext(from);
+	}
+	
+	return to; 
+
+}
+
+
+
+static int CountNode(void *data,void *param)
+{
+	(void)data;
+	
+	*(size_t *)param = *(size_t *)param + 1;
+	
 
 	return EXIT_SUCCESS; 
 }
