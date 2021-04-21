@@ -7,7 +7,6 @@
  *  Description: singly link list data structure;				*/
 
 
-#include <stdio.h>
 #include <stdlib.h> /*malloc*/
 #include <assert.h> /*assert*/
 
@@ -130,13 +129,13 @@ void *SLLGetData(const s_list_iter_t iter)
 /* Approved by Shir */
 s_list_iter_t SLLInsert(s_list_iter_t where, void *data)
 {
-	s_list_node_ptr_t iter = NULL;
+	s_list_node_ptr_t node = NULL;
 	
 	assert(NULL != where);
 	
-	iter = (s_list_node_ptr_t)malloc(sizeof(struct s_list_node));
+	node = (s_list_node_ptr_t)malloc(sizeof(struct s_list_node));
 	
-	if (NULL == iter)
+	if (NULL == node)
 	{   
 		while (NULL != SLLNext(where))
 		{
@@ -148,14 +147,14 @@ s_list_iter_t SLLInsert(s_list_iter_t where, void *data)
 
 	if (NULL == SLLNext(where))
 	{
-		((s_list_t *)where->data)->tail = iter;
+		((s_list_t *)SLLGetData(where))->tail = node;
 	}
 	
-	*iter = *where;
+	*node = *where;
 	
 	SLLSetData(where, data);
 	
-	where->next = iter;
+	where->next = node;
 	
 	return (where);
 
@@ -200,7 +199,7 @@ s_list_iter_t SLLRemove(s_list_iter_t iter)
 
 	if (NULL == SLLNext(iter))
 	{
-		((s_list_t *)iter->data)->tail = iter;
+		((s_list_t *)SLLGetData(iter))->tail = iter;
 	}
 	
 	free((void *)temp);

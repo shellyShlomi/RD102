@@ -5,7 +5,6 @@
 #define SUCCESS 0
 #define SUCCESS_BOL 1
 
-typedef struct s_list_node *s_list_node_ptr_t;	
 
 #include "sll.h"
 
@@ -40,7 +39,7 @@ static int SLLManager()
 	int data2 = 19;
 	
 	s_list_t *list = SLLCreate();
-	s_list_node_ptr_t iter = NULL;
+	s_list_iter_t iter = NULL;
 	
 	if (NULL == list)
 	{
