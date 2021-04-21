@@ -63,6 +63,8 @@ int HasLoop(const node_t *head)
 	const node_t *jump1 = head;
 	const node_t *jump2 = jump1;
 
+	assert(NULL != head);
+
 	while(NULL != jump2->next && NULL != jump2->next->next)
 	{
 		jump1 = jump1->next;
@@ -82,6 +84,9 @@ node_t *FindIntersection(node_t *head_1, node_t *head_2)
 {
 	size_t counter_1 = 0;
 	size_t counter_2 = 0;
+
+	assert(NULL != head_1);
+	assert(NULL != head_2);
 
 	counter_1 = CountElemInList(head_1);
 	counter_2 = CountElemInList(head_2);
