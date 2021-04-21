@@ -55,6 +55,8 @@ int SLLForEach(s_list_iter_t from,
               s_list_iter_t to,
               int (*action_func)(void * data,void *param),void *param);
 
+/* complexity time O(1) */                           
+void SLLAppend(s_list_t *dest, s_list_t *src);  
 
 #endif /* __OL102_LINKED_LIST_H__ */
 
