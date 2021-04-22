@@ -80,11 +80,14 @@ int  QueueIsEmpty(const queue_t *queue)
 /* eden boy approved */
 int QueueEnqueue(queue_t *queue, void *data)
 {
+	s_list_iter_t insert_iter = NULL;
+	
 	assert(NULL != queue);
 	assert(NULL != queue->queue_list);	
-
-	return (SLLIsSameIter(SLLEnd(queue->queue_list), 
-			SLLInsert(SLLEnd(queue->queue_list), data)));
+	/* save the val from the insert to prevent unspecifaid bihaver*/
+	insert_iter = SLLInsert(SLLEnd(queue->queue_list), data);
+	
+	return (SLLIsSameIter(SLLEnd(queue->queue_list), insert_iter));
 
 }
 
