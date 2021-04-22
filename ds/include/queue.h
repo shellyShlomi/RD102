@@ -17,7 +17,7 @@ int  QueueEnqueue(queue_t *queue, void *data);	              /* O(1) */
 void *QueuePeek(const queue_t *queue);						  /* O(1) */
 void QueueDequeue(queue_t *queue);							  /* O(1) */
 
-queue_t *QueueAppend(queue_t *dest, queue_t *src);            /* O(1) */
+void QueueAppend(queue_t *dest, queue_t *src);            /* O(1) */
  
 #endif /* __OL102_QUEUE_H__ */
 
