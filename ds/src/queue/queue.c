@@ -20,7 +20,7 @@ struct queue
 	s_list_t *queue_list;
 };                    			
 
-/*nir approved whith no tests*/
+/* nir approved */
 queue_t *QueueCreate(void)
 {
 	queue_t *queue = (queue_t *)malloc(sizeof(queue_t));
@@ -43,7 +43,7 @@ queue_t *QueueCreate(void)
 	return queue;
 }
 
-/*nir approved whith no tests*/
+/* nir approved */
 void QueueDestroy(queue_t *queue)
 {
 	assert(NULL != queue);
@@ -58,7 +58,7 @@ void QueueDestroy(queue_t *queue)
 	return ;
 }				              	
 
-/*eden boy approved with no tests*/
+/* eden boy approved */
 size_t QueueSize(const queue_t *queue)
 {
 	assert(NULL != queue);
@@ -67,7 +67,7 @@ size_t QueueSize(const queue_t *queue)
 	return SLLCount(queue->queue_list);
 }
 
-/*eden boy approved with no tests*/
+/* eden boy approved */
 int  QueueIsEmpty(const queue_t *queue)
 {
 	assert(NULL != queue);
@@ -77,7 +77,7 @@ int  QueueIsEmpty(const queue_t *queue)
 
 }
 
-/*eden boy approved with no tests*/
+/* eden boy approved */
 int QueueEnqueue(queue_t *queue, void *data)
 {
 	assert(NULL != queue);
@@ -88,7 +88,7 @@ int QueueEnqueue(queue_t *queue, void *data)
 
 }
 
-/*eden boy approved with no tests*/
+/* eden boy approved */
 void QueueDequeue(queue_t *queue)
 {
 	assert(NULL != queue);
@@ -99,7 +99,7 @@ void QueueDequeue(queue_t *queue)
 	return ;
 }
 
-/*eden boy approved with no tests*/
+/* eden boy approved */
 void *QueuePeek(const queue_t *queue)
 {
 	assert(NULL != queue->queue_list);	
@@ -107,7 +107,7 @@ void *QueuePeek(const queue_t *queue)
 	return SLLGetData(SLLBegin(queue->queue_list));         
 }
 
-/*eden boy approved with no tests*/
+/* eden boy approved */
 void QueueAppend(queue_t *dest, queue_t *src)
 {
 	assert(NULL != dest);
