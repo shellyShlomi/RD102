@@ -1,9 +1,9 @@
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:Approved ;										*
+ *  Status:Approved ;											*
  *  Date Of Creation:21.04.21;									*
  *  Date Of Approval:22.04.21;									*
- *  Approved By: final approved by maor;												*
+ *  Approved By: final approved by maor;						*
  *  Description: queue implementation as a client of 			*
  *				 singly link list data structure;				*/
 
