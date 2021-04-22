@@ -14,6 +14,7 @@ static int SLLManager();
 static int MatchInt(const void *data,void *param);
 static int PrintInt(void *data,void *param);
 
+
 int main()
 {
 	int fail = 0;
@@ -37,6 +38,16 @@ static int SLLManager()
 	int data = 9;
 	int data1 = 19;
 	int data2 = 19;
+
+
+	int data3 = 1;
+	int data4 = 2;
+	int data5 = 3;
+	int data6 = 4;
+	int data7 = 5;
+	int data8 = 6;
+	
+	s_list_t *list_for_app = SLLCreate();
 	
 	s_list_t *list = SLLCreate();
 	s_list_iter_t iter = NULL;
@@ -84,9 +95,9 @@ static int SLLManager()
 	}
 	
 	iter = SLLInsert(SLLBegin(list), (void *)&data1);
-	iter = SLLInsert(iter, (void *)&data);
-	iter = SLLInsert(iter, (void *)&data);
-	iter = SLLInsert(iter, (void *)&data);
+	iter = SLLInsert(iter, (void *)&data3);
+	iter = SLLInsert(iter, (void *)&data4);
+	iter = SLLInsert(iter, (void *)&data5);
 
 	if (SUCCESS != SLLForEach(SLLBegin(list), SLLEnd(list), PrintInt, NULL))
 	{
@@ -104,9 +115,35 @@ static int SLLManager()
 		printf("SLLFind error at line:%d \n", __LINE__);
 	}
 	
+	iter = SLLInsert(SLLBegin(list_for_app), (void *)&data6);
+	iter = SLLInsert(iter, (void *)&data7);
+	iter = SLLInsert(iter, (void *)&data8);
+	
+	SLLAppend(list, list_for_app);
+	
+	if (7 != SLLCount(list) || 0 != SLLCount(list_for_app))
+	{
+		printf("SLLAppend error at line:%d \n", __LINE__);
+	}
+	
+	SLLAppend(list, list_for_app);
+	if (7 != SLLCount(list) || 0 != SLLCount(list_for_app))
+	{
+		printf("SLLAppend error at line:%d \n", __LINE__);
+	}
+	
+	SLLAppend(list_for_app, list);
+	
+	if (0 != SLLCount(list) || 7 != SLLCount(list_for_app))
+	{
+		printf("SLLAppend error at line:%d \n", __LINE__);
+	}
+	
 	SLLDestroy(list);
+	SLLDestroy(list_for_app);
 	list = NULL;
-
+	list_for_app = NULL;
+	
 	iter = NULL;
 	
 

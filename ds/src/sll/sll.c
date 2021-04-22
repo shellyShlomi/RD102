@@ -271,6 +271,39 @@ s_list_iter_t SLLFind(  s_list_iter_t from,
 	return to; 
 }
 
+/*eden boy approved*/
+void SLLAppend(s_list_t *dest, s_list_t *src)
+{
+
+	assert(NULL != src);
+	assert(NULL != dest);
+	
+	if(SLLIsEmpty(src))
+	{
+		return ;
+	}
+	
+	*(SLLEnd(dest)) = *(SLLBegin(src));
+	
+	SLLEnd(src)->data = dest;
+	
+	dest->tail = src->tail;
+	
+	/* the dest list is ready */
+	
+	/* the next two steps makes the head of src to be dummy */
+	SLLSetData(SLLBegin(src), (void *)src); 	
+	
+	(src->head)->next = NULL;
+
+	/* close the src lise to be empty (head and tail points to dummy)*/	
+	src->tail = src->head;
+	
+	return ;
+	
+}
+
+
 static int CountNode(void *data,void *param)
 {
 	(void)data;
@@ -279,6 +312,5 @@ static int CountNode(void *data,void *param)
 
 	return EXIT_SUCCESS; 
 }
-
 
 
