@@ -64,7 +64,7 @@ static void ReversString(char *start, char *end)
 static void Test()
 {
 	char str_arr[][50] =  {
-						"Shelly Shlomi loves Ivy", 
+						"    Shelly Shlomi loves Ivy", 
 						"Ivy is the best dog",
 						"anna is the best",
 						"nir is always right"
