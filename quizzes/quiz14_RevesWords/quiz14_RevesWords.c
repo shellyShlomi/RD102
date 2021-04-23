@@ -17,8 +17,7 @@ int main()
 
 void ReversStrWords(char *str)
 {
-	char *orig_str = str;
-	char *temp_stat = orig_str;
+	char *temp_stat = str;
 	size_t size = 0;
 	
 	assert(NULL != str);
@@ -39,8 +38,6 @@ void ReversStrWords(char *str)
 	}
 	
 	ReversString(temp_stat, str - 1);
-
-	str = orig_str;
 	
 	return;
 }
