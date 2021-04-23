@@ -66,14 +66,14 @@ static void Test()
 	char str_arr[][50] =  {
 						"    Shelly Shlomi loves Ivy", 
 						"Ivy is the best dog",
-						"anna is the best",
+						"anna is    the best",
 						"nir is always right"
 													}; 
 													
-	char exp_arr[][50] =  {
-						"Ivy loves Shlomi Shelly",
+	char *exp_arr[] =  {
+						"Ivy loves Shlomi Shelly    ",
 						"dog best the is Ivy",
-						"best the is anna",
+						"best the    is anna",
 						"right always is nir"
 													}; 
 	size_t i = 0;
