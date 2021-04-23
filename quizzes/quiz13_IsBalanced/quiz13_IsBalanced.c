@@ -5,7 +5,7 @@
 
 static void ReversString(char *str, char *end);
 void ReversStrWords(char *str);
-void Test();
+static void Test();
 
 int main()
 {
@@ -63,7 +63,7 @@ static void ReversString(char *start, char *end)
 	return;
 }
 
-void Test()
+static void Test()
 {
 	char str_arr[][50] =  {
 						"Shelly Shlomi loves Ivy", 
