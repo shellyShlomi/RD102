@@ -77,7 +77,7 @@ static void Test()
 						"dog best the is Ivy",
 						"best the is anna",
 						"right always is nir"
-						}; 
+													}; 
 	size_t i = 0;
 	size_t size = sizeof(str_arr)/sizeof(str_arr[0]);
 
