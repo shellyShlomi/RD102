@@ -169,6 +169,7 @@ int SLLForEach(s_list_iter_t from,
 	
 	assert(NULL != action_func);
 	assert(NULL != from);
+	assert(NULL != to);
 	
 	while (!SLLIsSameIter(from, to))
 	{
@@ -255,6 +256,7 @@ s_list_iter_t SLLFind(  s_list_iter_t from,
 
 	assert(NULL != match_func);
 	assert(NULL != from);
+	assert(NULL != to);
 	
 	while (!SLLIsSameIter(from, to))
 	{
@@ -285,7 +287,7 @@ void SLLAppend(s_list_t *dest, s_list_t *src)
 	
 	*(SLLEnd(dest)) = *(SLLBegin(src));
 	
-	SLLEnd(src)->data = dest;
+	SLLEnd(src)->data = (void *)dest;
 	
 	dest->tail = src->tail;
 	
