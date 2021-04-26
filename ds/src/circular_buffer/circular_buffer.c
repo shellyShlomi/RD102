@@ -3,7 +3,7 @@
  *  Status:Approved by mentor;									*
  *  Date Of Creation:25.04.21;									*
  *  Date Of Approval:26.04.21;									*
- *  Approved By: (tests)final approved by Anna;						*
+ *  Approved By: (tests)final approved by Anna;					*
  *  Description: circular_buffer data structure;				*/
 
 #include <assert.h> /*	assert	*/
