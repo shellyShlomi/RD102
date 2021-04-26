@@ -80,13 +80,14 @@ static void SplitIntersection(node_t *head_1, node_t *head_2)
 	{
 		if (head_1->next == head_2->next)
 		{
+			head_1->next = NULL;
+			
 			break;
 		}
 		head_1 = head_1->next;
 		head_2 = head_2->next;		
 	}
 	
-	head_1->next = NULL;
 	
 	return;
 }
