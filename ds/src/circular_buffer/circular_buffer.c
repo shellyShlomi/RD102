@@ -42,9 +42,6 @@ void CBufferDestroy(c_buffer_t *c_buf)
 {
 
 	assert(NULL != c_buf);
-	assert(NULL != c_buf->cur_size);
-	assert(NULL != c_buf->capacity);
-	assert(NULL != c_buf->idx_read);
 		
 	c_buf->cur_size = 0xFFFFFFFFFFFFFFFF;
 	c_buf->capacity = 0;
@@ -79,9 +76,11 @@ ssize_t CBufferWrite(c_buffer_t *c_buf, const void *src, size_t count)
 		byte_to_write = CBufferSiz(c_buf) - idx_write;
 		
 		memcpy((c_buf->arr + idx_write), (char *)src, byte_to_write);	
+		
+		idx_write = 0;
 	}
 
-		memcpy((c_buf->arr + idx_write), (char *)src + byte_to_write, 
+	memcpy(c_buf->arr + idx_write, (char *)src + byte_to_write, 
 													count - byte_to_write);	
 
 	c_buf->cur_size += count;					
@@ -94,6 +93,7 @@ ssize_t CBufferRead(c_buffer_t *c_buf, void *dest, size_t count)
 {
 	size_t space_tile_end = CBufferSiz(c_buf) - c_buf->idx_read;
 	size_t toggle = 0;
+	
 	assert(NULL != c_buf);
 	assert(NULL != dest);
 	
