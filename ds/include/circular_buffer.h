@@ -8,7 +8,6 @@
 
 typedef struct circular_buffer c_buffer_t;
 
-
 c_buffer_t *CBufferCreate(size_t capacity);
 void CBufferDestroy(c_buffer_t *c_buffer);
 

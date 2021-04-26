@@ -1,4 +1,11 @@
 
+/*  Developer: Shelly Shlomi;									*
+ *  Status:Approved by mentor;									*
+ *  Date Of Creation:25.04.21;									*
+ *  Date Of Approval:26.04.21;									*
+ *  Approved By: (tests)final approved by Anna;						*
+ *  Description: circular_buffer data structure;				*/
+
 #include <assert.h> /*	assert	*/
 #include <string.h> /*	memcpy	*/
 #include <stdlib.h> /*	malloc	*/
@@ -7,7 +14,6 @@
 #include "circular_buffer.h"
 
 #define OFFSETOF(s, m)((size_t)&(((s *)0)->m))
-
 
 struct circular_buffer
 {
@@ -82,7 +88,6 @@ ssize_t CBufferWrite(c_buffer_t *c_buf, const void *src, size_t count)
 
 	memcpy(c_buf->arr + idx_write, (char *)src + byte_to_write, 
 													count - byte_to_write);	
-
 	c_buf->cur_size += count;					
 	
 	return count;
@@ -106,11 +111,13 @@ ssize_t CBufferRead(c_buffer_t *c_buf, void *dest, size_t count)
 	{	
 		memcpy((char *)dest, c_buf->idx_read + c_buf->arr, space_tile_end);
 		toggle = 1;
+		c_buf->idx_read = 0;
 	}
 
 
-	memcpy((char *)dest + (space_tile_end * toggle), c_buf->arr,
-											count - (space_tile_end * toggle));
+	memcpy(	(char *)dest + (space_tile_end * toggle), 
+			c_buf->arr + c_buf->idx_read,
+			count - (space_tile_end * toggle));
 
 	c_buf->cur_size -= count;
 	

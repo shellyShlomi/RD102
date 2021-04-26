@@ -20,7 +20,7 @@ static void CBTest()
 	char *src = "shelly shlomi";
 	char *src_orig = src;
 	char dest[CAPACITY + CAPACITY] = {'\0'};
-
+	char dest2[CAPACITY + CAPACITY] = {'\0'};
 	size_t size_to_copy = 5;
 	size_t size_to_read = 3;	
 	size_t i = 1;
@@ -49,8 +49,6 @@ static void CBTest()
 	
 	while (size_to_copy * i <= CAPACITY)
 	{
-	
-		src += size_to_copy;
 		if (src_len < size_to_copy * i)
 		{
 			src = src_orig;
@@ -60,7 +58,8 @@ static void CBTest()
 		{
 			printf("CBufferWrite error at line: %d at i : %lu \n",__LINE__, i);
 		}
-		
+		src += size_to_copy;
+
 		++i;
 	}
 	
@@ -86,7 +85,6 @@ static void CBTest()
 		{
 			printf("CBufferRead error at line: %d at i : %lu\n",__LINE__, i);
 		}
-		
 		++i;
 	}
 	
@@ -117,7 +115,7 @@ static void CBTest()
 	}
 	
 	if ((ssize_t)(CAPACITY - CBufferFreeSpace(circular_buffer)) != 
-				CBufferRead(circular_buffer, dest, size_to_copy * size_to_read))
+				CBufferRead(circular_buffer, dest2, size_to_copy * size_to_read))
 	{
 		printf("CBufferRead error at line: %d\n",__LINE__);
 	}
