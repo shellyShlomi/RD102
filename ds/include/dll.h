@@ -9,75 +9,54 @@ typedef struct d_list d_list_t;
 typedef struct d_list_node *d_list_iter_t;
 
 
-/*
-
-struct d_list_node
-{
-	void *data;
-	d_list_node *next;
-	d_list_node *prev;
-	
-};
-
-struct d_list
-{
-	d_list_node head_dummy;
-	d_list_node tail_dummy;
-};
-
-
-*/
-
-
-
 /* complexity time O(1) */
-d_list_t *DLLCreate(void);
+d_list_t *DLLCreate(void);/*done*/
 
 /* complexity time O(n) */                       
-void DLLDestroy(d_list_t *list);                    
+void DLLDestroy(d_list_t *list);/*done*/                    
 
 /* complexity time O(1) */  
-int DLLIsEmpty (const d_list_t *list);
+int DLLIsEmpty (const d_list_t *list);/*done*/
 
 /* complexity time O(n) */              
-size_t DLLSize(const d_list_t *list);                              
+size_t DLLSize(const d_list_t *list);     /*done*/                         
 
 /* complexity time O(1); on failure return end_dummy*/    
-d_list_iter_t DLLBegin(const d_list_t *list);
+d_list_iter_t DLLBegin(const d_list_t *list);/*done*/
 
 /* complexity time O(1) */                               
-d_list_iter_t DLLEnd(const d_list_t *list);   
+d_list_iter_t DLLEnd(const d_list_t *list);  /*done*/ 
 
 /* complexity time O(1) */                        
-d_list_iter_t DLLNext(const d_list_iter_t iter); 
+d_list_iter_t DLLNext(const d_list_iter_t iter); /*done*/
    
 /* complexity time O(1) */     
-d_list_iter_t DLLPrev(const d_list_iter_t iter);    
+d_list_iter_t DLLPrev(const d_list_iter_t iter);    /*done*/
                 
 /* complexity time O(1) */ 
-int DLLIsSameIter(const d_list_iter_t iter1, const d_list_iter_t iter2); 
+int DLLIsSameIter(const d_list_iter_t iter1, const d_list_iter_t iter2); /*done*/
 
 /* complexity time O(1) */     
-void *DLLGetData(d_list_iter_t iter);  
+void *DLLGetData(d_list_iter_t iter);  /*done*/
 
        
 /* complexity time O(1) */     
-d_list_iter_t DLLRemove(d_list_iter_t iter); 
+d_list_iter_t DLLRemove(d_list_iter_t iter); /*done*/
 
 /* on success: O(1); */
-d_list_iter_t DLLInsert(d_list_iter_t where, void *data);  
+d_list_iter_t DLLInsert(d_list_iter_t where, void *data);  /*done*/
 
 /* on success: O(1); */
-d_list_iter_t DLLPushFront(d_list_t *list, void *data);                              
+d_list_iter_t DLLPushFront(d_list_t *list, void *data);     /*done*/                          
  
 /* on success: O(1) */
-d_list_iter_t DLLPushBack(d_list_t *list, void *data); 
+d_list_iter_t DLLPushBack(d_list_t *list, void *data);  /*done*/
 
 /* on success: O(1); */
-void *DLLPopFront(d_list_t *list);                              
+void *DLLPopFront(d_list_t *list);                  /*done*/             
 
 /* on success: O(1) */
-void *DLLPopBack(d_list_t *list); 
+void *DLLPopBack(d_list_t *list);  /*done*/
 
 /* complexity time O(n) */
 d_list_iter_t DLLFind(d_list_iter_t from, 
@@ -89,7 +68,7 @@ d_list_iter_t DLLFind(d_list_iter_t from,
 int DLLForEach	(d_list_iter_t from, 
               	 d_list_iter_t to,
               	 int (*action_func)(void *data,void *param),
-              	 void *param);
+              	 void *param);/*done*/
 
 
 /* return 0 on success and non zero value on failure */
