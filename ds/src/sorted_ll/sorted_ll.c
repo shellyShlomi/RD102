@@ -6,22 +6,11 @@
  *  Approved By: ;												*
  *  Description:Sorted doubly link list data structure;			*/
 
-#include <assert.h> 
-#include <stdlib.h>
+#include <assert.h> /* assert */
+#include <stdlib.h>	/* malloc */
 
 #include "sorted_ll.h"
 
-#ifdef NDEBUG
-
-#define SORTEDLLNEXT(iter) ((sorted_list_iter_t)DLLNext(ToDListIter(iter)))
-
-#else
-
-#define	SORTEDLLNEXT(iter) {(ToSortedIter(DLLNext(ToDListIter((iter))),  \\
-							(sorted_list_iter_t *)(iter).list))}
-
-
-#endif
 
 struct sorted_list
 {
@@ -34,6 +23,36 @@ struct sorted_list
 static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_iter_t *list);
 static d_list_iter_t ToDListIter(sorted_list_iter_t sort_iter);
 
+#ifdef NDEBUG
+
+sorted_list_iter_t  SortedllNext(iter) 
+{
+
+	return (sorted_list_iter_t)DLLNext(ToDListIter(iter)));
+}
+
+sorted_list_iter_t  SortedllPrev(iter) 
+{
+
+	return (sorted_list_iter_t)DLLPrev(ToDListIter(iter)));
+}
+
+#else
+
+sorted_list_iter_t  SortedllNext(iter) 
+{
+	sorted_list_iter_t iter_temp = iter;
+	iter_temp.node = DLLNext((d_list_iter_t)(iter->node))); 
+	return (sorted_list_iter_t)(iter);
+}
+
+sorted_list_iter_t  SortedllPrev(iter) 
+{
+
+	return (ToSortedIter(DLLPrev(ToDListIter(iter)), (sorted_list_iter_t *)(iter.list)));
+}
+
+#endif
 
 sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *data2))
 {
@@ -119,30 +138,16 @@ sorted_list_iter_t SortedLLEnd(const sorted_list_t *list)
 
 sorted_list_iter_t SortedLLNext(const sorted_list_iter_t iter)
 {
-	#ifdef NDEBUG
-	
-	return ((sorted_list_iter_t)DLLNext(ToDListIter(iter)));
-
-	#else
-	return (ToSortedIter(DLLNext(ToDListIter(iter)), (sorted_list_iter_t *)iter.list));
-
-	#endif
-
-
+	sorted_list_iter_t iter_temp = iter;
+	iter_temp.node = DLLNext((d_list_iter_t)(iter->node))); 
+	return (iter_temp);
 }
 
-sorted_list_iter_t SortedLLPrev	    (const sorted_list_iter_t iter)
+sorted_list_iter_t SortedLLPrev(const sorted_list_iter_t iter)
 {
-	#ifdef NDEBUG
-	
-	return ((sorted_list_iter_t)DLLPrev(ToDListIter(iter)));
-
-	#else
-	return (ToSortedIter(DLLPrev(ToDListIter(iter)), (sorted_list_iter_t *)iter.list));
-
-	#endif
-
-
+	sorted_list_iter_t iter_temp = iter;
+	iter_temp.node = DLLPrev((d_list_iter_t)(iter->node))); 
+	return (iter_temp);
 }
 
 int SortedLLIsSameIter(const sorted_list_iter_t iter1, const sorted_list_iter_t iter2)
@@ -150,6 +155,8 @@ int SortedLLIsSameIter(const sorted_list_iter_t iter1, const sorted_list_iter_t 
 
 	return (DLLIsSameIter(ToDListIter(iter1), ToDListIter(iter2)));
 }
+
+
 /*
 void *           SortedLLGetData    (sorted_list_iter_t iter);
 
@@ -211,6 +218,7 @@ static d_list_iter_t ToDListIter(sorted_list_iter_t sort_iter)
 	#endif
 
 }
+
 
 
 

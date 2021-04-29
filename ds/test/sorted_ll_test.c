@@ -1,6 +1,7 @@
 
 #include <stdlib.h> /* exit status */
-#include <stdio.h>
+#include <stdio.h>	/* printf */
+
 #include "sorted_ll.h"
 
 static void SortedLLManager();
