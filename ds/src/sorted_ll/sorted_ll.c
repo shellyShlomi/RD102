@@ -14,7 +14,7 @@
 
 struct sorted_list
 {
-	d_list_t *sorted_ll;
+	d_list_t *sorted_list;
 	int (*cmp_func)(const void *data, const void *param);
 };
 
@@ -38,11 +38,11 @@ sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *dat
 		return NULL;
 	}
 	
-	sorted->sorted_ll = DLLCreate();
+	sorted->sorted_list = DLLCreate();
 	
-	if (NULL == sorted->sorted_ll)
+	if (NULL == sorted->sorted_list)
 	{    
-		sorted->sorted_ll = NULL;
+		sorted->sorted_list = NULL;
 		
 		free(sorted);
 		
@@ -55,14 +55,16 @@ sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *dat
 }
 
 
+
+
 void SortedLLDestroy(sorted_list_t *list)                    
 {
 	assert(NULL != list);
-	assert(NULL != list->sorted_ll);	
+	assert(NULL != list->sorted_list);	
 		
-	DLLDestroy(list->sorted_ll);
+	DLLDestroy(list->sorted_list);
 	
-	list->sorted_ll = NULL;
+	list->sorted_list = NULL;
 	list->cmp_func = NULL;
 	
 	free(list);
@@ -71,60 +73,130 @@ void SortedLLDestroy(sorted_list_t *list)
 }	
 
 
+
+
 int SotedLLIsEmpty(const sorted_list_t *list)
 {
 	assert(NULL != list);
-	assert(NULL != list->sorted_ll);	
+	assert(NULL != list->sorted_list);	
 		
-	return (DLLIsEmpty((const d_list_t *)list->sorted_ll));
+	return (DLLIsEmpty((const d_list_t *)list->sorted_list));
 }
+
 
 
 
 size_t SortedLLSize(const sorted_list_t *list)
 {
 	assert(NULL != list);
-	assert(NULL != list->sorted_ll);	
+	assert(NULL != list->sorted_list);	
 		
-	return (DLLSize((d_list_t *)list->sorted_ll));
+	return (DLLSize((d_list_t *)list->sorted_list));
 }
+
+
+
 
 sorted_list_iter_t SortedLLBegin(const sorted_list_t *list)
 {
 	assert(NULL != list);
-	assert(NULL != list->sorted_ll);
+	assert(NULL != list->sorted_list);
 	
-	return (ToSortedIter(DLLBegin(list->sorted_ll), (sorted_list_iter_t *)list));
+	return (ToSortedIter(DLLBegin(list->sorted_list), (sorted_list_iter_t *)list));
 
 
 }
+
+
+
 
 sorted_list_iter_t SortedLLEnd(const sorted_list_t *list)
 {
 	assert(NULL != list);
-	assert(NULL != list->sorted_ll);
+	assert(NULL != list->sorted_list);
 	
-	return (ToSortedIter(DLLEnd(list->sorted_ll), (sorted_list_iter_t *)list));
+	return (ToSortedIter(DLLEnd(list->sorted_list), (sorted_list_iter_t *)list));
 }   
+
+
+
 
 sorted_list_iter_t SortedLLNext(const sorted_list_iter_t iter)
 {
 	sorted_list_iter_t iter_temp = iter;
+	
 	*((d_list_iter_t *)(&iter_temp)) = (DLLNext(ToDListIter(iter))); 
+	
 	return (iter_temp);
 }
+
+
+
 
 sorted_list_iter_t SortedLLPrev(const sorted_list_iter_t iter)
 {
 	sorted_list_iter_t iter_temp = iter;
+
 	*((d_list_iter_t *)(&iter_temp)) = (DLLPrev(ToDListIter(iter))); 
+
 	return (iter_temp);
 }
 
+
+
+
 int SortedLLIsSameIter(const sorted_list_iter_t iter1, const sorted_list_iter_t iter2)
 {
-
 	return (DLLIsSameIter(ToDListIter(iter1), ToDListIter(iter2)));
+}
+
+
+
+sorted_list_iter_t SortedLLFindIf    (sorted_list_iter_t from, 
+				                      sorted_list_iter_t to,
+				                      int (*match_func)(const void *data, const void *param),    
+				                      const void *param)
+{
+	
+	sorted_list_iter_t iter_temp = {NULL};
+	
+	assert(NULL != match_func);
+	
+	*((d_list_iter_t *)(&iter_temp)) = 
+	(DLLFind(ToDListIter(from), ToDListIter(to), match_func, param));
+	
+	return (iter_temp);
+
+}
+
+
+
+
+sorted_list_iter_t SortedLLFind     (sorted_list_iter_t from, 
+									sorted_list_iter_t to, 
+									const void *data, 
+									sorted_list_t *list)
+{
+	
+	
+	sorted_list_iter_t iter_temp = {NULL};
+	
+	assert(NULL != list);
+	
+	*((d_list_iter_t *)(&iter_temp)) = 
+	(DLLFind(ToDListIter(from), ToDListIter(to), list->cmp_func, data));
+	
+	return (iter_temp);
+	
+}
+
+
+
+
+void *SortedLLGetData(sorted_list_iter_t iter)
+{
+	
+	return (DLLGetData(ToDListIter(iter)));
 }
 
 
@@ -170,7 +242,7 @@ static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_iter_
 	#else
 	
 	iter.node = iter_dll;
-	iter.list = (struct sorted_list *)list;
+	iter.sorted_list = (struct sorted_list *)list;
 	return (iter);
 	
 	#endif

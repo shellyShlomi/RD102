@@ -16,7 +16,7 @@ typedef struct sorted_list_iter sorted_list_iter_t;
 struct sorted_list_iter
 {
 	d_list_iter_t node;
-	struct sorted_list *list;
+	struct sorted_list *sorted_list;
 };
 
 #endif
@@ -132,13 +132,17 @@ void *		     SortedLLPopFront   (sorted_list_t *list);
 void *           SortedLLPopBack    (sorted_list_t *list); 
 
 /* O(n) */
-sorted_list_iter_t SortedLLFind       (sorted_list_iter_t from, sorted_list_iter_t to, const void *data);
+sorted_list_iter_t SortedLLFindIf    (sorted_list_iter_t from, 
+				                      sorted_list_iter_t to,
+				                      int (*match_func)(const void *data, const void *param),    
+				                      const void *param);
 
 /* O(n) */
-sorted_list_iter_t SortedLLFindIf     (sorted_list_iter_t from, 
-				                     sorted_list_iter_t to,
-				                     int (*match_func)(const void *data, const void *param),    
-				                     const void *param);
+int                SortedLLForEach   (sorted_list_iter_t from, 
+				      	              sorted_list_iter_t to,
+				                      int (*action_func)(void *data,void *param),
+				      	  		      void *param);
+
 				                   		                   
 /* O(n) */
 int              SortedLLForEach    (sorted_list_iter_t from, 
