@@ -110,14 +110,14 @@ sorted_list_iter_t SortedLLEnd(const sorted_list_t *list)
 sorted_list_iter_t SortedLLNext(const sorted_list_iter_t iter)
 {
 	sorted_list_iter_t iter_temp = iter;
-	iter_temp.node = DLLNext((d_list_iter_t)(iter.node)); 
+	*((d_list_iter_t *)(&iter_temp)) = (DLLNext(ToDListIter(iter))); 
 	return (iter_temp);
 }
 
 sorted_list_iter_t SortedLLPrev(const sorted_list_iter_t iter)
 {
 	sorted_list_iter_t iter_temp = iter;
-	iter_temp.node = DLLPrev((d_list_iter_t)(iter.node)); 
+	*((d_list_iter_t *)(&iter_temp)) = (DLLPrev(ToDListIter(iter))); 
 	return (iter_temp);
 }
 
@@ -162,7 +162,7 @@ static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_iter_
 	assert(NULL != iter_dll);
 	assert(NULL != list);
  	
-	#ifdef NDEBUG
+	#ifdef DEBUG
 	
 	(void)list;
 	return ((sorted_list_iter_t)iter_dll);
@@ -179,7 +179,7 @@ static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_iter_
 }
 static d_list_iter_t ToDListIter(sorted_list_iter_t sort_iter)
 {	
-	#ifdef NDEBUG
+	#ifdef DEBUG
 	return ((d_list_iter_t)sort_iter);
 
 	#else
