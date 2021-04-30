@@ -15,7 +15,7 @@ typedef struct sorted_list_iter sorted_list_iter_t;
 
 struct sorted_list_iter
 {
-	d_list_iter_t node;
+	d_list_iter_t d_iter;
 	struct sorted_list *sorted_list;
 };
 
@@ -103,7 +103,7 @@ sorted_list_t *    SortedLLCreate		(int (*cmp_func)(const void *data1, const voi
 void 			 SortedLLDestroy    (sorted_list_t *list);                    
 
 /* O(1) */
-int 			 SotedLLIsEmpty     (const sorted_list_t *list);
+int 			 SortedLLIsEmpty     (const sorted_list_t *list);
 
 /* O(n) */        
 size_t           SortedLLSize	    (const sorted_list_t *list);
@@ -139,23 +139,21 @@ void *		     SortedLLPopFront   (sorted_list_t *list);
 void *           SortedLLPopBack    (sorted_list_t *list); 
 
 /* O(n) */
+sorted_list_iter_t SortedLLFind     (sorted_list_iter_t from, 
+									sorted_list_iter_t to, 
+									const void *data, sorted_list_t *list);
+
+/* O(n) */
 sorted_list_iter_t SortedLLFindIf    (sorted_list_iter_t from, 
 				                      sorted_list_iter_t to,
 				                      int (*match_func)(const void *data, const void *param),    
 				                      const void *param);
-
+				                   		                   
 /* O(n) */
 int                SortedLLForEach   (sorted_list_iter_t from, 
 				      	              sorted_list_iter_t to,
 				                      int (*action_func)(void *data,void *param),
 				      	  		      void *param);
-
-				                   		                   
-/* O(n) */
-int              SortedLLForEach    (sorted_list_iter_t from, 
-				      	             sorted_list_iter_t to,
-				                     int (*action_func)(void *data,void *param),
-				      	  		     void *param);
 
 /* O(n + m) */				           
 void 			 SortedLLMerge	    (sorted_list_t *dest_list, sorted_list_t *src_list);
