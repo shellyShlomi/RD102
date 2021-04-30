@@ -306,7 +306,8 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 		
 		to = SortedLLFind(src_begin, src_end, SortedLLGetData(where), src_list);
 		
-	/* if the to and the where are equle */	
+	/* 	if the to and the where are equle looks for the first to of the smaller data
+		new data needs to be insert after */	
 		
 		while (0 == src_list->cmp_func(SortedLLGetData(SortedLLPrev(to)), SortedLLGetData(where)))
 		{
