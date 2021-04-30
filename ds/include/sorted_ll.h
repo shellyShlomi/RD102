@@ -39,13 +39,20 @@ struct sorted_list_iter
  *												proccse the data corectly
  *												
  *							Parameters		:	data1 - pointer to data value
- *														recived from the user
+ *														recived from list
  *														
  *												data2 - pointer to data value
  *														from the user
  *
- *							Return Value   	:   IThe function return a boolean 
- *												int, 1 - success, 0 - failure
+ *							Return Value   	:   The function return a biger 
+ *												then 0 if the vaule is larger
+ *												then the vlaue in the list, 
+ *												return a smaller num then 0 
+ *												if the vaule is smaller then
+ * 												the vlaue in the list and 0 if 
+ *												the data recived from the user 
+ *												is equal to vlaue in the list 
+ *
  *							Complexity		: 	Time - O(n) 
  *
  *

@@ -15,9 +15,8 @@
 struct sorted_list
 {
 	d_list_t *sorted_list;
-	int (*cmp_func)(const void *data, const void *param);
+	int (*cmp_func)(const void *data, const void *param);/*-1,1,0*/
 };
-
 
 
 static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_iter_t *list);
@@ -178,15 +177,25 @@ sorted_list_iter_t SortedLLFind     (sorted_list_iter_t from,
 									sorted_list_t *list)
 {
 	
-	
-	sorted_list_iter_t iter_temp = {NULL};
-	
+	int cmopare = 0;
+
 	assert(NULL != list);
+	assert(NULL != from);
+	assert(NULL != to);
 	
-	*((d_list_iter_t *)(&iter_temp)) = 
-	(DLLFind(ToDListIter(from), ToDListIter(to), list->cmp_func, data));
+	while (!SortedLLIsSameIter(from, to))
+	{
+		cmopare = list->cmp_func(SortedLLGetData(from), data);
+		
+		if (0 < cmopare)
+		{
+			return from; 
+		}
+		
+		from = SortedLLNext(from);
+	}
 	
-	return (iter_temp);
+	return (to); 
 	
 }
 
@@ -200,33 +209,52 @@ void *SortedLLGetData(sorted_list_iter_t iter)
 }
 
 
+
+
+void *SortedLLPopFront(sorted_list_t *list)                         
+{
+
+	return (DLLPopFront(list->sorted_list));
+
+}
+
+
+
+
+void *SortedLLPopBack(sorted_list_t *list)                         
+{
+
+	return (DLLPopBack(list->sorted_list));
+
+}
+
+
+int SortedLLForEach(sorted_list_iter_t from, 
+  	             	sorted_list_iter_t to,
+                 	int (*action_func)(void *data,void *param),
+  	  		     	void *param)
+{
+	
+	return (DLLForEach(ToDListIter(from), ToDListIter(to), action_func, param));
+	
+}
+
+
+
 /*
-void *           SortedLLGetData    (sorted_list_iter_t iter);
 
 
 sorted_list_iter_t SortedLLRemove     (sorted_list_iter_t iter);
 
+
 sorted_list_iter_t SortedLLInsert     (sorted_list_t *list, void *data);
 
-void *		     SortedLLPopFront   (sorted_list_t *list);                              
-
-void *           SortedLLPopBack    (sorted_list_t *list); 
-
-sorted_list_iter_t SortedLLFind       (sorted_list_iter_t from, sorted_list_iter_t to, const void *data);
-
-sorted_list_iter_t SortedLLFindIf     (sorted_list_iter_t from, 
-				                     sorted_list_iter_t to,
-				                     int (*match_func)(const void *data, const void *param),    
-				                     const void *param);
-				                   		                   
-int              SortedLLForEach    (sorted_list_iter_t from, 
-				      	             sorted_list_iter_t to,
-				                     int (*action_func)(void *data,void *param),
-				      	  		     void *param);
 
 void 			 SortedLLMerge	    (sorted_list_t *dest_list, sorted_list_t *src_list);
 
 */
+
+
 static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_iter_t *list)
 {
 	sorted_list_iter_t iter;
@@ -249,6 +277,10 @@ static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_iter_
  	
  	
 }
+
+
+
+
 static d_list_iter_t ToDListIter(sorted_list_iter_t sort_iter)
 {	
 	#ifdef DEBUG

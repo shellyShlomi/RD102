@@ -10,7 +10,8 @@ static int CreateTest();
 static int NextPrevEndBeginTest();
 static int InsertLLTest();
 */
-static int IsMatchInt(const void *data,const void *param);
+static int CmpFunc(const void *data1, const void *data2);
+static int IsMatchInt(const void *data, const void *param);
 /*
 static int PrintInt(void *data,void *param);
 */
@@ -26,12 +27,10 @@ int main()
 static void SortedLLManager()
 {
 	CreateTest();
-
 }
 
 static int CreateTest()
 {	
-
 	sorted_list_t *list = SortedLLCreate(IsMatchInt);
 	
 	if (NULL == list)
@@ -46,20 +45,17 @@ static int CreateTest()
 	if (1 != SotedLLIsEmpty(list))
 	{
 		printf("CreateTest->SotedLLIsEmpty error at line: %d\n", __LINE__);
-		 
 	}
 	
 	/* test SortedLLIsEmpty on empty list  */
 	if (0 != SortedLLSize(list))
 	{
 		printf("CreateTest->SortedLLSize error at line: %d\n", __LINE__);
-		 
 	}
 	
 	if (1 != SortedLLIsSameIter(SortedLLBegin(list), SortedLLEnd(list)))
 	{
 		printf("CreateTest->SortedLLIsSameIter error at line: %d\n", __LINE__);
-		 
 	}
 	
 	SortedLLDestroy(list);
@@ -67,6 +63,7 @@ static int CreateTest()
 	
 	return EXIT_SUCCESS;
 }
+
 /*
 static int NextPrevEndBeginTest()
 {	
@@ -81,9 +78,6 @@ static int NextPrevEndBeginTest()
 		return EXIT_FAILURE; 
 	}
 	
-	
-	
-
 	SortedLLDestroy(list);
 	list = NULL;
 	
@@ -92,8 +86,7 @@ static int NextPrevEndBeginTest()
 
 static int InsertLLTest()
 {	
-
-		sorted_list_t *list = SortedLLCreate(IsMatchInt);
+	sorted_list_t *list = SortedLLCreate(IsMatchInt);
 	
 	if (NULL == list)
 	{
@@ -102,9 +95,6 @@ static int InsertLLTest()
 		
 		return EXIT_FAILURE; 
 	}
-	
-	
-	
 
 	SortedLLDestroy(list);
 	list = NULL;
@@ -123,8 +113,12 @@ static int IsMatchInt(const void *data,const void *param)
 	
 	return !EXIT_FAILURE; 		
 }
-/*
 
+static int CmpFunc(const void *data1, const void *data2)
+{
+		return (*(int *)data1 - *(int *)data2); 		
+}
+/*
 
 static int PrintInt(void *data,void *param)
 {
