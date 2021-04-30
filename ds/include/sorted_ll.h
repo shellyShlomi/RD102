@@ -275,10 +275,25 @@ sorted_list_iter_t SortedLLFind     (sorted_list_iter_t from,
 									sorted_list_iter_t to, 
 									const void *data, sorted_list_t *list);
 
+
+
+
+
 /*SortedLLFindIf
  * DESCRIPTION		:	
  *
- * PARAMETERS    	:    
+ * PARAMETERS    	:   int (*match_func)(const void *data, const void *param)
+ *						
+ *							Description		:	
+ *												
+ *							Parameters		:	const data -
+ *														
+ *												const param -
+ *
+ *							Return Value   	:    
+ *
+ *							Complexity		: 	Time - O() 
+ *
  *						
  * RETURN VALUE   	:   
  * 
@@ -288,10 +303,25 @@ sorted_list_iter_t SortedLLFindIf    (sorted_list_iter_t from,
 				                      sorted_list_iter_t to,
 				                      int (*match_func)(const void *data, const void *param),    
 				                      const void *param);
+
+
+
+
 /*SortedLLForEach
  * DESCRIPTION		:	
  *
- * PARAMETERS    	:    
+ * PARAMETERS    	:   int (*action_func)(void *data, void *param)
+ *						
+ *							Description		:	
+ *												
+ *							Parameters		:	data -
+ *														
+ *												param -
+ *
+ *							Return Value   	:    
+ *
+ *							Complexity		: 	Time - O() 
+ *
  *						
  * RETURN VALUE   	:   
  * 
