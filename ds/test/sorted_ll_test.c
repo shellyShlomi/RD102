@@ -420,7 +420,7 @@ static int MergeTest()
 		find_iter = SortedLLFindIf(SortedLLBegin(dest),SortedLLEnd(dest), IsMatchInt,
 		 							SortedLLGetData(find_iter));
 									
-		if (1 != IsSameAddrese(find_iter, dest_cpy_iter))
+		if (1 != SortedLLIsSameIter(find_iter, dest_cpy_iter))
 		{
 			printf("MergeTest->SortedLLMerge error at line: %d\n", __LINE__);
 		}
