@@ -316,17 +316,9 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	
 		DLLSplice(ToDListIter(where), ToDListIter(src_begin), ToDListIter(to));
 	/*look for the TO in src wich is larger then the WHERE in dest - ToDListIter(to)*/	
-				  
 		
 		src_begin = SortedLLBegin(src_list);
-		
-		if (SortedLLIsSameIter(where, dest_end))
-		{
-			continue;
-		}
-		
-		where = SortedLLNext(where);
-		
+
 	}
 	
 	return;

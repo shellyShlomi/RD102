@@ -332,7 +332,6 @@ int                SortedLLForEach   (sorted_list_iter_t from,
 				                      int (*action_func)(void *data,void *param),
 				      	  		      void *param);
 
-				                      const void *param);
 /*SortedLLMerge
  * DESCRIPTION		:	
  *
