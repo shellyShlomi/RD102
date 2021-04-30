@@ -1,6 +1,6 @@
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:in development;										*
+ *  Status:done;										*
  *  Date Of Creation:28.04.21;									*
  *  Date Of Approval:--.04.21;									*
  *  Approved By: Last Reviewer - Anna Pest;						*
@@ -178,17 +178,6 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 								const void *data, 
 								sorted_list_t *list)
 {
-/*
-	sorted_list_iter_t iter_temp = {NULL};
-	assert(NULL != list);
-	
-	iter_temp = 
-	ToSortedIter(DLLFind(ToDListIter(from), ToDListIter(to), match_func, param), list);
-	
-	return (iter_temp);
-
-
-*/
 	assert(NULL != list);
 	
 	while (!SortedLLIsSameIter(from, to))
