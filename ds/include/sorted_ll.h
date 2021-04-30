@@ -348,14 +348,3 @@ void 			 SortedLLMerge	    (sorted_list_t *dest_list, sorted_list_t *src_list);
 
 
 
-/* template - small
- * DESCRIPTION   :    
- * 
- * PARAMETERS    :    
- * 
- * RETURN VALUE  :  
- *                  
- * 
- * COMPLEXITY    :    Time - O() 
- */
-
