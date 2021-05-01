@@ -34,8 +34,8 @@ data_and_list_t cmp_struct;
 static sorted_list_iter_t DLLToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list);
 static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter);
 
-static int IsMach(const void *data1,const void *data2);
-static int IsBiger(const void *data1,const void *data2);
+static int IsMach(const void *data1,const void *struct_d_and_l);
+static int IsBiger(const void *data1,const void *struct_d_and_l);
 
 
 sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *data2))
@@ -48,7 +48,7 @@ sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *dat
 
 	if (NULL == sorted)
 	{    
-		return NULL;
+		return (NULL);
 	}
 	
 	sorted->sorted_list = DLLCreate();
@@ -57,7 +57,7 @@ sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *dat
 	{    
 		free(sorted);
 		
-		return NULL;
+		return (NULL);
 	}
 	
 	sorted->cmp_func = cmp_func;
@@ -117,7 +117,6 @@ sorted_list_iter_t SortedLLBegin(const sorted_list_t *list)
 	
 	return (DLLToSortedIter(DLLBegin(list->sorted_list), (sorted_list_t *)list));
 
-
 }
 
 
@@ -171,12 +170,10 @@ sorted_list_iter_t SortedLLFindIf(sorted_list_iter_t from,
 			                      const void *param)
 {
 	
-	sorted_list_iter_t iter_temp = {NULL};
+	sorted_list_iter_t iter_temp = from;
 	
 	assert(from.sorted_list == to.sorted_list);
 	assert(NULL != match_func);
-	
-	iter_temp = from;
 	
 	*((d_list_iter_t *)(&iter_temp)) = (DLLFind(SortedToDLListIter(from), 
 												SortedToDLListIter(to), 
@@ -193,27 +190,28 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 								const void *data, 
 								sorted_list_t *list)
 {
-	sorted_list_iter_t iter_temp = {NULL};
-	
-	#ifdef NDEBUG
-	(void)list;
+	sorted_list_iter_t iter_temp = from;
 
-	#else
-
-	#endif
-	
+	assert(NULL != list);
 	assert(from.sorted_list == to.sorted_list);
 	assert(from.sorted_list == list);
 
 	cmp_struct.data = data;
 	
-	iter_temp = from;
-	
 	*((d_list_iter_t *)(&iter_temp)) = (DLLFind(SortedToDLListIter(from), 
 												SortedToDLListIter(to), 
 												IsMach, 
 												(void *)(&cmp_struct)));
-	return (iter_temp);
+		
+	if(!SortedLLIsSameIter(iter_temp, to))
+	{
+		if (0 == list->cmp_func(data, SortedLLGetData(iter_temp)))
+		{
+			return (iter_temp);
+		}
+	}	
+											
+	return (to);
 
 }
 
@@ -222,7 +220,6 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 
 void *SortedLLGetData(sorted_list_iter_t iter)
 {
-	
 	return (DLLGetData(SortedToDLListIter(iter)));
 }
 
@@ -314,6 +311,9 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	assert(NULL != src_list);
 	assert(NULL != dest_list);
 	assert(dest_list != src_list); 
+	assert(NULL != src_list->cmp_func); 
+	assert(NULL != dest_list->cmp_func); 
+	assert(src_list->cmp_func == dest_list->cmp_func); 	
 	
 	where = SortedLLBegin(dest_list);/* take the data for find */
 	
@@ -321,13 +321,12 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	src_end = SortedLLEnd(src_list);
 	
 	src_begin = SortedLLBegin(src_list);
-	to = SortedLLBegin(src_list);
 	
 						 
 	while (!SortedLLIsEmpty(src_list)) 
 			
 	{
-		if (SortedLLIsEmpty(dest_list))
+		if (SortedLLIsSameIter(dest_end, where))
 		{
 		
 			DLLSplice(SortedToDLListIter(where), 
@@ -342,7 +341,12 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 		cmp_struct.data = SortedLLGetData(src_begin);
 		
 		where = SortedLLFindIf(where, dest_end, IsBiger, (void *)&cmp_struct);
-	
+		
+		if (SortedLLIsSameIter(dest_end, where))
+		{
+			continue;
+		}
+		
 	/*look for the TO in src wich is larger then the WHERE in dest - SortedToDLListIter(to)*/		
 		
 		cmp_struct.data = SortedLLGetData(where);
@@ -417,21 +421,25 @@ static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter)
 
 
 
-static int IsMach(const void *data1,const void *data2)
+static int IsMach(const void *data1,const void *struct_d_and_l)
 {
-	return (0 == (((data_and_list_t *)data2)->list->cmp_func(
-									data1, (((data_and_list_t *)data2)->data)))); 		
+	assert(NULL != struct_d_and_l);
+		
 
+return (0 <= (((data_and_list_t *)struct_d_and_l)->list->cmp_func(
+									data1, (((data_and_list_t *)struct_d_and_l)->data))));
 }
 
 
 
 
-static int IsBiger(const void *data1,const void *data2)
+static int IsBiger(const void *data1,const void *struct_d_and_l)
 {
 	
-	return (0 < (((data_and_list_t *)data2)->list->cmp_func(
-									data1, (((data_and_list_t *)data2)->data)))); 		
+	assert(NULL != struct_d_and_l);
+		
+	return (0 < (((data_and_list_t *)struct_d_and_l)->list->cmp_func(
+									data1, (((data_and_list_t *)struct_d_and_l)->data)))); 		
 
 }
 
