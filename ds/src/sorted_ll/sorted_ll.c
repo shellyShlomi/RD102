@@ -33,6 +33,7 @@ typedef struct data_and_list_encp
 static sorted_list_iter_t DLLToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list);
 static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter);
 
+static int IsMach(const void *data1,const void *data2);
 static int IsBiger(const void *data1,const void *data2);
 static data_and_list_t StructFunc(const void *data, sorted_list_t *list);
 
@@ -203,9 +204,10 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 	
 	*((d_list_iter_t *)(&iter_temp)) = (DLLFind(SortedToDLListIter(from), 
 												SortedToDLListIter(to), 
-												IsBiger, 
+												IsMach, 
 												(void *)(&param_struct)));
 	return (iter_temp);
+
 }
 
 
@@ -257,14 +259,17 @@ int SortedLLForEach(sorted_list_iter_t from,
 sorted_list_iter_t SortedLLInsert(sorted_list_t *list, void *data)
 {
 	sorted_list_iter_t insert_iter = {NULL};
+	data_and_list_t param_struct = {NULL};
 	
 	assert(NULL != list);
 	assert(NULL != list->sorted_list);
 	
-	insert_iter = SortedLLFind(SortedLLBegin(list), 
-								SortedLLEnd(list), 
-								data, 
-								list);
+	param_struct = StructFunc(data, list);
+	
+	insert_iter = SortedLLFindIf(SortedLLBegin(list), 
+								SortedLLEnd(list),  
+								IsBiger,
+								(void *)&param_struct);
 									
 	return (DLLToSortedIter(DLLInsert(SortedToDLListIter(insert_iter), data), list));
 	
@@ -298,7 +303,9 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	sorted_list_iter_t dest_end = {NULL};
 	sorted_list_iter_t src_end = {NULL};
 	sorted_list_iter_t src_begin = {NULL};
-	
+		
+	data_and_list_t param_struct = {NULL};
+		
 	assert(NULL != src_list);
 	assert(NULL != dest_list);
 	assert(dest_list != src_list); 
@@ -310,6 +317,7 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	
 	src_begin = SortedLLBegin(src_list);
 	to = SortedLLBegin(src_list);
+	
 						 
 	while (!SortedLLIsEmpty(src_list)) 
 			
@@ -326,10 +334,15 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 		}
 	/* 	if the begining of dest is smallr then the beginig of src - 
 		look for the new where in dest wich is larger then the src beging    */
-		where = SortedLLFind(where, dest_end, SortedLLGetData(src_begin), dest_list);
+		param_struct = StructFunc(SortedLLGetData(src_begin), dest_list);
+		
+		where = SortedLLFindIf(where, dest_end, IsBiger, (void *)&param_struct);
 	
 	/*look for the TO in src wich is larger then the WHERE in dest - SortedToDLListIter(to)*/		
-		to = SortedLLFind(src_begin, src_end, SortedLLGetData(where), src_list);
+		
+		param_struct = StructFunc(SortedLLGetData(where), src_list);
+	
+		to = SortedLLFindIf(src_begin, src_end, IsBiger, (void *)&param_struct);
 		
 	/* 	if the to and the where are equle looks for the first to of the smaller data
 		new data needs to be insert after */	
@@ -398,11 +411,11 @@ static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter)
 
 }
 
-/*
+
 
 static int IsMach(const void *data1,const void *data2)
 {
-	if (0 < (((data_and_list_t *)data2)->list->cmp_func(
+	if (0 == (((data_and_list_t *)data2)->list->cmp_func(
 									data1, (((data_and_list_t *)data2)->data))))
 	{
 		return !EXIT_SUCCESS; 		
@@ -413,7 +426,7 @@ static int IsMach(const void *data1,const void *data2)
 }
 
 
-*/
+
 
 static int IsBiger(const void *data1,const void *data2)
 {
