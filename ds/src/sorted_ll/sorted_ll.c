@@ -181,7 +181,6 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 {
 	assert(from.sorted_list == to.sorted_list);
 	assert(from.sorted_list == list);
-	assert(to.sorted_list == list);
 	
 	while (!SortedLLIsSameIter(from, to))
 	{

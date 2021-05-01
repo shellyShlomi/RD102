@@ -553,6 +553,7 @@ static int Add(void *data,void *param)
 
 	return EXIT_SUCCESS; 
 }
+
 #ifdef DEBUG
 static int IsSameAddrese(d_list_iter_t data, d_list_iter_t param)
 {
