@@ -3,7 +3,7 @@
  *  Status:done;												*
  *  Date Of Creation:28.04.21;									*
  *  Date Of Approval:--.04.21;									*
- *  Approved By: Last Reviewer - Anna Pest;						*
+ *  Approved By:EDEN; Last Reviewer tests - Anna Pest;						*
  *  Description:Sorted doubly link list data structure;			*/
 
 #include <assert.h> /* assert */
@@ -34,9 +34,8 @@ data_and_list_t cmp_struct;
 static sorted_list_iter_t DLLToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list);
 static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter);
 
-static int IsMach(const void *data1,const void *struct_d_and_l);
 static int IsBiger(const void *data1,const void *struct_d_and_l);
-
+static int IsMachOrEqule(const void *data1,const void *struct_d_and_l);
 
 sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *data2))
 {
@@ -196,22 +195,32 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 	assert(from.sorted_list == to.sorted_list);
 	assert(from.sorted_list == list);
 
+	#ifdef DEBUG
+
+	#else
+	
+	(void)list;
+	
+	#endif
+	
 	cmp_struct.data = data;
 	
 	*((d_list_iter_t *)(&iter_temp)) = (DLLFind(SortedToDLListIter(from), 
 												SortedToDLListIter(to), 
-												IsMach, 
+												IsMachOrEqule, 
 												(void *)(&cmp_struct)));
-		
-	if(!SortedLLIsSameIter(iter_temp, to))
+	
+	if (!SortedLLIsSameIter(iter_temp, to))
 	{
-		if (0 == list->cmp_func(data, SortedLLGetData(iter_temp)))
+		if (0 == list->cmp_func(SortedLLGetData(iter_temp), data))
 		{
-			return (iter_temp);
+			return (iter_temp); 
 		}
-	}	
-											
-	return (to);
+		
+	}
+	
+	return (to);							
+
 
 }
 
@@ -324,18 +333,8 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	
 						 
 	while (!SortedLLIsEmpty(src_list)) 
-			
 	{
-		if (SortedLLIsSameIter(dest_end, where))
-		{
-		
-			DLLSplice(SortedToDLListIter(where), 
-					  SortedToDLListIter(src_begin),
-					  SortedToDLListIter(src_end)
-					  );
-			return;
 	
-		}
 	/* 	if the begining of dest is smallr then the beginig of src - 
 		look for the new where in dest wich is larger then the src beging    */
 		cmp_struct.data = SortedLLGetData(src_begin);
@@ -344,23 +343,18 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 		
 		if (SortedLLIsSameIter(dest_end, where))
 		{
-			continue;
+			DLLSplice(SortedToDLListIter(where), 
+					  SortedToDLListIter(src_begin),
+					  SortedToDLListIter(src_end)
+					  );
+			return;
 		}
 		
-	/*look for the TO in src wich is larger then the WHERE in dest - SortedToDLListIter(to)*/		
+	/* look for the TO in src wich is larger then the WHERE in dest - SortedToDLListIter(to) */		
 		
 		cmp_struct.data = SortedLLGetData(where);
-		to = SortedLLFindIf(src_begin, src_end, IsBiger, (void *)&cmp_struct);
 		
-	/* 	if the to and the where are equle looks for the first to of the smaller data
-		new data needs to be insert after */	
-		
-		while (0 == src_list->cmp_func(	SortedLLGetData(SortedLLPrev(to)), 
-										SortedLLGetData(where)))
-		{
-			to = SortedLLPrev(to);
-		
-		}
+		to = SortedLLFindIf(src_begin, src_end, IsMachOrEqule, (void *)&cmp_struct);
 	
 		DLLSplice(	SortedToDLListIter(where), 
 					SortedToDLListIter(src_begin), 
@@ -420,8 +414,7 @@ static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter)
 }
 
 
-
-static int IsMach(const void *data1,const void *struct_d_and_l)
+static int IsMachOrEqule(const void *data1,const void *struct_d_and_l)
 {
 	assert(NULL != struct_d_and_l);
 		

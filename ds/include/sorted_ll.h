@@ -264,7 +264,7 @@ void *           SortedLLPopBack    (sorted_list_t *list);
 
 /*SortedLLFind
  * DESCRIPTION		:	the function find the first iter in the list with
- *						data value wich is biger than the data recived 
+ *						data value wich is equal than the data recived 
  *
  * PARAMETERS    	:   from - 	the iter in the list where the serch start from
  *
@@ -283,6 +283,7 @@ void *           SortedLLPopBack    (sorted_list_t *list);
  * 
  * COMPLEXITY   	:   Time - O(n)
  */
+ 
 sorted_list_iter_t SortedLLFind     (sorted_list_iter_t from, 
 									sorted_list_iter_t to, 
 									const void *data, sorted_list_t *list);
@@ -293,7 +294,7 @@ sorted_list_iter_t SortedLLFind     (sorted_list_iter_t from,
 
 /*SortedLLFindIf
  * DESCRIPTION		:	the function find the first iter in the list with
- *						data value wich is equal than the data recived 
+ *						data value wich is looked for with the  match_func 
  *
  * PARAMETERS    	:   int (*match_func)(const void *data, const void *param)
  *						
