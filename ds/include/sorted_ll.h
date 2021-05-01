@@ -263,11 +263,23 @@ void *           SortedLLPopBack    (sorted_list_t *list);
 
 
 /*SortedLLFind
- * DESCRIPTION		:	
+ * DESCRIPTION		:	the function find the first iter in the list with
+ *						data value wich is biger than the data recived 
  *
- * PARAMETERS    	:    
+ * PARAMETERS    	:   from - 	the iter in the list where the serch start from
+ *
+ *						to - 	the iter in the list where the serch end with the iter 
+ *								befor it
+ *						***	the from and the to HAVE to be from the same list ***
  *						
- * RETURN VALUE   	:   
+ *						list -	the list where the from and the to are part of
+ *								gives the cmp_func for the comparison 
+ *						
+ *						***	the list HAVE to the same list of from and to - 
+ *							for the same cmp_func whit the smae logic for order ***
+ *
+ * RETURN VALUE   	:   sorted_list_iter_t - the iter with a data value wich
+ *						is biger than the data recived
  * 
  * COMPLEXITY   	:   Time - O(n)
  */
@@ -280,22 +292,35 @@ sorted_list_iter_t SortedLLFind     (sorted_list_iter_t from,
 
 
 /*SortedLLFindIf
- * DESCRIPTION		:	
+ * DESCRIPTION		:	the function find the first iter in the list with
+ *						data value wich is equal than the data recived 
  *
  * PARAMETERS    	:   int (*match_func)(const void *data, const void *param)
  *						
- *							Description		:	
+ *							Description		:	a function wich compar to data 
+ *												values of the same type
  *												
- *							Parameters		:	const data -
- *														
- *												const param -
+ *							Parameters		:	const data -	the list iter data  
+ *																compard with parta   
  *
- *							Return Value   	:    
+ *												const param -	the data looked
+ *			 													for within the list
  *
- *							Complexity		: 	Time - O() 
+ *							Return Value   	:    boolian value : 1 same data, 0 not same data
  *
+ *							Complexity		: 	Time - O(n) 
+ *
+ *						from - 	the iter in the list where the serch start from
+ *
+ *						to - 	the iter in the list where the serch end with the iter 
+ *								befor it
+ *						***	the from and the to HAVE to be from the same list ***
  *						
- * RETURN VALUE   	:   
+ *						param -	the data looked for within the list
+ *			 													
+ *						
+ * RETURN VALUE   	:   sorted_list_iter_t - the first iter in the list with
+ *						data value wich is equal than the data recived 
  * 
  * COMPLEXITY   	:   Time - O(n)
  */
@@ -308,22 +333,23 @@ sorted_list_iter_t SortedLLFindIf    (sorted_list_iter_t from,
 
 
 /*SortedLLForEach
- * DESCRIPTION		:	
+ * DESCRIPTION		:	the function makes an oparetion on each iter with in the list 
  *
  * PARAMETERS    	:   int (*action_func)(void *data, void *param)
  *						
- *							Description		:	
+ *							Description		:	the function with the oparetion 
+ *												wanted to be dane on the list
  *												
- *							Parameters		:	data -
+ *							Parameters		:	data - data from the list to manipulat on 
  *														
- *												param -
+ *												param - an extra param to to manipulation with
  *
- *							Return Value   	:    
+ *							Return Value   	:   the func returns a ststus of the oparetion
  *
- *							Complexity		: 	Time - O() 
+ *							Complexity		: 	Time - O(1) 
  *
  *						
- * RETURN VALUE   	:   
+ * RETURN VALUE   	:   the func returns a ststus of the oparetion func to the user
  * 
  * COMPLEXITY   	:   Time - O(n)
  */
@@ -333,11 +359,15 @@ int                SortedLLForEach   (sorted_list_iter_t from,
 				      	  		      void *param);
 
 /*SortedLLMerge
- * DESCRIPTION		:	
+ * DESCRIPTION		:	the function takes two lists and merge them together,
+ *						increase the size of dest and src become an empty list
  *
- * PARAMETERS    	:    
+ * PARAMETERS    	:   dest	- 	the destination list for the merge
+ *
+ *						src		- 	the source list for the merge will be 
+ *									left empty after the merge
  *						
- * RETURN VALUE   	:   
+ * RETURN VALUE   	:   non
  * 
  * COMPLEXITY   	:   Time - O(n + m)
  */				           

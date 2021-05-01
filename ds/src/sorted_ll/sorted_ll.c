@@ -1,6 +1,6 @@
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:done;										*
+ *  Status:done;												*
  *  Date Of Creation:28.04.21;									*
  *  Date Of Approval:--.04.21;									*
  *  Approved By: Last Reviewer - Anna Pest;						*
@@ -18,12 +18,23 @@
 struct sorted_list
 {
 	d_list_t *sorted_list;
-	int (*cmp_func)(const void *data, const void *param);/*-1,1,0*/
+	int (*cmp_func)(const void *data, const void *param);
 };
 
 
-static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list);
-static d_list_iter_t ToDListIter(sorted_list_iter_t sort_iter);
+typedef struct data_and_list_encp
+{
+	void *data;
+	sorted_list_t *list;
+
+}data_and_list_t;
+
+	
+static sorted_list_iter_t DLLToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list);
+static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter);
+
+static int IsBiger(const void *data1,const void *data2);
+static data_and_list_t StructFunc(const void *data, sorted_list_t *list);
 
 
 sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *data2))
@@ -43,8 +54,6 @@ sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *dat
 	
 	if (NULL == sorted->sorted_list)
 	{    
-		sorted->sorted_list = NULL;
-		
 		free(sorted);
 		
 		return NULL;
@@ -103,7 +112,7 @@ sorted_list_iter_t SortedLLBegin(const sorted_list_t *list)
 	assert(NULL != list);
 	assert(NULL != list->sorted_list);
 	
-	return (ToSortedIter(DLLBegin(list->sorted_list), (sorted_list_t *)list));
+	return (DLLToSortedIter(DLLBegin(list->sorted_list), (sorted_list_t *)list));
 
 
 }
@@ -116,7 +125,7 @@ sorted_list_iter_t SortedLLEnd(const sorted_list_t *list)
 	assert(NULL != list);
 	assert(NULL != list->sorted_list);
 	
-	return (ToSortedIter(DLLEnd(list->sorted_list), (sorted_list_t *)list));
+	return (DLLToSortedIter(DLLEnd(list->sorted_list), (sorted_list_t *)list));
 }   
 
 
@@ -126,7 +135,7 @@ sorted_list_iter_t SortedLLNext(const sorted_list_iter_t iter)
 {
 	sorted_list_iter_t iter_temp = iter;
 	
-	*((d_list_iter_t *)(&iter_temp)) = (DLLNext(ToDListIter(iter))); 
+	*((d_list_iter_t *)(&iter_temp)) = (DLLNext(SortedToDLListIter(iter))); 
 	
 	return (iter_temp);
 }
@@ -138,7 +147,7 @@ sorted_list_iter_t SortedLLPrev(const sorted_list_iter_t iter)
 {
 	sorted_list_iter_t iter_temp = iter;
 
-	*((d_list_iter_t *)(&iter_temp)) = (DLLPrev(ToDListIter(iter))); 
+	*((d_list_iter_t *)(&iter_temp)) = (DLLPrev(SortedToDLListIter(iter))); 
 
 	return (iter_temp);
 }
@@ -148,7 +157,7 @@ sorted_list_iter_t SortedLLPrev(const sorted_list_iter_t iter)
 
 int SortedLLIsSameIter(const sorted_list_iter_t iter1, const sorted_list_iter_t iter2)
 {
-	return (DLLIsSameIter(ToDListIter(iter1), ToDListIter(iter2)));
+	return (DLLIsSameIter(SortedToDLListIter(iter1), SortedToDLListIter(iter2)));
 }
 
 
@@ -164,8 +173,9 @@ sorted_list_iter_t SortedLLFindIf(sorted_list_iter_t from,
 	assert(from.sorted_list == to.sorted_list);
 	assert(NULL != match_func);
 	
-	*((d_list_iter_t *)(&iter_temp)) = 
-	(DLLFind(ToDListIter(from), ToDListIter(to), match_func, param));
+	*((d_list_iter_t *)(&iter_temp)) = (DLLFind(SortedToDLListIter(from), 
+												SortedToDLListIter(to), 
+												match_func, param));
 	
 	return (iter_temp);
 
@@ -179,21 +189,17 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 								const void *data, 
 								sorted_list_t *list)
 {
-	assert(from.sorted_list == to.sorted_list);
-	assert(from.sorted_list == list);
+
+	data_and_list_t param_struct = StructFunc(data, list);
 	
-	while (!SortedLLIsSameIter(from, to))
-	{
-		if (0 < list->cmp_func(SortedLLGetData(from), data))
-		{
-			return from; 
-		}
-		
-		from = SortedLLNext(from);
-	}
+	sorted_list_iter_t iter_temp = {NULL};
 	
-	return (to); 
+	*((d_list_iter_t *)(&iter_temp)) = (DLLFind(SortedToDLListIter(from), 
+												SortedToDLListIter(to), 
+												IsBiger, 
+												(void *)(&param_struct)));
 	
+		return (iter_temp);
 }
 
 
@@ -202,7 +208,7 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 void *SortedLLGetData(sorted_list_iter_t iter)
 {
 	
-	return (DLLGetData(ToDListIter(iter)));
+	return (DLLGetData(SortedToDLListIter(iter)));
 }
 
 
@@ -210,6 +216,7 @@ void *SortedLLGetData(sorted_list_iter_t iter)
 
 void *SortedLLPopFront(sorted_list_t *list)                         
 {
+	assert(NULL != list);
 
 	return (DLLPopFront(list->sorted_list));
 
@@ -220,7 +227,8 @@ void *SortedLLPopFront(sorted_list_t *list)
 
 void *SortedLLPopBack(sorted_list_t *list)                         
 {
-
+	assert(NULL != list);
+	
 	return (DLLPopBack(list->sorted_list));
 
 }
@@ -232,8 +240,9 @@ int SortedLLForEach(sorted_list_iter_t from,
   	  		     	void *param)
 {
 	assert(from.sorted_list == to.sorted_list);
+	assert(NULL != action_func);
 		
-	return (DLLForEach(ToDListIter(from), ToDListIter(to), action_func, param));
+	return (DLLForEach(SortedToDLListIter(from), SortedToDLListIter(to), action_func, param));
 	
 }
 
@@ -242,14 +251,14 @@ sorted_list_iter_t SortedLLInsert(sorted_list_t *list, void *data)
 	sorted_list_iter_t insert_iter = {NULL};
 	
 	assert(NULL != list);
+	assert(NULL != list->sorted_list);
 	
 	insert_iter = SortedLLFind(SortedLLBegin(list), 
 								SortedLLEnd(list), 
 								data, 
 								list);
-	
 									
-	return (ToSortedIter(DLLInsert(ToDListIter(insert_iter), data), list));
+	return (DLLToSortedIter(DLLInsert(SortedToDLListIter(insert_iter), data), list));
 	
 	
 }
@@ -261,9 +270,7 @@ sorted_list_iter_t SortedLLRemove(sorted_list_iter_t iter)
 	
 	sorted_list_iter_t remove_iter = iter;
 	
-	remove_iter= SortedLLNext(remove_iter);
-	
-	DLLRemove(ToDListIter(iter));
+	*((d_list_iter_t *)(&remove_iter)) = DLLRemove(SortedToDLListIter(iter));
 	
 	return (remove_iter);
 
@@ -291,8 +298,6 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	
 	src_begin = SortedLLBegin(src_list);
 	to = SortedLLBegin(src_list);
-	
-	
 						 
 	while (!SortedLLIsSameIter(SortedLLBegin(src_list), SortedLLEnd(src_list))) 
 			
@@ -300,9 +305,9 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 		if (SortedLLIsSameIter(where, SortedLLEnd(dest_list)))
 		{
 		
-			DLLSplice(ToDListIter(where), 
-					  ToDListIter(src_begin),
-					  ToDListIter(src_end)
+			DLLSplice(SortedToDLListIter(where), 
+					  SortedToDLListIter(src_begin),
+					  SortedToDLListIter(src_end)
 					  );
 			return;
 	
@@ -310,20 +315,23 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	/* 	if the begining of dest is smallr then the beginig of src - 
 		look for the new where in dest wich is larger then the src beging    */
 		where = SortedLLFind(where, dest_end, SortedLLGetData(src_begin), dest_list);
-		
+	
+	/*look for the TO in src wich is larger then the WHERE in dest - SortedToDLListIter(to)*/		
 		to = SortedLLFind(src_begin, src_end, SortedLLGetData(where), src_list);
 		
 	/* 	if the to and the where are equle looks for the first to of the smaller data
 		new data needs to be insert after */	
 		
-		while (0 == src_list->cmp_func(SortedLLGetData(SortedLLPrev(to)), SortedLLGetData(where)))
+		while (0 == src_list->cmp_func(	SortedLLGetData(SortedLLPrev(to)), 
+										SortedLLGetData(where)))
 		{
 			to = SortedLLPrev(to);
 		
 		}
 	
-		DLLSplice(ToDListIter(where), ToDListIter(src_begin), ToDListIter(to));
-	/*look for the TO in src wich is larger then the WHERE in dest - ToDListIter(to)*/	
+		DLLSplice(	SortedToDLListIter(where), 
+					SortedToDLListIter(src_begin), 
+					SortedToDLListIter(to));
 		
 		src_begin = SortedLLBegin(src_list);
 
@@ -334,7 +342,11 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 }
 
 
-static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list)
+
+
+
+
+static sorted_list_iter_t DLLToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list)
 {
 	sorted_list_iter_t iter;
 	
@@ -355,13 +367,12 @@ static sorted_list_iter_t ToSortedIter(d_list_iter_t iter_dll, sorted_list_t *li
 	
 	#endif
  	
- 	
 }
 
 
 
 
-static d_list_iter_t ToDListIter(sorted_list_iter_t sort_iter)
+static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter)
 {	
 	#ifdef NDEBUG
 	return ((d_list_iter_t)sort_iter);
@@ -374,6 +385,32 @@ static d_list_iter_t ToDListIter(sorted_list_iter_t sort_iter)
 
 }
 
+
+
+static int IsBiger(const void *data1,const void *data2)
+{
+	if (0 < (((data_and_list_t *)data2)->list->cmp_func(
+									data1, (((data_and_list_t *)data2)->data))))
+	{
+		return !EXIT_SUCCESS; 		
+	}
+	
+	return !EXIT_FAILURE; 		
+
+}
+
+static data_and_list_t StructFunc(const void *data, sorted_list_t *list)
+{
+
+	data_and_list_t data_and_list = {NULL};
+		
+	assert(NULL != list);
+	
+	data_and_list.data = (void *)data;
+	data_and_list.list = list;
+	
+	return data_and_list; 		 		
+}
 
 
 

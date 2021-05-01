@@ -15,12 +15,7 @@ static int CmpFunc(const void *data1, const void *data2);
 
 static int IsMatchInt(const void *data, const void *param);
 static int Add(void *data,void *param);
-#ifdef DEBUG
-static int IsSameAddrese(d_list_iter_t data, d_list_iter_t param);
-
-#else
 	
-#endif	
 
 
 int main()
@@ -553,15 +548,4 @@ static int Add(void *data,void *param)
 
 	return EXIT_SUCCESS; 
 }
-
-#ifdef DEBUG
-static int IsSameAddrese(d_list_iter_t data, d_list_iter_t param)
-{
-	return (data == param); 
-}
-#else
-	
-#endif	
-
-
 
