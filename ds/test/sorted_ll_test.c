@@ -237,7 +237,7 @@ static int InsertNextPrevLLTest()
 	
 	for (i = 0; i < size; ++i)
 	{
-		iter1 = SortedLLBegin(list);
+		iter1 = SortedLLNext(SortedLLBegin(list));
 		
 		if (!SortedLLIsSameIter(iter1, SortedLLRemove(SortedLLBegin(list))))
 		{
@@ -319,7 +319,7 @@ static int ForEachFindIfTest()
 		if (!SortedLLIsSameIter(
 								SortedLLFindIf(SortedLLBegin(list),
 								SortedLLEnd(list), IsMatchInt, 
-								(void *)(arr_exp + i)), 			iter1)
+								(void *)(arr_exp + i)), iter1)
 																			)
 		{
 			printf("ForEachFindIfTest->SortedLLFindIf ");
@@ -336,15 +336,16 @@ static int ForEachFindIfTest()
 }
 static int MergeTest()
 {		
-	int arr[] = {4, 1, 6, 1, 7, 8, 9};
+	int arr[] = {4, 1, 6, 1, 7, 8, 8, 10};
 	size_t size = sizeof(arr)/ sizeof(arr[0]);
+	
 	int arr1[] = {4, 5, 4, 2, 7, 5, 20, 8, 10};
 	size_t size1 = sizeof(arr1)/ sizeof(arr1[0]);
 
-	int merg_exp1[] = {1, 1, 2, 4, 4, 4, 5, 5, 6, 7, 7, 8, 8, 9, 10, 20};
+	int merg_exp1[] = {1, 1, 2, 4, 4, 4, 5, 5, 6, 7, 7, 8, 8, 8, 10, 10, 20};
 	size_t size_exp1 = sizeof(merg_exp1)/ sizeof(merg_exp1[0]);
 
-	int merg_exp2[] = {1, 1, 4, 6, 7, 8, 9};
+	int merg_exp2[] = {1, 1, 4, 6, 7, 8, 8, 10};
 	size_t size_exp2 = sizeof(merg_exp2)/ sizeof(merg_exp2[0]);
 
 	int merg_exp3[] = {2, 4, 4, 5, 5, 7, 8, 10, 20};
@@ -355,17 +356,10 @@ static int MergeTest()
 	sorted_list_t *src = SortedLLCreate(CmpFunc);
 	sorted_list_t *dest = NULL;
 	
-	
-	#ifdef DEBUG
-	
-	sorted_list_t *dest_cpy = NULL;
-	
-	sorted_list_iter_t find_iter = {NULL};
-	sorted_list_iter_t dest_cpy_iter = {NULL};
-
-	#else
-	
-	#endif	
+	sorted_list_iter_t find_iter_orig_d = {NULL};
+	sorted_list_iter_t find_iter_orig_d1 = {NULL};
+	sorted_list_iter_t find_iter_merg = {NULL};
+	sorted_list_iter_t find_iter_merg1 = {NULL};
 	
 	if (NULL == src)
 	{
@@ -408,31 +402,36 @@ static int MergeTest()
 	}
 	
 	/* to full lists */	
-	SortedLLMerge(dest, src);
-	
-	#ifdef DEBUG
-	
-	dest_cpy = dest;
-	dest_cpy_iter = SortedLLBegin(dest_cpy);
-	
-	for (i = 0; i < size1; ++i)
 	{
-		find_iter = SortedLLFindIf(SortedLLBegin(dest),SortedLLEnd(dest), IsMatchInt,
-		 							SortedLLGetData(find_iter));
-									
-		if (1 != SortedLLIsSameIter(find_iter, dest_cpy_iter))
+		/* test if the original iter in the dest list is the first iter and the 
+			duplication of the same data was inserted after the original dest iter */
+		find_iter_orig_d = SortedLLPrev(SortedLLEnd(dest));
+		
+		find_iter_orig_d1 = SortedLLPrev(SortedLLPrev(SortedLLEnd(dest)));
+
+		SortedLLMerge(dest, src);
+		
+		
+		find_iter_merg = SortedLLFindIf(SortedLLBegin(dest),SortedLLEnd(dest), IsMatchInt,
+		 								SortedLLGetData(find_iter_orig_d));
+		
+
+		 														
+		if (1 != SortedLLIsSameIter(find_iter_merg, find_iter_orig_d))
 		{
 			printf("MergeTest->SortedLLMerge error at line: %d\n", __LINE__);
 		}
 		
-		dest_cpy_iter = SortedLLNext(dest_cpy_iter);
+		find_iter_merg1 = SortedLLFindIf(SortedLLBegin(dest),SortedLLEnd(dest), IsMatchInt,
+		 								SortedLLGetData(find_iter_orig_d1));
 			
+		if (1 != SortedLLIsSameIter(find_iter_merg1, find_iter_orig_d1))
+		{
+			printf("MergeTest->SortedLLMerge error at line: %d\n", __LINE__);
+		}
+	
+	}
 
-	#else
-	
-	#endif	
-	
-	
 	for (i = 0; i < size_exp1; ++i)
 	{
 		if (merg_exp1[i] != *(int *)SortedLLPopFront(dest))
@@ -528,13 +527,6 @@ static int MergeTest()
 
 
 
-/*
-	if (EXIT_SUCCESS != SortedLLForEach(SortedLLBegin(list), SortedLLEnd(list), 
-														PrintInt, NULL))
-	{
-		("SortedLLForEach error at line: %d\n", __LINE__);
-	}
-*/
 static int IsMatchInt(const void *data,const void *param)
 {
 
@@ -546,10 +538,13 @@ static int IsMatchInt(const void *data,const void *param)
 	return !EXIT_FAILURE; 		
 }
 
+
 static int CmpFunc(const void *data1, const void *data2)
 {
 		return (*(int *)data1 - *(int *)data2); 		
 }
+
+
 
 static int Add(void *data,void *param)
 {

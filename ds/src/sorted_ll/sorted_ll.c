@@ -161,6 +161,7 @@ sorted_list_iter_t SortedLLFindIf(sorted_list_iter_t from,
 	
 	sorted_list_iter_t iter_temp = {NULL};
 	
+	assert(from.sorted_list == to.sorted_list);
 	assert(NULL != match_func);
 	
 	*((d_list_iter_t *)(&iter_temp)) = 
@@ -178,11 +179,12 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 								const void *data, 
 								sorted_list_t *list)
 {
-	assert(NULL != list);
+	assert(from.sorted_list == to.sorted_list);
+	assert(from.sorted_list == list);
+	assert(to.sorted_list == list);
 	
 	while (!SortedLLIsSameIter(from, to))
 	{
-		
 		if (0 < list->cmp_func(SortedLLGetData(from), data))
 		{
 			return from; 
@@ -230,7 +232,8 @@ int SortedLLForEach(sorted_list_iter_t from,
                  	int (*action_func)(void *data,void *param),
   	  		     	void *param)
 {
-	
+	assert(from.sorted_list == to.sorted_list);
+		
 	return (DLLForEach(ToDListIter(from), ToDListIter(to), action_func, param));
 	
 }
@@ -242,9 +245,9 @@ sorted_list_iter_t SortedLLInsert(sorted_list_t *list, void *data)
 	assert(NULL != list);
 	
 	insert_iter = SortedLLFind(SortedLLBegin(list), 
-											SortedLLEnd(list), 
-											data, 
-											list);
+								SortedLLEnd(list), 
+								data, 
+								list);
 	
 									
 	return (ToSortedIter(DLLInsert(ToDListIter(insert_iter), data), list));
@@ -258,6 +261,8 @@ sorted_list_iter_t SortedLLRemove(sorted_list_iter_t iter)
 {
 	
 	sorted_list_iter_t remove_iter = iter;
+	
+	remove_iter= SortedLLNext(remove_iter);
 	
 	DLLRemove(ToDListIter(iter));
 	
@@ -278,14 +283,17 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	
 	assert(NULL != src_list);
 	assert(NULL != dest_list);
-	 
-	where = SortedLLBegin(dest_list);/* take the data for find,  */
+	assert(dest_list != src_list); 
+	
+	where = SortedLLBegin(dest_list);/* take the data for find */
 	
 	dest_end = SortedLLEnd(dest_list);
 	src_end = SortedLLEnd(src_list);
 	
 	src_begin = SortedLLBegin(src_list);
 	to = SortedLLBegin(src_list);
+	
+	
 						 
 	while (!SortedLLIsSameIter(SortedLLBegin(src_list), SortedLLEnd(src_list))) 
 			
