@@ -3,7 +3,7 @@
  *  Status:done;												*
  *  Date Of Creation:28.04.21;									*
  *  Date Of Approval:--.04.21;									*
- *  Approved By:EDEN; Last Reviewer tests - Anna Pest;						*
+ *  Approved By:EDEN; Last Reviewer tests - Anna Pest;			*
  *  Description:Sorted doubly link list data structure;			*/
 
 #include <assert.h> /* assert */
