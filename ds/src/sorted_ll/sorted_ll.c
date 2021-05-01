@@ -24,18 +24,18 @@ struct sorted_list
 
 typedef struct data_and_list_encp
 {
-	void *data;
+	const void *data;
 	sorted_list_t *list;
 
 }data_and_list_t;
 
+data_and_list_t cmp_struct;
 	
 static sorted_list_iter_t DLLToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list);
 static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter);
 
 static int IsMach(const void *data1,const void *data2);
 static int IsBiger(const void *data1,const void *data2);
-static data_and_list_t StructFunc(const void *data, sorted_list_t *list);
 
 
 sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *data2))
@@ -61,6 +61,8 @@ sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *dat
 	}
 	
 	sorted->cmp_func = cmp_func;
+	
+	cmp_struct.list = sorted;
 	
 	return (sorted);
 }
@@ -191,21 +193,26 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 								const void *data, 
 								sorted_list_t *list)
 {
-
-	data_and_list_t param_struct = {NULL};
 	sorted_list_iter_t iter_temp = {NULL};
-		
+	
+	#ifdef NDEBUG
+	(void)list;
+
+	#else
+
+	#endif
+	
 	assert(from.sorted_list == to.sorted_list);
 	assert(from.sorted_list == list);
 
-	param_struct = StructFunc(data, list);
+	cmp_struct.data = data;
 	
 	iter_temp = from;
 	
 	*((d_list_iter_t *)(&iter_temp)) = (DLLFind(SortedToDLListIter(from), 
 												SortedToDLListIter(to), 
 												IsMach, 
-												(void *)(&param_struct)));
+												(void *)(&cmp_struct)));
 	return (iter_temp);
 
 }
@@ -259,17 +266,16 @@ int SortedLLForEach(sorted_list_iter_t from,
 sorted_list_iter_t SortedLLInsert(sorted_list_t *list, void *data)
 {
 	sorted_list_iter_t insert_iter = {NULL};
-	data_and_list_t param_struct = {NULL};
 	
 	assert(NULL != list);
 	assert(NULL != list->sorted_list);
 	
-	param_struct = StructFunc(data, list);
+	cmp_struct.data = data;
 	
 	insert_iter = SortedLLFindIf(SortedLLBegin(list), 
 								SortedLLEnd(list),  
 								IsBiger,
-								(void *)&param_struct);
+								(void *)&cmp_struct);
 									
 	return (DLLToSortedIter(DLLInsert(SortedToDLListIter(insert_iter), data), list));
 	
@@ -304,7 +310,6 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	sorted_list_iter_t src_end = {NULL};
 	sorted_list_iter_t src_begin = {NULL};
 		
-	data_and_list_t param_struct = {NULL};
 		
 	assert(NULL != src_list);
 	assert(NULL != dest_list);
@@ -334,15 +339,14 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 		}
 	/* 	if the begining of dest is smallr then the beginig of src - 
 		look for the new where in dest wich is larger then the src beging    */
-		param_struct = StructFunc(SortedLLGetData(src_begin), dest_list);
+		cmp_struct.data = SortedLLGetData(src_begin);
 		
-		where = SortedLLFindIf(where, dest_end, IsBiger, (void *)&param_struct);
+		where = SortedLLFindIf(where, dest_end, IsBiger, (void *)&cmp_struct);
 	
 	/*look for the TO in src wich is larger then the WHERE in dest - SortedToDLListIter(to)*/		
 		
-		param_struct = StructFunc(SortedLLGetData(where), src_list);
-	
-		to = SortedLLFindIf(src_begin, src_end, IsBiger, (void *)&param_struct);
+		cmp_struct.data = SortedLLGetData(where);
+		to = SortedLLFindIf(src_begin, src_end, IsBiger, (void *)&cmp_struct);
 		
 	/* 	if the to and the where are equle looks for the first to of the smaller data
 		new data needs to be insert after */	
@@ -415,13 +419,8 @@ static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter)
 
 static int IsMach(const void *data1,const void *data2)
 {
-	if (0 == (((data_and_list_t *)data2)->list->cmp_func(
-									data1, (((data_and_list_t *)data2)->data))))
-	{
-		return !EXIT_SUCCESS; 		
-	}
-	
-	return !EXIT_FAILURE; 		
+	return (0 == (((data_and_list_t *)data2)->list->cmp_func(
+									data1, (((data_and_list_t *)data2)->data)))); 		
 
 }
 
@@ -430,32 +429,11 @@ static int IsMach(const void *data1,const void *data2)
 
 static int IsBiger(const void *data1,const void *data2)
 {
-	if (0 < (((data_and_list_t *)data2)->list->cmp_func(
-									data1, (((data_and_list_t *)data2)->data))))
-	{
-		return !EXIT_SUCCESS; 		
-	}
 	
-	return !EXIT_FAILURE; 		
+	return (0 < (((data_and_list_t *)data2)->list->cmp_func(
+									data1, (((data_and_list_t *)data2)->data)))); 		
 
 }
-
-
-
-
-static data_and_list_t StructFunc(const void *data, sorted_list_t *list)
-{
-
-	data_and_list_t data_and_list = {NULL};
-		
-	assert(NULL != list);
-	
-	data_and_list.data = (void *)data;
-	data_and_list.list = list;
-	
-	return data_and_list; 		 		
-}
-
 
 
 
