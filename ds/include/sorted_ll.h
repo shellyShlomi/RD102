@@ -264,7 +264,7 @@ void *           SortedLLPopBack    (sorted_list_t *list);
 
 /*SortedLLFind
  * DESCRIPTION		:	the function find the first iter in the list with
- *						data value wich is equal than the data recived 
+ *						data value wich is equal to the data recived 
  *
  * PARAMETERS    	:   from - 	the iter in the list where the serch start from
  *
@@ -279,7 +279,7 @@ void *           SortedLLPopBack    (sorted_list_t *list);
  *							for the same cmp_func whit the smae logic for order ***
  *
  * RETURN VALUE   	:   sorted_list_iter_t - the iter with a data value wich
- *						is biger than the data recived
+ *						is equal to the data recived
  * 
  * COMPLEXITY   	:   Time - O(n)
  */
