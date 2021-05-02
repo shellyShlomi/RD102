@@ -52,10 +52,10 @@ d_list_iter_t DLLPushFront(d_list_t *list, void *data);
 /* on success: O(1) */
 d_list_iter_t DLLPushBack(d_list_t *list, void *data); 
 
-/* on success: O(1); */
+/*  O(1); */
 void *DLLPopFront(d_list_t *list);                              
 
-/* on success: O(1) */
+/* O(1) */
 void *DLLPopBack(d_list_t *list);  
 
 /* complexity time O(n) */
