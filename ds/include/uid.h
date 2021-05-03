@@ -1,19 +1,21 @@
-#define __OL102_UID_H__
+#ifndef __OL102_UID_H__
 #define __OL102_UID_H__
 
-#include <unistd.h> 	/* pid_t */
-#include <time.h> 		/* time_t */
 
+#include <sys/types.h> /* time_t */
+#include <stddef.h> /* size_t */
 
 /* DO NOT USE INTERNAL MEMBERS OF THE STRUCT */
 
-typedef struct unique_id
+struct unique_id
 {
 	size_t count;
-	pid_t process_ID:
+	pid_t process_ID;
 	time_t time_stamp;
-} ilrd_uid_t;
+	
+};
 
+typedef struct unique_id ilrd_uid_t;
 
 /*UidCreate
  * DESCRIPTION		:	The function create a unique object and returns 
@@ -25,7 +27,7 @@ typedef struct unique_id
  * 
  * COMPLEXITY   	:   Time - O(1); Space - O(1) 
  */
- ilrd_uid_t UidCreate(void);
+ilrd_uid_t UidCreate(void);
  
  
  /*UidIsSame
@@ -38,7 +40,7 @@ typedef struct unique_id
  * 
  * COMPLEXITY   	:   Time - O(1) 
  */
- int UidIsSame(const ilrd_uid_t uid1, const ilrd_uid_t uid2);
+int UidIsSame(const ilrd_uid_t uid1, const ilrd_uid_t uid2);
  
  
  
@@ -49,8 +51,8 @@ typedef struct unique_id
  *						comparing the bad uid with the user uid
  *						
  * 
- * PARAMETERS    	:   uid1 - (const ilrd_uid_t) a unique id
- *						uid2 - (const ilrd_uid_t) a unique id  
+ * PARAMETERS    	:   void function
+ *						
  *
  * RETURN VALUE   	:   ilrd_uid_t - a bad unique id object by value
  * 
@@ -58,4 +60,4 @@ typedef struct unique_id
  */
  ilrd_uid_t GetBadUid(void);
  
- #endif /* __OL102_UID_H__ */
+#endif /* __OL102_UID_H__ */
