@@ -1,9 +1,9 @@
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:done;												*
+ *  Status:Approved by nir;										*
  *  Date Of Creation:28.04.21;									*
- *  Date Of Approval:--.04.21;									*
- *  Approved By:EDEN; Last Reviewer tests - Anna Pest;			*
+ *  Date Of Approval:02.05.21;									*
+ *  Approved By:nir; Last Reviewer tests - Anna Pest;			*
  *  Description:Sorted doubly link list data structure;			*/
 
 
@@ -34,8 +34,8 @@ typedef struct data_and_list_encp
 static sorted_list_iter_t DLLToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list);
 static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter);
 
-static int IsBiger(const void *data1,const void *struct_d_and_l);
-static int IsBigerOrEqule(const void *data1,const void *struct_d_and_l);
+static int IsBigger(const void *data1,const void *struct_d_and_l);
+static int IsBiggerOrEqual(const void *data1,const void *struct_d_and_l);
 
 
 sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *data2))
@@ -230,15 +230,15 @@ sorted_list_iter_t SortedLLFind(sorted_list_iter_t from,
 	
 	*((d_list_iter_t *)(&iter_temp)) = (DLLFind(SortedToDLListIter(from), 
 												SortedToDLListIter(to), 
-												IsBigerOrEqule, 
+												IsBiggerOrEqual, 
 												(void *)(&cmp_struct)));
 	
-	if (!SortedLLIsSameIter(iter_temp, to))
+	if	((!SortedLLIsSameIter(iter_temp, to)) && 
+		(0 == list->cmp_func(SortedLLGetData(iter_temp), data)))
 	{
-		if (0 == list->cmp_func(SortedLLGetData(iter_temp), data))
-		{
+		
 			return (iter_temp); 
-		}
+		
 		
 	}
 	
@@ -314,7 +314,7 @@ sorted_list_iter_t SortedLLInsert(sorted_list_t *list, void *data)
 	
 	insert_iter = SortedLLFindIf(SortedLLBegin(list), 
 								SortedLLEnd(list),  
-								IsBiger,
+								IsBigger,
 								(void *)&cmp_struct);
 									
 	return (DLLToSortedIter(DLLInsert(SortedToDLListIter(insert_iter), data), list));
@@ -373,7 +373,7 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 		cmp_struct.data = SortedLLGetData(src_begin);
 		cmp_struct.list = src_list;
 		
-		where = SortedLLFindIf(where, dest_end, IsBiger, (void *)&cmp_struct);
+		where = SortedLLFindIf(where, dest_end, IsBigger, (void *)&cmp_struct);
 		
 		if (SortedLLIsSameIter(dest_end, where))
 		{
@@ -388,7 +388,7 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 		cmp_struct.list = src_list;
 		cmp_struct.data = SortedLLGetData(where);
 		
-		to = SortedLLFindIf(src_begin, src_end, IsBigerOrEqule, (void *)&cmp_struct);
+		to = SortedLLFindIf(src_begin, src_end, IsBiggerOrEqual, (void *)&cmp_struct);
 	
 		DLLSplice(	SortedToDLListIter(where), 
 					SortedToDLListIter(src_begin), 
@@ -448,19 +448,19 @@ static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter)
 }
 
 
-static int IsBigerOrEqule(const void *data1,const void *struct_d_and_l)
+static int IsBiggerOrEqual(const void *data1,const void *struct_d_and_l)
 {
 	assert(NULL != struct_d_and_l);
 		
 
-return (0 <= (((data_and_list_t *)struct_d_and_l)->list->cmp_func(
+	return (0 <= (((data_and_list_t *)struct_d_and_l)->list->cmp_func(
 									data1, (((data_and_list_t *)struct_d_and_l)->data))));
 }
 
 
 
 
-static int IsBiger(const void *data1,const void *struct_d_and_l)
+static int IsBigger(const void *data1,const void *struct_d_and_l)
 {
 	
 	assert(NULL != struct_d_and_l);
