@@ -13,7 +13,7 @@
  
 ilrd_uid_t UidCreate(void)
 {
-	static size_t counter = 0;
+	static size_t counter = 1;
 	
 	ilrd_uid_t uid_local = {0};
 	
@@ -42,7 +42,7 @@ int UidIsSame(const ilrd_uid_t uid1, const ilrd_uid_t uid2)
 
 ilrd_uid_t GetBadUid(void)
 {
-	ilrd_uid_t bad_local = {0xFFFFFFFFFFFFFFFF, (pid_t)-1, (time_t)-1};
+	ilrd_uid_t bad_local = {0, 0, (time_t)-1};
 
 	return bad_local;
 }
