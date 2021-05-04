@@ -21,7 +21,7 @@ ilrd_uid_t UidCreate(void)
 	
 	if ((time_t)-1 == uid_local.time_stamp)
 	{
-		return GetBadUid();	
+		return (GetBadUid());	
 	}
 	
 	uid_local.process_ID = getpid();
@@ -29,7 +29,7 @@ ilrd_uid_t UidCreate(void)
 	
 	++counter;
 
-	return uid_local;
+	return (uid_local);
 }
 
 int UidIsSame(const ilrd_uid_t uid1, const ilrd_uid_t uid2)
@@ -44,5 +44,5 @@ ilrd_uid_t GetBadUid(void)
 {
 	ilrd_uid_t bad_local = {0, 0, (time_t)-1};
 
-	return bad_local;
+	return (bad_local);
 }
