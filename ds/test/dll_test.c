@@ -6,7 +6,7 @@
 #include "dll.h"
 
 #define SUCCESS 0
-#define SUCCESS_BOL 1
+#define SUCCESS_BOOL 1
 
 static int DLLManager();
 static int PrintInt(void *data,void *param);
@@ -62,14 +62,14 @@ static int DLLManager()
 	}
 	
 	/* test DLLIsSameIter on empty list */
-	if (SUCCESS_BOL != DLLIsSameIter(DLLBegin(list), DLLEnd(list)))
+	if (SUCCESS_BOOL != DLLIsSameIter(DLLBegin(list), DLLEnd(list)))
 	{
 		printf("DLLCreate error at line: %d\n", __LINE__);
 		 
 	}
 	
 	/* test DLLIsEmpty on empty list  */
-	if ((!SUCCESS_BOL) != DLLSize(list))
+	if ((!SUCCESS_BOOL) != DLLSize(list))
 	{
 		printf("DLLSize error at line: %d\n", __LINE__);
 		 
@@ -81,7 +81,7 @@ static int DLLManager()
 	iter = DLLInsert(iter, (void *)&data);
 	
 	
-	if (SUCCESS_BOL == DLLIsEmpty(list))
+	if (SUCCESS_BOOL == DLLIsEmpty(list))
 	{
 		printf("DLLInsert error at line: %d\n", __LINE__);
 		 
@@ -89,7 +89,7 @@ static int DLLManager()
 	
 	DLLRemove(iter);
 		
-	if (SUCCESS_BOL != DLLIsEmpty(list))
+	if (SUCCESS_BOOL != DLLIsEmpty(list))
 	{
 		printf("DLLRemove error at line: %d\n", __LINE__);
 		 

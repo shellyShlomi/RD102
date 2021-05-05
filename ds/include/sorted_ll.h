@@ -202,7 +202,7 @@ void *           SortedLLGetData    (sorted_list_iter_t iter);
  * PARAMETERS    	:   iter - sorted_list_iter_t iter
  *						***can't operat on the end iter(a non valid iter)***
  *						
- * RETURN VALUE   	:   sorted_list_iter_t - the iter that was removed
+ * RETURN VALUE   	:   sorted_list_iter_t - the iter ta the removeal place removed
  * 
  * COMPLEXITY   	:   Time - O(1)
  */ 

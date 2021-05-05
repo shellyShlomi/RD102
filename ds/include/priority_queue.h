@@ -3,8 +3,6 @@
 
 #include <stddef.h> /* size_t */
 
-#include "sorted_ll.h"
-
 typedef struct pq pq_t;
 
 

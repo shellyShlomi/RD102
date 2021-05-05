@@ -10,7 +10,6 @@
 #include <string.h> /*	memcpy	*/
 #include <stdlib.h> /*	malloc	*/
 
-
 #include "circular_buffer.h"
 
 #define OFFSETOF(s, m)((size_t)&(((s *)0)->m))

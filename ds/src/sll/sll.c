@@ -208,6 +208,8 @@ s_list_iter_t SLLRemove(s_list_iter_t iter)
 	return (iter);
 	
 }
+		/*test if push back failedtest if find failed secound part*/
+
 
 /* Approved by Shir */
 void SLLDestroy(s_list_t *list)

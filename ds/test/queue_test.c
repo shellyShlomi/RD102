@@ -3,7 +3,7 @@
 
 #include "queue.h"
 
-static int QueueManager();
+static void QueueManager();
 
 int main()
 {
@@ -13,7 +13,7 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-static int QueueManager()
+static void QueueManager()
 {
 	int arr[] = {5, 4, 3, 2, 1};
 	size_t i = 0;
@@ -27,8 +27,9 @@ static int QueueManager()
 		printf("QueueCreate error at line: %d\n", __LINE__);
 		queue = NULL;
 		
-		return EXIT_FAILURE; 
+		return ; 
 	}
+	
 	
 	if (!(QueueIsEmpty(queue)))
 	{
@@ -37,7 +38,7 @@ static int QueueManager()
 
 	for (i = 0; i < size; ++i, err = 0)
 	{
-		err = QueueEnqueue(queue, (void *)&arr[i]);
+		err = QueueEnqueue(queue, (void *)(arr + i));
 			
 		if (err)
 		{
@@ -65,14 +66,15 @@ static int QueueManager()
 	if (NULL == dest)
 	{
 		printf("QueueCreate error at line: %d\n", __LINE__);
-		dest = NULL;
-		
-		return EXIT_FAILURE; 
+
+		QueueDestroy(queue);
+		queue = NULL;			
+		return ; 
 	}
 
 	for (i = 0; i < size; ++i, err = 0)
 	{
-		err = QueueEnqueue(dest, (void *)&arr[i]);
+		err = QueueEnqueue(dest, (void *)(arr + i));
 			
 		if (err)
 		{
@@ -140,5 +142,5 @@ static int QueueManager()
 	dest = NULL;
 	queue = NULL;
 	
-	return EXIT_SUCCESS;
+	return ;
 }

@@ -21,7 +21,6 @@ struct d_list_node
 	void *data;
 	d_list_iter_t next;
 	d_list_iter_t prev;
-	
 };
 
 struct d_list

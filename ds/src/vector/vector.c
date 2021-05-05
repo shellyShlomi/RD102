@@ -53,8 +53,8 @@ void VectorDestroy(vector_t *vector)
 	free(vector->arr);
 	vector->arr = NULL;
 	
-	vector->size = 0;
-	vector->capacity = 0;
+	vector->size = (size_t)-1;
+	vector->capacity = (size_t)-1;
 	
 	free(vector);
 	
@@ -134,7 +134,8 @@ int VectorReserve(vector_t *vector, size_t new_capacity)
 int VectorShrinkToFit(vector_t *vector)
 {
 	assert(NULL != vector);
-
+	assert(NULL != vector->arr);
+	
 	return VectorReserve(vector, vector->size);
 }
 
@@ -145,7 +146,6 @@ void VectorPopBack(vector_t *vector)
 	assert(0 != vector->size);
 	assert(NULL != vector->arr);
 	
-	VectorSetElem(vector, vector->size - 1, NULL);
 	--(vector->size);
 	
 	/* reduce the capacity to half if we have only 1/4 full elems at the arr */
