@@ -5,17 +5,22 @@
  *  Date Of Approval:--.05.21;									*
  *  Approved By:												*
  *  Description:application - scheduler;						*/
+#include <sys/types.h> /* time_t */
+#include <stdlib.h>	/* uid */
+#include <stddef.h> /* size_t */
+#include <assert.h> /* assret */
+#include <time.h>	/* time_t */
 
 #include "priority_queue.h" 
 #include "scheduler.h"
 #include "uid.h"
-
+#include "task.h"
 static int CmpFunc(const void *data1, const void *data2);
-
+static int IsMatch(const void *data, const void *param);
 
 struct scheduler
 {
-	p_queue *pq;
+	pq_t *pq;
 	int run;
 	task_t *task_cur;
 };
@@ -74,7 +79,7 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 		return (!status);
 	}
 	
-	task = PQueueErase(scheduler->pq, IsMatch, (void *)uid);
+	task = (task_t *)(PQueueErase(scheduler->pq, IsMatch, (void *)uid));
 	
 	if (NULL != task)
 	{
@@ -108,6 +113,7 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler, int (*action_func)(void *param),
 											size_t interval_in_sec, void *param)
 {
 	task_t *task = NULL;
+	
 	ilrd_uid_t bad_uid = GetBadUid();
 	
 	assert(NULL != scheduler);
@@ -136,7 +142,6 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler, int (*action_func)(void *param),
 int SchedulerRun(scheduler_t *scheduler)
 {
 	time_t time_now = 0;
-	time_t exe_time = 0;
 	unsigned int remainder = 0;
 	
 	assert(NULL != scheduler);
@@ -155,14 +160,7 @@ int SchedulerRun(scheduler_t *scheduler)
 			return (1);
 		}	
 		
-		exe_time = TaskGetExecutionTime(scheduler->task_cur);
-		
-		if ((time_t)-1 == remainder)
-		{
-			return (1);
-		}
-			
-		remainder = exe_time - time_now
+		remainder = TaskGetExecutionTime(scheduler->task_cur) - time_now;
 		
 		while (!remainder)
 		{
@@ -171,36 +169,33 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		switch(TaskExecute(scheduler->task_cur)) 
 		{
-			/*action_func success*/
-			case 0:
-			{
-				TaskDestroy(scheduler->task_cur);
-				scheduler->task_cur = NULL;
-				break;
-			}
-			
-			/*action_func faile - iner status */
-			case 1:
-			{
-				TaskDestroy(scheduler->task_cur);
-				scheduler->task_cur = NULL;
-				
-				return (2); /*action_func faile - run status*/
-			}
-			
 			/*action_func need to be repited - iner status */
 			case 2:
 			{
 				if(TaskUpdateExecutionTime(scheduler->task_cur))
 				{
+					TaskDestroy(scheduler->task_cur);
+					scheduler->task_cur = NULL;
 					return (1);/*TaskUpdateExecutionTime - run status of system faile */
 				}
 				
 				if(PQueueEnqueue(scheduler->pq, scheduler->task_cur))
 				{
+					TaskDestroy(scheduler->task_cur);
+					scheduler->task_cur = NULL;
 					return (1);/*PQueueEnqueue - run status of system faile */
 				}
 				
+				break;
+			}
+			
+			TaskDestroy(scheduler->task_cur);
+			scheduler->task_cur = NULL;
+			
+			/*action_func faile - iner status */
+			case 1:
+			{
+				return (2); /*action_func faile - run status*/
 				break;
 			}
 
@@ -220,11 +215,9 @@ int SchedulerRun(scheduler_t *scheduler)
 	scheduler->run = 0;
 	
 	return (0);
-	
-	
 
 }
-void SchedulerStop(scheduler_t *scheduler);	
+void SchedulerStop(scheduler_t *scheduler)
 {
 	assert(NULL != scheduler);
 	
@@ -249,13 +242,13 @@ void SchedulerClear(scheduler_t *scheduler)
 
 
  
-static int IsMatchVoid(const void *data, const void *param)
+static int IsMatch(const void *data, const void *param)
 {
-	return (TaskGetUid((task_t *)data) == ((ilrd_uid_t)param)); 		
+	return (UidIsSame(TaskGetUid((task_t *)data), ((ilrd_uid_t)param))); 		
 } 
 
 
-static int CmpFuncVoid(const void *data1, const void *data2)
+static int CmpFunc(const void *data1, const void *data2)
 {
 	return (TaskGetExecutionTime((task_t *)data1) - TaskGetExecutionTime((task_t *)data2)); 		
 }
