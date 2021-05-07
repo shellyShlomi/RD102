@@ -10,13 +10,24 @@
 #include <stddef.h> /* size_t */
 #include <assert.h> /* assret */
 #include <time.h>	/* time_t */
+#include <unistd.h> /* sleep */
 
-#include "priority_queue.h" 
 #include "scheduler.h"
-#include "uid.h"
+#include "priority_queue.h" 
 #include "task.h"
+
 static int CmpFunc(const void *data1, const void *data2);
 static int IsMatch(const void *data, const void *param);
+
+enum exit_satus
+{
+	SUCCESS,
+	SYSTEM_FAILURE,
+	ACTION_FUNC_FAILURE,
+	STOPED
+
+};
+
 
 struct scheduler
 {
@@ -69,7 +80,7 @@ void SchedulerDestroy(scheduler_t *scheduler)
 int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 {
 	int status = 1;
-	task_t *task = NULL;
+	void *task = NULL;
 	
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
@@ -79,7 +90,7 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 		return (!status);
 	}
 	
-	task = (task_t *)(PQueueErase(scheduler->pq, IsMatch, (void *)uid));
+	task = PQueueErase(scheduler->pq, IsMatch, (void *)&uid);
 	
 	if (NULL != task)
 	{
@@ -151,14 +162,15 @@ int SchedulerRun(scheduler_t *scheduler)
 	
 	while (!PQueueIsEmpty(scheduler->pq) && scheduler->run)
 	{
-		scheduler->task_cur = PQueueDequeue(scheduler->pq);
 		
 		time_now = time(NULL);
 	
 		if ((time_t)-1 == time_now)
 		{
-			return (1);
+			return (SYSTEM_FAILURE);
 		}	
+		
+		scheduler->task_cur = PQueueDequeue(scheduler->pq);
 		
 		remainder = TaskGetExecutionTime(scheduler->task_cur) - time_now;
 		
@@ -169,34 +181,54 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		switch(TaskExecute(scheduler->task_cur)) 
 		{
+			/*action_func success - iner status : */
+			case 0:
+			{
+				TaskDestroy(scheduler->task_cur);
+				
+				scheduler->task_cur = NULL;
+			
+				break;
+			}
+						
 			/*action_func need to be repited - iner status */
 			case 2:
 			{
 				if(TaskUpdateExecutionTime(scheduler->task_cur))
 				{
+					SchedulerStop(scheduler);
+					
 					TaskDestroy(scheduler->task_cur);
+					
 					scheduler->task_cur = NULL;
-					return (1);/*TaskUpdateExecutionTime - run status of system faile */
+			/*TaskUpdateExecutionTime - run status of system faile */
+					return (SYSTEM_FAILURE);
 				}
 				
 				if(PQueueEnqueue(scheduler->pq, scheduler->task_cur))
 				{
+					SchedulerStop(scheduler);
+					
 					TaskDestroy(scheduler->task_cur);
+					
 					scheduler->task_cur = NULL;
-					return (1);/*PQueueEnqueue - run status of system faile */
+					
+					return (SYSTEM_FAILURE);/*PQueueEnqueue - run status of system faile */
 				}
 				
 				break;
 			}
 			
-			TaskDestroy(scheduler->task_cur);
-			scheduler->task_cur = NULL;
-			
 			/*action_func faile - iner status */
 			case 1:
-			{
-				return (2); /*action_func faile - run status*/
-				break;
+			{	
+				TaskDestroy(scheduler->task_cur);
+			
+				scheduler->task_cur = NULL;
+	
+				SchedulerStop(scheduler);
+					
+				return (ACTION_FUNC_FAILURE); /*action_func faile - run status*/
 			}
 
 			default:
@@ -209,12 +241,12 @@ int SchedulerRun(scheduler_t *scheduler)
 	
 	if (!scheduler->run)
 	{
-		return (3); /*the stop func was activeted*/
+		return (STOPED); /*the stop func was activeted*/
 	}
 	
 	scheduler->run = 0;
 	
-	return (0);
+	return (SUCCESS);
 
 }
 void SchedulerStop(scheduler_t *scheduler)
@@ -244,7 +276,7 @@ void SchedulerClear(scheduler_t *scheduler)
  
 static int IsMatch(const void *data, const void *param)
 {
-	return (UidIsSame(TaskGetUid((task_t *)data), ((ilrd_uid_t)param))); 		
+	return (UidIsSame(TaskGetUid((task_t *)data), (*(ilrd_uid_t *)&param))); 		
 } 
 
 

@@ -134,7 +134,6 @@ void *PQueueErase(	pq_t *p_queue,
 	sorted_list_iter_t temp = {0};
 	void *temp_data = NULL;
 	
-	
 	assert(NULL != p_queue);
 	assert(NULL != p_queue->pq_list);
 	assert(NULL != is_match_func);
