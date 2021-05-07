@@ -210,7 +210,7 @@ int SchedulerRun(scheduler_t *scheduler)
 				
 				return (2); /*action_func faile - run status*/
 			}
-
+/*action_func success*/
 			default:
 			{
 				TaskDestroy(scheduler->task_cur);
