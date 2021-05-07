@@ -8,19 +8,6 @@
 #include "uid.h"
 
 #define SIEZ_UID_ARR 10
-static void SchedulerCreateTest();
-static void SchedulerRunTest();
-static void SchedulerRun2Test();
-static void SchedulerAddRemoveTest();
-static void NoIntervalRunTest();
-
-static int RemoveFuncWithInterval();
-/*static int RemoveFunc(void *param);*/
-static int ActionFunc1(void *param);
-static int StopFunc(void *param);
-static int ActionFuncRepit(void *param);
-static int PrintActionFuncRepit(void *param);
-
 
 typedef struct remove
 {
@@ -30,16 +17,64 @@ typedef struct remove
 	
 }remove_t;
 
+
+static void Test();
+
+
+static void SchedulerCreateTest();
+static void SchedulerRunTest();
+static void NoIntervalRunNoStopTest();
+static void NoIntervalRunTest();
+static void RepitesRunTest();
+static void SchedulerAddRemoveTest();
+static void TaskAddingSchedulerRunTest();
+
+
+static int SelfRemoveFuncWithInterval(void *param);
+static int RemoveFuncWithInterval(void *param);
+static int ActionFunc1(void *param);
+static int StopFunc(void *param);
+static int ActionFuncRepitChar(void *param);
+static int ActionFuncRepitChar1(void *param);
+static int ActionFuncChar(void *param);
+static int ActionFuncRepit1(void *param);
+static int ActionFuncRepit2(void *param);
+static int ActionFuncRepit3(void *param);
+static int PrintActionFuncRepit(void *param);
+static int TaskAddingActionFunc(void *param);
+
+
+static void Red();
+static void Yellow();
+static void Purple();
+static void Green();
+static void Blue();
+static void Reset();
+static void Cyan();
+static void BlueB();
+static void YellowB();
+
 int main()
 {
 
-	SchedulerCreateTest();
-	SchedulerAddRemoveTest();
-	NoIntervalRunTest();
-	SchedulerRunTest();
-	SchedulerRun2Test();
+	Test();
 	
 	return EXIT_SUCCESS;
+}
+
+
+static void Test()
+{
+	SchedulerCreateTest();
+	SchedulerAddRemoveTest();
+	NoIntervalRunNoStopTest();
+	NoIntervalRunTest();
+	RepitesRunTest();
+	SchedulerRunTest();
+	TaskAddingSchedulerRunTest();
+	
+	return;
+
 }
 
 
@@ -125,6 +160,91 @@ static void SchedulerAddRemoveTest()
 }
 
 
+/*remove with repites*/
+static void RepitesRunTest()
+{	
+
+	int arr[] = {1, 2, 5, 3, 1, 2};
+	size_t arr_interval[] = {1, 2, 5, 3, 1, 2};
+	char *str = "shelly";
+	size_t size = sizeof(arr)/ sizeof(arr[0]);
+	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
+	size_t interval = 5;
+	size_t i = 0;
+	
+	scheduler_t *scheduler = SchedulerCreate();
+	
+	if (NULL == scheduler)
+	{
+		printf("RepitesRunTest->SchedulerCreate error at line: %d\n", __LINE__);
+
+		
+		return ; 
+	}
+
+	for (i = 0; i < size; ++i)
+	{
+		arr_uid[i] = SchedulerAdd(scheduler, PrintActionFuncRepit, *(arr_interval + i), (void *)(arr + i));
+
+	}
+	
+	if (size != SchedulerSize(scheduler))
+	{
+		printf("RepitesRunTest->SchedulerAdd error at line: %d\n", __LINE__);
+	}
+	
+	arr_uid[i] = SchedulerAdd(scheduler, StopFunc, interval, scheduler);
+
+	arr_uid[i + 1] = SchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
+
+	Yellow();
+
+	printf("\nRepitesRunTest\n \n"); 
+	
+	printf("RepitesRunTest->SchedulerRun return: %d \n",SchedulerRun(scheduler)); 
+	
+	if (size + 1 != SchedulerSize(scheduler))
+	{
+		printf("RepitesRunTest->SchedulerAdd error at line: %d\n", __LINE__);
+	}
+
+	
+	for (i = 0; i < size + 2; ++i)
+	{
+		if (6 == i)
+		{
+		
+			if (1 != SchedulerRemove(scheduler, arr_uid[i]))
+			{
+				printf("RepitesRunTest->SchedulerRemove ");
+				printf("error at line: %d index: %ld %ld\n", __LINE__,i, SchedulerSize(scheduler)); 	
+			}
+			
+			++i;
+		}
+
+		if (0 != SchedulerRemove(scheduler, arr_uid[i]))
+		{
+			printf("RepitesRunTest->SchedulerRemove ");
+			printf("error at line: %d index: %ld %ld\n", __LINE__,i, SchedulerSize(scheduler)); 	
+		}
+	}
+	
+	if (0 != SchedulerSize(scheduler))
+	{
+		printf("RepitesRunTest->SchedulerSize error at line: %d \n", __LINE__);
+	}
+	
+	Reset();
+	
+	SchedulerDestroy(scheduler);
+	scheduler = NULL;
+	
+	return ;
+
+}
+
+
 /*remove with no repites & run*/
 static void NoIntervalRunNoStopTest()
 {	
@@ -132,7 +252,6 @@ static void NoIntervalRunNoStopTest()
 	int arr[] = {1, 2, 5, 3, 1, 2};
 	size_t arr_interval[] = {1, 2, 5, 3, 1, 2};
 	size_t size = sizeof(arr)/ sizeof(arr[0]);
-	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
 	size_t i = 0;
 	
 	scheduler_t *scheduler = SchedulerCreate();
@@ -147,7 +266,7 @@ static void NoIntervalRunNoStopTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = SchedulerAdd(scheduler, ActionFunc1, *(arr_interval + i), (void *)(arr + i));
+		SchedulerAdd(scheduler, ActionFunc1, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
@@ -156,12 +275,17 @@ static void NoIntervalRunNoStopTest()
 		printf("SchedulerAddTest->SchedulerAdd error at line: %d %lu\n", __LINE__,SchedulerSize(scheduler));
 	}
 	
+	Red();
+	printf("\nNoIntervalRunNoStopTest\n \n"); 
+	
 	printf("NoIntervalRunTest->SchedulerRun return: %d \n",SchedulerRun(scheduler)); 
 	
 	if (0 != SchedulerSize(scheduler))
 	{
 		printf("SchedulerAddTest->SchedulerIsEmpty error at line: %d\n", __LINE__);
 	}
+	Reset();
+	
 	SchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
@@ -205,8 +329,9 @@ static void NoIntervalRunTest()
 	
 	arr_uid[i] = SchedulerAdd(scheduler, StopFunc, interval, scheduler);
 
-	arr_uid[i + 1] = SchedulerAdd(scheduler, ActionFuncRepit, *(arr_interval), (void *)str);
+	arr_uid[i + 1] = SchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
 	
+	Blue();
 	printf("\nNoIntervalRunTest\n \n"); 
 	
 	printf("NoIntervalRunTest->SchedulerRun return: %d \n",SchedulerRun(scheduler)); 
@@ -244,6 +369,8 @@ static void NoIntervalRunTest()
 		printf("NoIntervalRunTest->SchedulerSize error at line: %d \n", __LINE__);
 	}
 	
+	Reset();
+	
 	SchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
@@ -279,7 +406,7 @@ static void SchedulerRunTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = SchedulerAdd(scheduler, PrintActionFuncRepit, *(arr_interval + i), (void *)(arr + i));
+		arr_uid[i] = SchedulerAdd(scheduler, ActionFuncRepit1, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
@@ -288,13 +415,13 @@ static void SchedulerRunTest()
 		printf("SchedulerRunTest->SchedulerAdd error at line: %d %lu\n", __LINE__,SchedulerSize(scheduler));
 	}
 	
-	arr_uid[i] = SchedulerAdd(scheduler, ActionFuncRepit, *(arr_interval), (void *)str);
+	arr_uid[i] = SchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
 
 	/*task remove herself*/
 	
 	++i;
 	
-	arr_uid[i] = SchedulerAdd(scheduler, RemoveFuncWithInterval, interval1, (void *)&remove);
+	arr_uid[i] = SchedulerAdd(scheduler, SelfRemoveFuncWithInterval, interval1, (void *)&remove);
 	
 	remove.scheduler = scheduler;
 	remove.uid = arr_uid[i];
@@ -304,7 +431,9 @@ static void SchedulerRunTest()
 	
 	arr_uid[i] = SchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
 
-	printf("\nSchedulerRunTest\n \n"); 
+	Purple();
+
+	printf("\nSchedulerRunTest with task that is selfDestroy \n \n"); 
 	
 	printf("SchedulerRun return: %d \n",SchedulerRun(scheduler)); 
 	
@@ -320,7 +449,7 @@ static void SchedulerRunTest()
 		{
 		/* the stop task that Destroy hearself*/
 			if (1 != SchedulerRemove(scheduler, arr_uid[i]))
-			{
+			{	
 				printf("SchedulerRunTest->SchedulerRemove ");
 				printf("error at line: %d index: %ld %ld\n", __LINE__,i, SchedulerSize(scheduler)); 	
 			}
@@ -340,31 +469,15 @@ static void SchedulerRunTest()
 		printf("SchedulerRunTest->SchedulerSize error at line: %d \n", __LINE__);
 	}
 	
+	Reset();
+	
 	SchedulerDestroy(scheduler);
-	scheduler = NULL;
 	
-	return ;
-
-}
-
-
-/*remove with repites*/
-static void SchedulerRun2Test()
-{	
-
-	int arr[] = {1, 2, 5, 3, 1, 2};
-	size_t arr_interval[] = {1, 2, 5, 3, 1, 2};
-	char *str = "shelly";
-	size_t size = sizeof(arr)/ sizeof(arr[0]);
-	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
-	size_t interval = 5;
-	size_t i = 0;
-	
-	scheduler_t *scheduler = SchedulerCreate();
+	scheduler = SchedulerCreate();
 	
 	if (NULL == scheduler)
 	{
-		printf("SchedulSchedulerRun2TesterRunTest->SchedulerCreate error at line: %d\n", __LINE__);
+		printf("SchedulerRunTest->SchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -372,55 +485,44 @@ static void SchedulerRun2Test()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = SchedulerAdd(scheduler, PrintActionFuncRepit, *(arr_interval + i), (void *)(arr + i));
+		arr_uid[i] = SchedulerAdd(scheduler, ActionFuncRepit2, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
 	if (size != SchedulerSize(scheduler))
 	{
-		printf("SchedulerRun2Test->SchedulerAdd error at line: %d\n", __LINE__);
+		printf("SchedulerRunTest->SchedulerAdd error at line: %d %lu\n", __LINE__,SchedulerSize(scheduler));
 	}
 	
-	arr_uid[i] = SchedulerAdd(scheduler, StopFunc, interval, scheduler);
+	arr_uid[i] = SchedulerAdd(scheduler, ActionFuncRepitChar1, *(arr_interval), (void *)str);
 
-	arr_uid[i + 1] = SchedulerAdd(scheduler, ActionFuncRepit, *(arr_interval), (void *)str);
+	/*task remove other tasks */
 	
-	printf("\nSchedulerRun2Test\n \n"); 
+	++i;
 	
-	printf("SchedulerRun2Test->SchedulerRun return: %d \n",SchedulerRun(scheduler)); 
+	arr_uid[i] = SchedulerAdd(scheduler, RemoveFuncWithInterval, interval1, (void *)&remove);
 	
-	if (size + 1 != SchedulerSize(scheduler))
-	{
-		printf("SchedulerRun2Test->SchedulerAdd error at line: %d\n", __LINE__);
-	}
+	remove.scheduler = scheduler;
+	remove.uid = arr_uid[i - 1]; /*removal of str*/
+	remove.counter = 0;
+	
+	++i;
+	
+	arr_uid[i] = SchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
 
-	
-	for (i = 0; i < size + 2; ++i)
-	{
-		if (6 == i)
-		{
-		
-		/* the stop task that Destroy hearself*/
-			if (1 != SchedulerRemove(scheduler, arr_uid[i]))
-			{
-				printf("SchedulerRun2Test->SchedulerRemove ");
-				printf("error at line: %d index: %ld %ld\n", __LINE__,i, SchedulerSize(scheduler)); 	
-			}
-			
-			++i;
-		}
+	Cyan();
 
-		if (0 != SchedulerRemove(scheduler, arr_uid[i]))
-		{
-			printf("SchedulerRun2Test->SchedulerRemove ");
-			printf("error at line: %d index: %ld %ld\n", __LINE__,i, SchedulerSize(scheduler)); 	
-		}
-	}
+	printf("\nSchedulerRunTest with task that Destroy other tasks\n shelly will be removed \n\n"); 
+	
+	printf("SchedulerRun return: %d \n",SchedulerRun(scheduler)); 
+	
+	SchedulerClear(scheduler);
 	
 	if (0 != SchedulerSize(scheduler))
 	{
-		printf("SchedulerRun2Test->SchedulerSize error at line: %d \n", __LINE__);
+		printf("SchedulerRunTest->SchedulerAdd error at line: %d\n", __LINE__);
 	}
+	Reset();
 	
 	SchedulerDestroy(scheduler);
 	scheduler = NULL;
@@ -429,22 +531,183 @@ static void SchedulerRun2Test()
 
 }
 
-static int ActionFuncRepit(void *param)
-{
+
+/*task that Destroy herself and other tasks with repites*/
+static void TaskAddingSchedulerRunTest()
+{	
+
+	int arr[] = {1, 2, 5, 3, 1, 2};
+	size_t arr_interval[] = {1, 2, 5, 3, 1, 2};
+	size_t size = sizeof(arr)/ sizeof(arr[0]);
+	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
+	remove_t adding = {NULL};
+	size_t interval = 5;
+	size_t interval1 = 2;
+	size_t i = 0;
+	
+	scheduler_t *scheduler = SchedulerCreate();
+
+	
+	if (NULL == scheduler)
+	{
+		printf("TaskAddingSchedulerRunTest->SchedulerCreate error at line: %d\n", __LINE__);
+
 		
-		printf("\nActionFuncRepit param is : %s\n", (char *)param);
+		return ; 
+	}
+
+	for (i = 0; i < size; ++i)
+	{
+		arr_uid[i] = SchedulerAdd(scheduler, ActionFuncRepit3, *(arr_interval + i), (void *)(arr + i));
+
+	}
+	
+	if (size != SchedulerSize(scheduler))
+	{
+		printf("TaskAddingSchedulerRunTest->SchedulerAdd error at line: %d\n", __LINE__);
+	}
+	
+
+
+	/*task remove other tasks */
+	
+	++i;
+	
+	arr_uid[i] = SchedulerAdd(scheduler, TaskAddingActionFunc, interval1, (void *)&adding);
+	
+	adding.scheduler = scheduler;
+	adding.uid = arr_uid[i]; /*removal of str*/
+	adding.counter = 0;
+	
+	++i;
+	
+	arr_uid[i] = SchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
+
+	Blue();
+
+	printf("\nTaskAddingSchedulerRunTest with task that add other tasks "); 
+	printf("and after 2 times remove herself \n\n"); 
+	printf("SchedulerRun return: %d \n",SchedulerRun(scheduler)); 
+	
+	SchedulerClear(scheduler);
+	
+	if (0 != SchedulerSize(scheduler))
+	{
+		printf("TaskAddingSchedulerRunTest->SchedulerAdd error at line: %d\n", __LINE__);
+	}
+	Reset();
+	
+	SchedulerDestroy(scheduler);
+	scheduler = NULL;
+	
+	return ;
+
+}
+
+
+
+static int TaskAddingActionFunc(void *param)
+{
+		char *str = "shelly";
+		size_t interval = 2;
+		static int i = 0;
+
+		if (2 == i)
+		{
+			BlueB();
+			printf("TaskAddingActionFunc self remove now\t");
+			printf("param counter is : %d\n\n", ((remove_t *)param)->counter);
+			
+			return (SchedulerRemove(((remove_t *)param)->scheduler, ((remove_t *)param)->uid));
+		}
+	
+		SchedulerAdd(((remove_t *)param)->scheduler, ActionFuncChar, interval , (void *)str);
+		
+		++i;
+		
+		return (2); 		
+}
+
+static int ActionFuncChar(void *param)
+{
+		Purple();
+		printf("ActionFuncChar param is : %s\n", (char *)param);
+		Reset();
+		return (0); 		
+}
+
+static int ActionFuncRepitChar(void *param)
+{
+
+		printf("ActionFuncRepitChar param is : %s\n", (char *)param);
+		return (2); 		
+}
+
+static int ActionFuncRepitChar1(void *param)
+{
+		YellowB();
+		printf("ActionFuncRepitCharWillRemove1 param is : %s\n", (char *)param);
+		Reset();
+		return (2); 		
+}
+
+static int ActionFuncRepit1(void *param)
+{
+		Purple();
+		printf("ActionFuncRepit1 param is : %d\n", *(int *)param);
+
+		return (2); 		
+}
+
+static int ActionFuncRepit2(void *param)
+{
+		Cyan();
+		printf("ActionFuncRepit2 param is : %d\n", *(int *)param);
+		return (2); 		
+}
+
+static int ActionFuncRepit3(void *param)
+{
+		Blue();
+		printf("ActionFuncRepit3 param is : %d\n", *(int *)param);
 		return (2); 		
 }
 
 static int ActionFunc1(void *param)
 {
-		printf("\nActionFunc1 param is : %d\n", *(int *)param);
+		printf("ActionFunc1 param is : %d\n", *(int *)param);
 		return (0); 		
 }
 
 static int PrintActionFuncRepit(void *param)
 {
-		printf("\nPrintActionFuncRepit param is : %d\n", *(int *)param);
+		printf("PrintActionFuncRepit param is : %d\n", *(int *)param);
+		return (2); 		
+}
+
+static int SelfRemoveFuncWithInterval(void *param)
+{
+		static int i = 0;
+		
+		((remove_t *)param)->counter = i;
+		Reset();
+	
+		Green();
+		if (2 == i)
+		{
+			printf("SelfRemoveFunc interval: 2\tself remove now\t");
+			printf("param counter is : %d\n\n", ((remove_t *)param)->counter);
+			return (SchedulerRemove(((remove_t *)param)->scheduler, ((remove_t *)param)->uid));
+		}
+		else
+		{
+			printf("SelfRemoveFunc interval: 2 ");
+			printf("param counter is : %d\n\n", ((remove_t *)param)->counter);
+		}
+		
+		Reset();
+		++i;
+		
 		return (2); 		
 }
 
@@ -453,15 +716,24 @@ static int RemoveFuncWithInterval(void *param)
 		static int i = 0;
 		
 		((remove_t *)param)->counter = i;
+		Reset();
 	
-		printf("\nRemoveFuncWithInterval param is : %d\n", ((remove_t *)param)->counter);
-		++i;
-		
+		Green();
+	
 		if (2 == i)
 		{
-			return (SchedulerRemove(((remove_t *)param)->scheduler, ((remove_t *)param)->uid));
+			printf("RemoveFunc interval: 2\tremoves shelly now\t");
+			printf("param counter is : %d\n\n", ((remove_t *)param)->counter);
+			SchedulerRemove(((remove_t *)param)->scheduler, ((remove_t *)param)->uid);
 		}
-	
+		else
+		{
+			printf("RemoveFunc interval: 2 ");
+			printf("param counter is : %d\n\n", ((remove_t *)param)->counter);
+		}
+		
+		Reset();
+		++i;
 		return (2); 		
 }
 
@@ -483,4 +755,50 @@ static int StopFunc(void *param)
 		return (0); 		
 }
 
+
+static void Red() 
+{
+  printf("\033[1;31m");
+}
+
+static void Cyan()
+{
+  printf("\033[0;36m");
+}
+
+static void YellowB()
+{
+  printf("\033[1;33m");
+}
+
+static void Yellow()
+{
+  printf("\033[0;33m");
+}
+
+static void Purple() 
+{
+  printf("\033[0;35m");
+}
+
+static void BlueB()
+{
+  printf("\033[1;34m");
+}
+
+static void Blue()
+{
+  printf("\033[0;34m");
+}
+
+static void Green() 
+{
+  printf("\033[1;32m");
+}
+
+
+static void Reset() 
+{
+  printf("\033[0m");
+}
 

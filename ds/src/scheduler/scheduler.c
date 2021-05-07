@@ -12,10 +12,10 @@
 #include <time.h>	/* time_t */
 #include <unistd.h> /* sleep */
 
-#include "priority_queue.h" 
 #include "scheduler.h"
-#include "uid.h"
+#include "priority_queue.h" 
 #include "task.h"
+
 static int CmpFunc(const void *data1, const void *data2);
 static int IsMatch(const void *data, const void *param);
 
