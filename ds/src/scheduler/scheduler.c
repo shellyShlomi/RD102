@@ -1,10 +1,11 @@
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:in development;										*
- *  Date Of Creation:06.04.21;									*
+ *  Status:done;												*
+ *  Date Of Creation:06.05.21;									*
+ *  End Date: 08.05.21;											*
  *  Date Of Approval:--.05.21;									*
  *  Approved By:												*
- *  Description:application - scheduler;						*/
+ *  Description: application - scheduler;						*/
 #include <sys/types.h> /* time_t */
 #include <stdlib.h>	/* uid */
 #include <stddef.h> /* size_t */
