@@ -26,7 +26,20 @@ struct scheduler
 	task_t *task_cur;
 };
 
+enum exit_satus_run
+{
+	SUCCESS,
+	SYSTEM_FAILURE,
+	ACTION_FUNC_FAILURE,
+	STOPED
 
+};
+
+enum exit_satus_action_func
+{
+	ACTION_FUNCION_FAILURE = 1,
+	REPEATED
+};
 
 scheduler_t *SchedulerCreate()
 {
@@ -147,6 +160,8 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler, int (*action_func)(void *param),
 }
 
 
+
+
 int SchedulerRun(scheduler_t *scheduler)
 {
 	time_t time_now = 0;
@@ -161,7 +176,7 @@ int SchedulerRun(scheduler_t *scheduler)
 	
 		if ((time_t)-1 == time_now)
 		{
-			return (1);
+			return (SYSTEM_FAILURE);
 		}	
 		
 		scheduler->task_cur = PQueueDequeue(scheduler->pq);
@@ -175,18 +190,18 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		switch(TaskExecute(scheduler->task_cur)) 
 		{
-			/*action_func need to be repited - iner status */
-			case 2:
+			/*action_func need to be repeated - iner status */
+			case REPEATED:
 			{
 	
-		/*TaskUpdateExecutionTime - run status of system faile */
+			/*TaskUpdateExecutionTime - run status of system faile */
 				if(TaskUpdateExecutionTime(scheduler->task_cur))
 				{
 					TaskDestroy(scheduler->task_cur);
 					
 					scheduler->task_cur = NULL;
 					
-					return (1);
+					return (SYSTEM_FAILURE);
 				}
 				
 				if(PQueueEnqueue(scheduler->pq, scheduler->task_cur))
@@ -195,22 +210,22 @@ int SchedulerRun(scheduler_t *scheduler)
 					
 					scheduler->task_cur = NULL;
 					
-					return (1);/*PQueueEnqueue - run status of system faile */
+					return (SYSTEM_FAILURE);/*PQueueEnqueue - run status of system faile */
 				}
 				
 				break;
 			}
 			
 			/*action_func faile - iner status */
-			case 1:
+			case ACTION_FUNCION_FAILURE:
 			{
 				TaskDestroy(scheduler->task_cur);
 				
 				scheduler->task_cur = NULL;
 				
-				return (2); /*action_func faile - run status*/
+				return (ACTION_FUNC_FAILURE); /*action_func faile - run status*/
 			}
-/*action_func success*/
+			/*action_func success/ stop/ or task that is self remove*/
 			default:
 			{
 				TaskDestroy(scheduler->task_cur);
@@ -227,10 +242,10 @@ int SchedulerRun(scheduler_t *scheduler)
 	{
 		scheduler->run = 1;
 		
-		return (3); /*the stop func was activeted*/
+		return (STOPED); /*the stop func was activeted*/
 	}
 	
-	return (0);
+	return (SUCCESS);
 
 }
 void SchedulerStop(scheduler_t *scheduler)

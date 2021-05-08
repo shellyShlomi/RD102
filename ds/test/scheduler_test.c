@@ -55,6 +55,8 @@ static void Cyan();
 static void YellowB();
 static void PurpleB();
 static void GreenB();
+
+
 int main()
 {
 
@@ -441,7 +443,7 @@ static void SchedulerRunTest()
 	
 	if (size + 1 != SchedulerSize(scheduler))
 	{
-		printf("SchedulerRunTest->SchedulerAdd error at line: %d\n", __LINE__);
+		printf("SchedulerRunTest->SchedulerAdd error at line: %d \n", __LINE__);
 	}
 
 	
