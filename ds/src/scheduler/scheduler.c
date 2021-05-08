@@ -16,6 +16,13 @@
 #include "priority_queue.h" 
 #include "task.h"
 
+/* run return status */
+#define SUCCESS 0
+#define SYSTEM_FAILURE 1
+#define ACTION_FUNC_FAILURE 2
+#define STOPED 3
+
+
 static int CmpFunc(const void *data1, const void *data2);
 static int IsMatch(const void *data, const void *param);
 
@@ -26,15 +33,7 @@ struct scheduler
 	task_t *task_cur;
 };
 
-enum exit_satus_run
-{
-	SUCCESS,
-	SYSTEM_FAILURE,
-	ACTION_FUNC_FAILURE,
-	STOPED
-
-};
-
+/* opartion func return status */
 enum exit_satus_action_func
 {
 	ACTION_FUNCION_FAILURE = 1,
@@ -190,11 +189,20 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		switch(TaskExecute(scheduler->task_cur)) 
 		{
-			/*action_func need to be repeated - iner status */
+			/*action_func faile - iner status (1)*/
+			case ACTION_FUNCION_FAILURE:
+			{
+				TaskDestroy(scheduler->task_cur);
+				
+				scheduler->task_cur = NULL;
+				
+				return (ACTION_FUNC_FAILURE); /*action_func faile - run status (2)*/
+			}
+			/*action_func need to be repeated - [iner status (2)]*/
 			case REPEATED:
 			{
 	
-			/*TaskUpdateExecutionTime - run status of system faile */
+			/*TaskUpdateExecutionTime - run status of system faile (1)*/
 				if(TaskUpdateExecutionTime(scheduler->task_cur))
 				{
 					TaskDestroy(scheduler->task_cur);
@@ -204,28 +212,20 @@ int SchedulerRun(scheduler_t *scheduler)
 					return (SYSTEM_FAILURE);
 				}
 				
+				/*PQueueEnqueue - run status of system faile (1)*/
 				if(PQueueEnqueue(scheduler->pq, scheduler->task_cur))
 				{
 					TaskDestroy(scheduler->task_cur);
 					
 					scheduler->task_cur = NULL;
 					
-					return (SYSTEM_FAILURE);/*PQueueEnqueue - run status of system faile */
+					return (SYSTEM_FAILURE);
 				}
 				
 				break;
 			}
 			
-			/*action_func faile - iner status */
-			case ACTION_FUNCION_FAILURE:
-			{
-				TaskDestroy(scheduler->task_cur);
-				
-				scheduler->task_cur = NULL;
-				
-				return (ACTION_FUNC_FAILURE); /*action_func faile - run status*/
-			}
-			/*action_func success/ stop/ or task that is self remove*/
+			/*action_func success/ stop/ or task that is self remove (0)*/
 			default:
 			{
 				TaskDestroy(scheduler->task_cur);
@@ -242,7 +242,7 @@ int SchedulerRun(scheduler_t *scheduler)
 	{
 		scheduler->run = 1;
 		
-		return (STOPED); /*the stop func was activeted*/
+		return (STOPED); /*the stop func was activeted - run status (3)*/
 	}
 	
 	return (SUCCESS);

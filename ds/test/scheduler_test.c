@@ -9,6 +9,12 @@
 
 #define SIEZ_UID_ARR 10
 
+
+#define SUCCESS 0
+#define ACTION_FUNCION_FAILURE 1
+#define REPEATED 2
+
+
 typedef struct param
 {
 	scheduler_t *scheduler;
@@ -16,6 +22,7 @@ typedef struct param
 	ilrd_uid_t uid;
 	
 }param_t;
+
 
 
 static void Test();
@@ -698,7 +705,7 @@ static int TaskAddingActionFunc(void *param)
 		Reset();
 		++i;
 		
-		return (2); 		
+		return (REPEATED); 		
 }
 
 static int ActionFuncChar(void *param)
@@ -706,14 +713,14 @@ static int ActionFuncChar(void *param)
 		PurpleB();
 		printf("ActionFuncChar param is : %s", (char *)param);
 		Reset();
-		return (0); 		
+		return (SUCCESS); 		
 }
 
 static int ActionFuncRepitChar(void *param)
 {
 
 		printf("ActionFuncRepitChar param is : %s\n", (char *)param);
-		return (2); 		
+		return (REPEATED); 		
 }
 
 static int ActionFuncRepitChar1(void *param)
@@ -722,41 +729,43 @@ static int ActionFuncRepitChar1(void *param)
 		printf("ActionFuncRepitChar1 interval: 1, ");
 		printf("param is : %s  will be remove \n", (char *)param);
 		Reset();
-		return (2); 		
+		return (REPEATED); 		
 }
+
+
 
 static int ActionFuncRepit1(void *param)
 {
 		Purple();
 		printf("ActionFuncRepit1 param is : %d\n", *(int *)param);
 
-		return (2); 		
+		return (REPEATED); 		
 }
 
 static int ActionFuncRepit2(void *param)
 {
 		Cyan();
 		printf("ActionFuncRepit2 param is : %d\n", *(int *)param);
-		return (2); 		
+		return (REPEATED); 		
 }
 
 static int ActionFuncRepit3(void *param)
 {
 		Blue();
 		printf("ActionFuncRepit3 param is : %d\n", *(int *)param);
-		return (2); 		
+		return (REPEATED); 		
 }
 
 static int ActionFuncRepit4(void *param)
 {
 		Green();
 		printf("ActionFuncRepit4 param is : %d\n", *(int *)param);
-		return (2); 		
+		return (REPEATED); 		
 }
 static int ActionFunc1(void *param)
 {
 		printf("ActionFunc1 param is : %d\n", *(int *)param);
-		return (0); 		
+		return (SUCCESS); 		
 }
 
 static int ActionFuncError(void *param)
@@ -765,14 +774,16 @@ static int ActionFuncError(void *param)
  		YellowB();
 		printf("*****ActionFuncError*****\n");
 
-		return (1); 		
+		return (ACTION_FUNCION_FAILURE); 		
 }
 
 static int PrintActionFuncRepit(void *param)
 {
 		printf("PrintActionFuncRepit param is : %d\n", *(int *)param);
-		return (2); 		
+		return (REPEATED); 		
 }
+
+
 
 static int SelfRemoveFuncWithInterval(void *param)
 {
@@ -797,7 +808,7 @@ static int SelfRemoveFuncWithInterval(void *param)
 		Reset();
 		++i;
 		
-		return (2); 		
+		return (REPEATED); 		
 }
 
 static int RemoveFuncWithInterval(void *param)
@@ -823,8 +834,9 @@ static int RemoveFuncWithInterval(void *param)
 		
 		Reset();
 		++i;
-		return (2); 		
+		return (REPEATED); 		
 }
+
 
 
 static int StopFunc(void *param)
@@ -832,7 +844,7 @@ static int StopFunc(void *param)
 		
 		SchedulerStop(param);
 		
-		return (0); 		
+		return (SUCCESS); 		
 }
 
 
