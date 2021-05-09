@@ -286,8 +286,10 @@ static void NoIntervalRunNoStopTest()
 		printf("SchedulerAddTest->SchedulerAdd error at line: %d %lu\n", __LINE__,SchedulerSize(scheduler));
 	}
 	
+	
 	Red();
-	printf("\nNoIntervalRunNoStopTest\n \n"); 
+	sleep(3);
+	printf("\nNoIntervalRunNoStopTest delay of 3 sec\n \n"); 
 	
 	printf("\nSchedulerRun return: %d \n\n",SchedulerRun(scheduler)); 
 	
@@ -697,7 +699,7 @@ static int TaskAddingActionFunc(void *param)
 		else
 		{
 
-			SchedulerAdd(((param_t *)param)->scheduler, ActionFuncChar, interval , (void *)str);
+			SchedulerAdd(((param_t *)param)->scheduler, ActionFuncChar, interval / 2 , (void *)str);
 			printf(" TaskAddingActionFunc interval: 2,\t");
 			printf("param counter is : %d \n",((param_t *)param)->counter);
 		}
@@ -711,7 +713,7 @@ static int TaskAddingActionFunc(void *param)
 static int ActionFuncChar(void *param)
 {
 		PurpleB();
-		printf("ActionFuncChar param is : %s", (char *)param);
+		printf("ActionFuncChar param is : %s\n", (char *)param);
 		Reset();
 		return (SUCCESS); 		
 }
@@ -795,9 +797,9 @@ static int SelfRemoveFuncWithInterval(void *param)
 		GreenB();
 		if (2 == i)
 		{
-			printf("SelfRemoveFunc interval: 2, param counter is : %d ", ((param_t *)param)->counter);
+			printf("SelfRemoveFunc interval: 2");
 			printf("self remove now \n");
-			return (SchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid));
+			(SchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid));
 		}
 		else
 		{

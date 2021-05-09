@@ -16,6 +16,7 @@
 #include "scheduler.h"
 #include "priority_queue.h" 
 #include "task.h"
+#include "uid.h"
 
 /* run return status */
 #define SUCCESS 0
@@ -92,12 +93,14 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
-	if (NULL != scheduler->task_cur)
-	{	
-		if (UidIsSame(uid ,TaskGetUid(scheduler->task_cur)))
-		{
-			return (!status);
-		}
+	/* for task that remove hemself at run and the NULL cheke is for remove not at run */
+	if ((NULL != scheduler->task_cur) && UidIsSame(uid ,TaskGetUid(scheduler->task_cur)))
+	{
+		TaskDestroy(scheduler->task_cur);
+		
+		scheduler->task_cur = NULL;		
+		
+		return (!status);
 	}
 	
 	task = (task_t *)(PQueueErase(scheduler->pq, IsMatch, (void *)&uid));
@@ -165,12 +168,12 @@ ilrd_uid_t SchedulerAdd(scheduler_t *scheduler, int (*action_func)(void *param),
 int SchedulerRun(scheduler_t *scheduler)
 {
 	time_t time_now = 0;
-	unsigned int remainder = 0;
+	int remainder = 0;
 	
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
-	while (!PQueueIsEmpty(scheduler->pq) && scheduler->run)
+	while (!SchedulerIsEmpty(scheduler) && scheduler->run)
 	{
 		time_now = time(NULL);
 	
@@ -183,13 +186,32 @@ int SchedulerRun(scheduler_t *scheduler)
 		
 		remainder = TaskGetExecutionTime(scheduler->task_cur) - time_now;
 		
-		while (remainder)
+		while (0 < remainder)
 		{
 			remainder = sleep((unsigned int)remainder);
 		}
 		
 		switch(TaskExecute(scheduler->task_cur)) 
 		{
+			/*action_func success/ stop/ or task that is self remove (0)*/
+			case SUCCESS:
+			{
+			/* for task that remove hemself at run time with a success (0)status */
+				if (NULL == scheduler->task_cur)
+				{
+					break;
+				}
+				/* for action_func success/ stop/ the task needed to be Destroy */
+				else 
+				{
+					TaskDestroy(scheduler->task_cur);
+					
+					scheduler->task_cur = NULL;
+					
+					break;
+				}
+			}
+			
 			/*action_func faile - iner status (1)*/
 			case ACTION_FUNCION_FAILURE:
 			{
@@ -199,10 +221,16 @@ int SchedulerRun(scheduler_t *scheduler)
 				
 				return (ACTION_FUNC_FAILURE); /*action_func faile - run status (2)*/
 			}
+			
 			/*action_func need to be repeated - [iner status (2)]*/
 			case REPEATED:
 			{
-	
+			/* for task that remove hemself at run time with a repit status */
+				if (NULL == scheduler->task_cur)
+				{
+					break;
+				}
+				
 			/*TaskUpdateExecutionTime - run status of system faile (1)*/
 				if(TaskUpdateExecutionTime(scheduler->task_cur))
 				{
@@ -223,16 +251,10 @@ int SchedulerRun(scheduler_t *scheduler)
 					return (SYSTEM_FAILURE);
 				}
 				
-				break;
 			}
 			
-			/*action_func success/ stop/ or task that is self remove (0)*/
 			default:
 			{
-				TaskDestroy(scheduler->task_cur);
-				
-				scheduler->task_cur = NULL;
-				
 				break;
 			}
 
