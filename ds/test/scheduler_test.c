@@ -125,7 +125,7 @@ static void SchedulerAddRemoveTest()
 	int arr[] = {1, 2, 5, 3, 1, 2};
 	size_t arr_interval[] = {1, 2, 5, 3, 1, 2};
 	size_t size = sizeof(arr)/ sizeof(arr[0]);
-	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
+	ilrd_uid_t arr_uid[SIEZ_UID_ARR] = {0};
 	size_t i = 0;
 	
 	scheduler_t *scheduler = SchedulerCreate();
@@ -179,7 +179,7 @@ static void RepitesRunTest()
 	size_t arr_interval[] = {1, 2, 5, 3, 1, 2};
 	char *str = "shelly";
 	size_t size = sizeof(arr)/ sizeof(arr[0]);
-	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
+	ilrd_uid_t arr_uid[SIEZ_UID_ARR] = {0};
 	size_t interval = 5;
 	size_t i = 0;
 	
@@ -315,7 +315,7 @@ static void NoIntervalRunTest()
 	size_t arr_interval[] = {1, 2, 10, 3, 8, 2};
 	char *str = "shelly";
 	size_t size = sizeof(arr)/ sizeof(arr[0]);
-	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
+	ilrd_uid_t arr_uid[SIEZ_UID_ARR] = {0};
 	size_t interval = 5;
 	size_t i = 0;
 	
@@ -401,7 +401,7 @@ static void SchedulerRunTest()
 	size_t arr_interval[] = {1, 2, 5, 3, 1, 2};
 	char *str = "shelly";
 	size_t size = sizeof(arr)/ sizeof(arr[0]);
-	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
+	ilrd_uid_t arr_uid[SIEZ_UID_ARR] = {0};
 	param_t remove = {NULL};
 	size_t interval = 5;
 	size_t interval1 = 2;
@@ -460,7 +460,7 @@ static void SchedulerRunTest()
 	{
 		if (7 == i)
 		{
-		/* the stop task that Destroy hearself*/
+
 			if (1 != SchedulerRemove(scheduler, arr_uid[i]))
 			{	
 				printf("SchedulerRunTest->SchedulerRemove ");
@@ -552,7 +552,7 @@ static void TaskAddingSchedulerRunTest()
 	int arr[] = {1, 2, 5, 3, 1, 2};
 	size_t arr_interval[] = {1, 2, 5, 3, 1, 2};
 	size_t size = sizeof(arr)/ sizeof(arr[0]);
-	ilrd_uid_t arr_uid[SIEZ_UID_ARR];
+	ilrd_uid_t arr_uid[SIEZ_UID_ARR] = {0};
 	param_t adding = {NULL};
 	size_t interval = 5;
 	size_t interval1 = 2;
@@ -684,14 +684,13 @@ static int TaskAddingActionFunc(void *param)
 {
 		static int i = 0;
 		char *str = "shelly";
-		size_t interval = 2;
+		size_t interval = 1;
 		
 		PurpleB();
 		
 		if (2 == i)
 		{		
-			printf(" TaskAddingActionFunc interval: 2, ");
-			printf("param counter is : %d \t",((param_t *)param)->counter);
+			printf(" TaskAddingActionFunc ");
 			printf("self remove now \n");
 			
 			return (SchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid));
@@ -700,8 +699,8 @@ static int TaskAddingActionFunc(void *param)
 		{
 
 			SchedulerAdd(((param_t *)param)->scheduler, ActionFuncChar, interval / 2 , (void *)str);
-			printf(" TaskAddingActionFunc interval: 2,\t");
-			printf("param counter is : %d \n",((param_t *)param)->counter);
+			printf(" TaskAddingActionFunc \n");
+
 		}
 		
 		Reset();
