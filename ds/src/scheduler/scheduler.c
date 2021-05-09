@@ -196,20 +196,16 @@ int SchedulerRun(scheduler_t *scheduler)
 			/*action_func success/ stop/ or task that is self remove (0)*/
 			case SUCCESS:
 			{
-			/* for task that remove hemself at run time with a success (0)status */
-				if (NULL == scheduler->task_cur)
-				{
-					break;
-				}
-				/* for action_func success/ stop/ the task needed to be Destroy */
-				else 
+			/* for task that remove hemself at run time with a success (0)status do Destroy */
+			/* and now the scheduler->task_cur == null										*/
+				if (NULL != scheduler->task_cur)
 				{
 					TaskDestroy(scheduler->task_cur);
 					
 					scheduler->task_cur = NULL;
-					
-					break;
 				}
+				
+				break;
 			}
 			
 			/*action_func faile - iner status (1)*/
@@ -286,7 +282,7 @@ void SchedulerClear(scheduler_t *scheduler)
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
-	while (!PQueueIsEmpty(scheduler->pq))
+	while (!SchedulerIsEmpty(scheduler))
 	{
 		TaskDestroy(PQueueDequeue(scheduler->pq));
 	}
