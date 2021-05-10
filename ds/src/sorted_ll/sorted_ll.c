@@ -1,5 +1,5 @@
-
-/*  Developer: Shelly Shlomi;									*
+/*	Group: OL102												*
+ *  Developer: Shelly Shlomi;									*
  *  Status:Approved by nir;										*
  *  Date Of Creation:28.04.21;									*
  *  Date Of Approval:02.05.21;									*
@@ -23,7 +23,8 @@ struct sorted_list
 	int (*cmp_func)(const void *data, const void *param);
 };
 
-
+/* iner struct for findif - comperator 										*
+ * use for the use the findif that accept boolian func and not cmp funcs  	*/
 typedef struct data_and_list_encp
 {
 	const void *data;
@@ -31,14 +32,19 @@ typedef struct data_and_list_encp
 
 }data_and_list_t;
 
-	
+/**************************helper_decleration***********************************/	
+
+
 static sorted_list_iter_t DLLToSortedIter(d_list_iter_t iter_dll, sorted_list_t *list);
 static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter);
 
-static int IsBigger(const void *data1,const void *struct_d_and_l);
-static int IsBiggerOrEqual(const void *data1,const void *struct_d_and_l);
+static int IsBigger(const void *user_data,const void *struct_d_and_l);
+static int IsBiggerOrEqual(const void *user_data,const void *struct_d_and_l);
 
 
+
+
+/**************************impl_functions***********************************/	
 sorted_list_t *SortedLLCreate(int (*cmp_func)(const void *data1, const void *data2))
 {
 	sorted_list_t *sorted = NULL;
@@ -403,7 +409,7 @@ void SortedLLMerge(sorted_list_t *dest_list, sorted_list_t *src_list)
 	
 }
 
-
+/**************************helper_function***********************************/	
 
 
 
@@ -449,25 +455,25 @@ static d_list_iter_t SortedToDLListIter(sorted_list_iter_t sort_iter)
 }
 
 
-static int IsBiggerOrEqual(const void *data1,const void *struct_d_and_l)
+static int IsBiggerOrEqual(const void *user_data,const void *struct_d_and_l)
 {
 	assert(NULL != struct_d_and_l);
 		
 
 	return (0 <= (((data_and_list_t *)struct_d_and_l)->list->cmp_func(
-									data1, (((data_and_list_t *)struct_d_and_l)->data))));
+					user_data, (((data_and_list_t *)struct_d_and_l)->data))));
 }
 
 
 
 
-static int IsBigger(const void *data1,const void *struct_d_and_l)
+static int IsBigger(const void *user_data,const void *struct_d_and_l)
 {
 	
 	assert(NULL != struct_d_and_l);
 		
 	return (0 < (((data_and_list_t *)struct_d_and_l)->list->cmp_func(
-									data1, (((data_and_list_t *)struct_d_and_l)->data)))); 		
+					user_data, (((data_and_list_t *)struct_d_and_l)->data)))); 		
 
 }
 
