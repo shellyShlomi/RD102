@@ -75,7 +75,7 @@ static void Test()
 
         if (0 != memcmp(dest_arr, dest_exp_arr, size))
         {
-            printf("Error in MemCpy when alligned to to each other\n");
+            printf("Error in MemCpy when alligned to each other\n");
             printf("at index %lu\n", i);
         }
         memset(res, 0, size);
