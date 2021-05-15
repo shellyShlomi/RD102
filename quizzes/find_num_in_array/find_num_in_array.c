@@ -29,7 +29,7 @@ static int FindNumInArr(int arr[], size_t size, int num)
 	return (!(int)flag);
 }
 
-/* cuse overflow in a small chance we will get zero */
+/* can cuse overflow in a small chance we will get zero */
 /*
 static int FindNumInArr(int arr[], size_t size, int num)
 {
