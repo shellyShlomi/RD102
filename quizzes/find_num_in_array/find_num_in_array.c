@@ -17,13 +17,13 @@ int main()
 static int FindNumInArr(int arr[], size_t size, int num)
 {
 	size_t i = 0;
-	long int flag = 1;		/* long to avoid overflow as mach as we can */
+	int flag = 1;		
 	
 	assert(NULL != arr);
 
 	for (i = 0; i < size; ++i)
 	{
-		flag *= (num ^ arr[i]);
+		flag *= !!(num ^ arr[i]);
 	}
 	
 	return (!flag);
