@@ -29,6 +29,22 @@ static int FindNumInArr(int arr[], size_t size, int num)
 	return (!(int)flag);
 }
 
+/* cuse overflow in a small chance we will get zero */
+/*
+static int FindNumInArr(int arr[], size_t size, int num)
+{
+	size_t i = 0;
+	int flag = 1;		
+	
+	assert(NULL != arr);
+
+	for (i = 0; i < size; ++i)
+	{
+		flag *= (num ^ arr[i]);
+	}
+	
+	return (!flag);
+}*/
 
 
 
