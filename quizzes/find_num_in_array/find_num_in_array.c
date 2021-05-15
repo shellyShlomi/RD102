@@ -17,7 +17,7 @@ int main()
 static int FindNumInArr(int arr[], size_t size, int num)
 {
 	size_t i = 0;
-	int flag = 1;		
+	size_t flag = 1;		
 	
 	assert(NULL != arr);
 
@@ -26,7 +26,7 @@ static int FindNumInArr(int arr[], size_t size, int num)
 		flag *= !!(num ^ arr[i]);
 	}
 	
-	return (!flag);
+	return (!(int)flag);
 }
 
 
