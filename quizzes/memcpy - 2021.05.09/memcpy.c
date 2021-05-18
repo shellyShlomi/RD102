@@ -3,10 +3,12 @@
  *  Date Of Creation:11.05.21;									*
  *  Description: Memcpy Quiz ;										*/
 
-#include <bits/wordsize.h> /* wordsize macro */
+
 #include <assert.h> /* assert */
 #include <string.h> /* memset */
 #include <stdio.h> /* printf */
+
+#define WORDSIZE sizeof(size_t)
 
 static void Test();
 
@@ -26,7 +28,7 @@ void *MemCpy(void *dest, const void *src, size_t n)
     assert(NULL != src);
     assert(NULL != dest);
 
-    while (0 < n && 0 != ((size_t)ptr_s % (__WORDSIZE)))
+    while (0 < n && 0 != ((size_t)ptr_s % (WORDSIZE)))
     {
         *ptr_d = *ptr_s;
         ++ptr_s;
@@ -34,12 +36,12 @@ void *MemCpy(void *dest, const void *src, size_t n)
         --n;
     }
 
-    while (0 < (n / __WORDSIZE))
+    while (0 < (n / WORDSIZE))
     {
         *(size_t *)ptr_d = *(size_t *)ptr_s;
-        ptr_s += __WORDSIZE;
-        ptr_d += __WORDSIZE;
-        n -= __WORDSIZE;
+        ptr_s += WORDSIZE;
+        ptr_d += WORDSIZE;
+        n -= WORDSIZE;
     }
 
     while (0 < n)
@@ -67,7 +69,7 @@ static void Test()
     char *exp = NULL;
     size_t i = 0;
 
-    for (i = 0; i < __WORDSIZE ; ++i)
+    for (i = 0; i < WORDSIZE ; ++i)
     {
 
         res = (char *)MemCpy(dest_arr + i, src_arr + i, size - 1);
