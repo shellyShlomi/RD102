@@ -1,8 +1,10 @@
-#include <bits/wordsize.h> /* wordsize macro */
 #include <stddef.h> /* size_t */
 #include <assert.h>
 
 #include "fsa.h" 
+
+
+#define WORDSIZE sizeof(size_t)
 
 struct fsa
 {
@@ -22,13 +24,14 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	size_t align_diif = 0;
 	size_t num_of_blocks = 0;
 	size_t i = 1;
+	size_t modulo_res = (inner_block_size % WORDSIZE);
 	
 	assert(NULL != mem_pool);
 	
-	align_diif = ((size_t)mem_pool % __WORDSIZE);
+	align_diif = ((size_t)mem_pool % WORDSIZE);
 	
 	mem_pool = (char *)mem_pool + align_diif;	
-	inner_block_size += (inner_block_size % __WORDSIZE);
+	inner_block_size += (WORDSIZE * (!!modulo_res)) - modulo_res;
 	
 	num_of_blocks = (pool_size - align_diif - sizeof(fsa_t)) / inner_block_size;
 	
@@ -81,7 +84,9 @@ void FSAFree(fsa_t *fsa, void *mem_block)
 
 size_t FSASuggestSize(size_t num_of_blocks, size_t block_size)
 {
-	block_size += block_size % __WORDSIZE;
+	size_t modulo_res = (block_size % WORDSIZE);
+	
+	block_size += (WORDSIZE * (!!modulo_res)) - modulo_res;
 	
 	return ((block_size * num_of_blocks) + sizeof(fsa_t));
 	
