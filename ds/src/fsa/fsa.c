@@ -121,22 +121,17 @@ size_t FSACountFree(const fsa_t *fsa)
 	/* for the logically correct of the types and to ensure it will 
 	 * work even if the fsa manager struct will change
 	 */
-	 if (((fsa_t *)local_start)->next_free == 0)
-	 {
+	if (0 == fsa->next_free)
+	{
 		return (count);
-	 }
-	 else
-	 {
-	 	++count;
-	 	local_start = (fsa_block_header_t *)(local_start->next_free + (char *)fsa);
-	 }
+	}
 	
-	while (0 != local_start->next_free)
+	do
 	{
 		++count;
 		/* fsa->next is from type fsa_block_header_t */
 		local_start = (fsa_block_header_t *)(local_start->next_free + (char *)fsa); 
-	}
+	}while (0 != local_start->next_free);
 	
 	return (count);
 }
