@@ -12,7 +12,7 @@
 
 #include "fsa.h" 
 
-
+#define FSA_SIZE sizeof(fsa_t)
 #define WORDSIZE sizeof(size_t)
 
 struct fsa
@@ -30,6 +30,7 @@ typedef struct fsa_block_header
 fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 {
 	fsa_block_header_t *block_header = NULL;
+	fsa_t *pool = NULL;
 	size_t sum_block_offset = 0;
 	size_t align_diif = 0;
 	size_t num_of_blocks = 0;
@@ -39,15 +40,10 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	
 	assert(NULL != mem_pool);
 	
-	
 	align_diif = (WORDSIZE * (!!modulo_align)) - modulo_align;
-	
-	mem_pool = (fsa_block_header_t *)((char *)mem_pool + align_diif);	
 	inner_block_size += (WORDSIZE * (!!modulo_res)) - modulo_res;
 	
-	num_of_blocks = (pool_size - align_diif - sizeof(fsa_t)) / inner_block_size;
-	
-	block_header = mem_pool;
+	num_of_blocks = (pool_size - align_diif - FSA_SIZE) / inner_block_size;
 	
 	if(0 == num_of_blocks)
 	{
@@ -55,9 +51,13 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	
 	}
 	
-	block_header->next_free = sizeof(fsa_t);
-	sum_block_offset = sizeof(fsa_t);
-	block_header = (fsa_block_header_t *)((char *)block_header + sizeof(fsa_t));
+	mem_pool = (fsa_t *)((char *)mem_pool + align_diif);	
+	block_header = (fsa_block_header_t *)mem_pool;
+	pool = (fsa_t *)mem_pool;
+	
+	pool->next_free = FSA_SIZE;
+	sum_block_offset = FSA_SIZE;
+	block_header = (fsa_block_header_t *)((char *)block_header + FSA_SIZE);
 	
 	for(i = 0; i < num_of_blocks - 1; ++i)
 	{
@@ -110,7 +110,7 @@ size_t FSASuggestSize(size_t num_of_blocks, size_t block_size)
 	
 	block_size += (WORDSIZE * (!!modulo_res)) - modulo_res;
 	
-	return ((block_size * num_of_blocks) + sizeof(fsa_t) + (WORDSIZE - 1));
+	return ((block_size * num_of_blocks) + FSA_SIZE + (WORDSIZE - 1));
 	
 }
 

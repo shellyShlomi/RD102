@@ -66,19 +66,25 @@ static void TestInit()
 				if (*((char *)init_res) !=  (8))
 				{
 					printf("TestInit-> FSAInit ");
-					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i); 	
+					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i);
+					printf("Expected value: %d\n", 8);	
+					printf("Actual result: %u\n", *((char *)init_res));	 	
 				}
 				
 				if (*((char *)init_res + 8) !=  24)
 				{
 					printf("TestInit-> FSAInit ");
-					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i); 	
+					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i); 
+					printf("Expected value: %d\n", 24);	
+					printf("Actual result: %u\n", *((char *)init_res + 8));	 	
 				}
 
 				if (*((char *)init_res + 24) !=  40)
 				{
 					printf("TestInit-> FSAInit ");
-					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i); 	
+					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i); 
+					printf("Expected value: %d\n", 40);	
+					printf("Actual result: %u\n", *((char *)init_res + 24));	
 				}
 
 		}
@@ -91,7 +97,10 @@ static void TestInit()
 					(z * exp_block_size[i]))
 				{
 					printf("TestInit->FSAInit ");
-					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__,j,i); 	
+					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__,j,i);
+					printf("Expected value: %lu\n", (z * exp_block_size[i]));	
+					printf("Actual result: %lu\n", 
+					(size_t)(*((char *)init_res + (j * exp_block_size[i]))));	
 				}
 				++z;
 			}
@@ -108,6 +117,21 @@ static void TestInit()
 	}
 	
 	free(mem_pool);	
+	
+	
+	/* test for smaller then should retunrs NULL
+	 */
+	
+	mem_pool = malloc(8);
+	
+	if (NULL != FSAInit(mem_pool, 8, block_size[0]))
+	{
+		printf("TestInit->FSAInit ");
+		printf("error at line: %d index: %ld\n", __LINE__,i); 	
+	}
+	
+	free(mem_pool);	
+	
 	return ;
 }
 
