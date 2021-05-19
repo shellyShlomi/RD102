@@ -32,7 +32,7 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	fsa_block_header_t *block_header = NULL;
 	fsa_t *pool = NULL;
 	size_t sum_block_offset = 0;
-	size_t align_diif = 0;
+	size_t align_diff = 0;
 	size_t num_of_blocks = 0;
 	size_t modulo_res = (inner_block_size % WORDSIZE);
 	size_t modulo_align = ((size_t)mem_pool % WORDSIZE);
@@ -40,17 +40,17 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	
 	assert(NULL != mem_pool);
 	
-	align_diif = (WORDSIZE * (!!modulo_align)) - modulo_align;
+	align_diff = (WORDSIZE * (!!modulo_align)) - modulo_align;
 	inner_block_size += (WORDSIZE * (!!modulo_res)) - modulo_res;
 	
-	num_of_blocks = (pool_size - align_diif - FSA_SIZE) / inner_block_size;
+	num_of_blocks = (pool_size - align_diff - FSA_SIZE) / inner_block_size;
 	
 	if(0 == num_of_blocks)
 	{
 		return (NULL);
 	}
 	
-	mem_pool = (void *)((char *)mem_pool + align_diif);	
+	mem_pool = (void *)((char *)mem_pool + align_diff);	
 	*(void **)&block_header = mem_pool;
 	*(void **)&pool = mem_pool;
 	
