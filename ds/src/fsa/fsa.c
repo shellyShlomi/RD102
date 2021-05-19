@@ -113,7 +113,6 @@ size_t FSASuggestSize(size_t num_of_blocks, size_t block_size)
 size_t FSACountFree(const fsa_t *fsa)
 {
 	size_t count = 0;
-	size_t flag = 0;
 	
 	fsa_block_header_t *local_start = (fsa_block_header_t *)fsa;
 	
@@ -122,12 +121,17 @@ size_t FSACountFree(const fsa_t *fsa)
 	/* for the logically correct of the types and to ensure it will 
 	 * work even if the fsa manager struct will change
 	 */
-	{
-		((fsa_t *)local_start)->next_free != 0 ? flag = 1 ,++count: flag;
-		local_start = (fsa_block_header_t *)(local_start->next_free + (char *)fsa);
-	}
+	 if (((fsa_t *)local_start)->next_free == 0)
+	 {
+		return (count);
+	 }
+	 else
+	 {
+	 	++count;
+	 	local_start = (fsa_block_header_t *)(local_start->next_free + (char *)fsa);
+	 }
 	
-	while ((0 != local_start->next_free) && flag)
+	while (0 != local_start->next_free)
 	{
 		++count;
 		/* fsa->next is from type fsa_block_header_t */
