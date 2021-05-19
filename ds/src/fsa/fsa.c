@@ -8,7 +8,7 @@
 
 
 #include <stddef.h> /* size_t */
-#include <assert.h>
+#include <assert.h> /* assert */
 
 #include "fsa.h" 
 
@@ -50,7 +50,7 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 		return (NULL);
 	}
 	
-	mem_pool = (fsa_t *)((char *)mem_pool + align_diif);	
+	mem_pool = (void *)((char *)mem_pool + align_diif);	
 	*(void **)&block_header = mem_pool;
 	*(void **)&pool = mem_pool;
 	
@@ -84,7 +84,6 @@ void *FSAAlloc(fsa_t *fsa)
 	}
 	
 	temp = (void *)(fsa->next_free + (char *)fsa);
-	
 	fsa->next_free = ((fsa_block_header_t *)temp)->next_free;
 	
 	return (temp);
@@ -97,7 +96,6 @@ void FSAFree(fsa_t *fsa, void *mem_block)
 	assert(NULL != fsa);
 	
 	((fsa_block_header_t *)mem_block)->next_free = fsa->next_free;
-	
 	fsa->next_free = ((size_t)((char *)mem_block - (char *)fsa));
 	
 	return ;
@@ -106,7 +104,6 @@ void FSAFree(fsa_t *fsa, void *mem_block)
 size_t FSASuggestSize(size_t num_of_blocks, size_t block_size)
 {
 	size_t modulo_res = (block_size % WORDSIZE);
-	
 	block_size += (WORDSIZE * (!!modulo_res)) - modulo_res;
 	
 	return ((block_size * num_of_blocks) + FSA_SIZE);
