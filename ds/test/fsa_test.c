@@ -57,8 +57,17 @@ static void TestInit()
 	
 	for (i = 0; i < size - 1; ++i)
 	{
-		mem_pool = malloc(pool_size[i]);
+		mem_pool = (void *)malloc(pool_size[i]);
+		if(NULL == mem_pool)
+		{
+			return ;
+		}
+		
 		init_res = FSAInit(((char *)mem_pool + i), pool_size[i], block_size[i]);
+		if(NULL == init_res)
+		{
+			return ;
+		}
 		
 		if (1 == i)
 		{
@@ -109,9 +118,19 @@ static void TestInit()
 			free(mem_pool);	
 	}
 	
-	mem_pool = malloc(pool_size[i]);
+	mem_pool = (void *)malloc(pool_size[i]);
+	if(NULL == mem_pool)
+	{
+		return ;
+	}
 	
-	if (mem_pool != FSAInit(mem_pool, pool_size[i], block_size[i]))
+	init_res = FSAInit(mem_pool, pool_size[i], block_size[i]);
+	if(NULL == init_res)
+	{
+		return ;
+	}
+		
+	if (mem_pool != init_res)
 	{
 		printf("TestInit->FSAInit ");
 		printf("error at line: %d index: %ld\n", __LINE__,i); 	
@@ -120,10 +139,13 @@ static void TestInit()
 	free(mem_pool);	
 	
 	
-	/* test for smaller then should retunrs NULL
+	/* test for pool size which is to small for fsa to manage -  should retunrs NULL
 	 */
-	
-	mem_pool = malloc(8);
+	mem_pool = (void *)malloc(8);
+	if(NULL == mem_pool)
+	{
+		return ;
+	}
 	
 	if (NULL != FSAInit(mem_pool, 8, block_size[0]))
 	{
@@ -162,8 +184,17 @@ static void TestAllocAndCountFreeAndFree()
 	{
 		for (j = 0; j < size; ++j)
 		{
-			mem_pool = malloc(pool_size[j]);
+			mem_pool = (void *)malloc(pool_size[j]);
+			if(NULL == mem_pool)
+			{
+				return ;
+			}
+			
 			init_res = FSAInit(mem_pool, pool_size[j], block_size[j]);
+			if(NULL == init_res)
+			{
+				return ;
+			}
 			
 			if (exp_count_free[j] != FSACountFree(init_res))
 			{
@@ -182,8 +213,17 @@ static void TestAllocAndCountFreeAndFree()
 	{
 		j = 0;
 		
-		mem_pool = malloc(pool_size[j]);
+		mem_pool = (void *)malloc(pool_size[j]);
+		if(NULL == mem_pool)
+		{
+			return ;
+		}
+		
 		init_res = FSAInit(mem_pool, pool_size[j], block_size[j]);
+		if(NULL == init_res)
+		{
+			return ;
+		}
 		
 		for (j = 0; j < size; ++j)
 		{
@@ -209,8 +249,17 @@ static void TestAllocAndCountFreeAndFree()
 	{
 		j = 0;
 		
-		mem_pool = malloc(pool_size[j]);
+		mem_pool = (void *)malloc(pool_size[j]);
+		if(NULL == mem_pool)
+		{
+			return ;
+		}
+		
 		init_res = FSAInit(mem_pool, pool_size[j], block_size[j]);
+		if(NULL == init_res)
+		{
+			return ;
+		}
 		
 		for (j = 0; j < size_for_free / 2; ++j)
 		{
