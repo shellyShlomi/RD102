@@ -52,8 +52,8 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	}
 	
 	mem_pool = (fsa_t *)((char *)mem_pool + align_diif);	
-	block_header = (fsa_block_header_t *)mem_pool;
-	pool = (fsa_t *)mem_pool;
+	*(void **)&block_header = mem_pool;
+	*(void **)&pool = mem_pool;
 	
 	pool->next_free = FSA_SIZE;
 	sum_block_offset = FSA_SIZE;
@@ -68,7 +68,7 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 
 	block_header->next_free = 0;
 	
-	return ((fsa_t *)mem_pool);
+	return ((fsa_t *)pool);
 }
 
 
@@ -110,7 +110,7 @@ size_t FSASuggestSize(size_t num_of_blocks, size_t block_size)
 	
 	block_size += (WORDSIZE * (!!modulo_res)) - modulo_res;
 	
-	return ((block_size * num_of_blocks) + FSA_SIZE + (WORDSIZE - 1));
+	return ((block_size * num_of_blocks) + FSA_SIZE);
 	
 }
 

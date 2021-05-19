@@ -22,7 +22,7 @@ static void TestSuggestSize()
 
 	size_t block_size[] = {4, 1, 6, 1, 7, 8};
 	size_t num_of_blocks[] = {1, 1, 4, 6, 7, 8};
-	size_t exp_size[] = {23, 23, 47, 63, 71, 79};
+	size_t exp_size[] = {16, 16, 40, 56, 64, 72};
 	size_t i = 0;
 	size_t size = sizeof(exp_size)/ sizeof(exp_size[0]);
 	
@@ -62,29 +62,30 @@ static void TestInit()
 		
 		if (1 == i)
 		{
-			
-				if (*((char *)init_res) !=  (8))
+				z = 8;
+				if (*((size_t *)init_res) !=  z)
 				{
 					printf("TestInit-> FSAInit ");
 					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i);
 					printf("Expected value: %d\n", 8);	
-					printf("Actual result: %u\n", *((char *)init_res));	 	
+					printf("Actual result: %lu\n", *((size_t *)init_res));	 	
 				}
-				
-				if (*((char *)init_res + 8) !=  24)
+				z = 24;
+				if (*((size_t *)init_res + 1) !=  z)
 				{
 					printf("TestInit-> FSAInit ");
 					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i); 
 					printf("Expected value: %d\n", 24);	
-					printf("Actual result: %u\n", *((char *)init_res + 8));	 	
+					printf("Actual result: %lu\n", *((size_t *)init_res + 8));	 	
 				}
-
-				if (*((char *)init_res + 24) !=  40)
+				
+				z = 40;
+				if (*((size_t *)init_res + 3) !=  z)
 				{
 					printf("TestInit-> FSAInit ");
 					printf("error at line: %d index: %ld, loop: %ld\n", __LINE__, j ,i); 
 					printf("Expected value: %d\n", 40);	
-					printf("Actual result: %u\n", *((char *)init_res + 24));	
+					printf("Actual result: %lu\n", *((size_t *)init_res + 24));	
 				}
 
 		}
