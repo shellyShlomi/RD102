@@ -168,7 +168,9 @@ static void TestAllocAndCountFreeAndFree()
 			if (exp_count_free[j] != FSACountFree(init_res))
 			{
 				printf("TestAllocAndCountFreeAndFree->FSACountFree ");
-				printf("error at line: %d index: %ld\n", __LINE__,j); 	
+				printf("error at line: %d index: %ld\n", __LINE__,j); 
+				printf("Expected value: %lu\n", exp_count_free[j]);	
+				printf("Actual result: %lu\n", FSACountFree(init_res));		
 			}
 			
 			free(mem_pool);	
@@ -191,7 +193,9 @@ static void TestAllocAndCountFreeAndFree()
 			if (exp_alloc[j] != FSACountFree(init_res))
 			{
 				printf("TestAllocAndCountFreeAndFree->FSAAlloc ");
-				printf("error at line: %d index: %ld\n", __LINE__,j); 	
+				printf("error at line: %d index: %ld\n", __LINE__,j); 
+				printf("Expected value: %lu\n", exp_alloc[j]);	
+				printf("Actual result: %lu\n", FSACountFree(init_res));		
 			}
 				
 
@@ -215,7 +219,10 @@ static void TestAllocAndCountFreeAndFree()
 			if (exp_free[j] != FSACountFree(init_res))
 			{
 				printf("TestAllocAndCountFreeAndFree->FSAAlloc ");
-				printf("error at line: %d index: %ld\n", __LINE__,j); 	
+				printf("error at line: %d index: %ld\n", __LINE__,j); 
+				printf("Expected value: %lu\n", exp_free[j]);	
+				printf("Actual result: %lu\n", FSACountFree(init_res));	
+					
 			}
 				
 			alloc_arr[j] = FSAAlloc(init_res);
@@ -231,7 +238,9 @@ static void TestAllocAndCountFreeAndFree()
 			if (exp_free[j] != FSACountFree(init_res))
 			{
 				printf("TestAllocAndCountFreeAndFree->FSAFree ");
-				printf("error at line: %d index: %ld\n", __LINE__,j); 	
+				printf("error at line: %d index: %ld\n", __LINE__,j); 
+				printf("Expected value: %lu\n", exp_free[j]);	
+				printf("Actual result: %lu\n", FSACountFree(init_res));		
 			}
 				
 			++i;

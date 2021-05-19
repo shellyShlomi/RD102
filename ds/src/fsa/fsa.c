@@ -36,7 +36,7 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	size_t num_of_blocks = 0;
 	size_t modulo_res = (inner_block_size % WORDSIZE);
 	size_t modulo_align = ((size_t)mem_pool % WORDSIZE);
-	size_t i = 1;
+	size_t i = 0;
 	
 	assert(NULL != mem_pool);
 	
@@ -48,7 +48,6 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	if(0 == num_of_blocks)
 	{
 		return (NULL);
-	
 	}
 	
 	mem_pool = (fsa_t *)((char *)mem_pool + align_diif);	
@@ -68,7 +67,7 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 
 	block_header->next_free = 0;
 	
-	return ((fsa_t *)pool);
+	return (pool);
 }
 
 
@@ -117,12 +116,21 @@ size_t FSASuggestSize(size_t num_of_blocks, size_t block_size)
 size_t FSACountFree(const fsa_t *fsa)
 {
 	size_t count = 0;
+	size_t flag = 0;
 	
 	fsa_block_header_t *local_start = (fsa_block_header_t *)fsa;
 	
 	assert(NULL != fsa);
-
-	while (0 != local_start->next_free)
+	
+	/* for the logically correct of the types and to ensure it will 
+	 * work even if the fsa manager struct will change
+	 */
+	{
+		((fsa_t *)local_start)->next_free != 0 ? flag = 1 ,++count: flag;
+		local_start = (fsa_block_header_t *)(local_start->next_free + (char *)fsa);
+	}
+	
+	while ((0 != local_start->next_free) && flag)
 	{
 		++count;
 		/* fsa->next is from type fsa_block_header_t */
