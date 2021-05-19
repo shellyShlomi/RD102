@@ -5,7 +5,7 @@
 
 typedef struct fsa fsa_t;
 
-
+/* the mem_pool should be word aligned */
 fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size); 
 
 void *FSAAlloc(fsa_t *fsa);
