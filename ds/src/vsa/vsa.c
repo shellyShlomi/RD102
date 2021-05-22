@@ -10,13 +10,6 @@
 #include <stdlib.h> /* labs */
 #include "vsa.h" 
 
-#define VSA_SIZE sizeof(vsa_t)
-#define CHUNK_SIZE sizeof(vsa_c_h_t)
-#define LONG_CHUNK_SIZE (long int)(sizeof(vsa_c_h_t))
-#define WORDSIZE sizeof(size_t)
-
-
-
 struct vsa
 {
 	size_t pool_size;
@@ -29,16 +22,29 @@ typedef struct vsa_chunk_header
 }vsa_c_h_t;/*vsa chunk header typedef*/
 
 
+
+
+#define VSA_SIZE sizeof(vsa_t)
+#define CHUNK_SIZE sizeof(vsa_c_h_t)
+#define LONG_CHUNK_SIZE (long int)(sizeof(vsa_c_h_t))
+#define WORDSIZE sizeof(size_t)
+
+#define END_OF_CHUNK(X) ((vsa_c_h_t *)((char *)(X) + CHUNK_SIZE))
+#define NEXT_CHUNK(X) ((vsa_c_h_t *)(((char *)(X) + \
+									 (size_t)labs((X)->c_size)) + CHUNK_SIZE))
+#define FIRST_CHUNK(X) (vsa_c_h_t *)((char *)(X) + VSA_SIZE)
+#define MOVE_CHUNK(X, Y) (vsa_c_h_t *)(((char *)(X)) + (Y) + CHUNK_SIZE)	
+#define USER_CHUNK_START(X) (void *)((char *)(X) + CHUNK_SIZE)	
+#define POOLENDASCHUNKTYPE(X) ((vsa_c_h_t *)((char *)(X) + \
+													VSA_SIZE + (X)->pool_size))	
+
+
+
 static void *GetPtrLazy(vsa_t *vsa, size_t n_bytes);
 static void VSADefragment(vsa_t *vsa); 
 
 /* helper funcs */
 static size_t GetAlinedRoundUp(size_t data);
-vsa_c_h_t *NextChunk(vsa_c_h_t *chunk);
-vsa_c_h_t *EndOfPoolAsChunkType(vsa_t *vsa);
-vsa_c_h_t *	MoveChunk(vsa_c_h_t *chunk, size_t n_bytes);
-vsa_c_h_t *FirstChunk(vsa_t *vsa);
-void *UserChunkStart(vsa_c_h_t *chunk);
 
 /*------------------------------implementetion--------------------------------*/
 
@@ -69,7 +75,7 @@ vsa_t *VSAInit(void *mem_pool, size_t pool_size)
 	vsa_mem_pool->pool_size = pool_size - VSA_SIZE;
 	
 	/* setiing the chunk_header */
-	chunk_header = FirstChunk((vsa_t *)mem_pool);	
+	chunk_header = FIRST_CHUNK((vsa_t *)mem_pool);	
 	chunk_header->c_size = (long int)(vsa_mem_pool->pool_size - CHUNK_SIZE);
 	
 	return (vsa_mem_pool);
@@ -118,8 +124,8 @@ size_t VSALargestChunkAvailable(vsa_t *vsa) /* -> here we call VSADefragment */
 	
 	VSADefragment(vsa);
 	
-	chunk_header = FirstChunk(vsa);
-	vsa_end_addres = EndOfPoolAsChunkType(vsa);
+	chunk_header = FIRST_CHUNK(vsa);
+	vsa_end_addres = POOLENDASCHUNKTYPE(vsa);
 	
 	while (vsa_end_addres > chunk_header)
 	{
@@ -128,7 +134,7 @@ size_t VSALargestChunkAvailable(vsa_t *vsa) /* -> here we call VSADefragment */
 			temp_max = chunk_header->c_size;
 		}
 	
-		chunk_header = NextChunk(chunk_header);
+		chunk_header = NEXT_CHUNK(chunk_header);
 	}
 	
 	return (temp_max); 
@@ -144,9 +150,9 @@ static void VSADefragment(vsa_t *vsa)
 	
 	assert(NULL != vsa);
 	
-	vsa_end_addres = EndOfPoolAsChunkType(vsa);
+	vsa_end_addres = POOLENDASCHUNKTYPE(vsa);
 
-	chunk_h = FirstChunk(vsa);
+	chunk_h = FIRST_CHUNK(vsa);
 	
 	while (chunk_h < vsa_end_addres)
 	{
@@ -154,13 +160,13 @@ static void VSADefragment(vsa_t *vsa)
 		 * will the cur chunk is free and the next one is also 
 		 * free add the next chunk size to the cur one 
 		 */
-		while ((NextChunk(chunk_h) < vsa_end_addres) && 
-				((chunk_h->c_size >= 0) && (NextChunk(chunk_h)->c_size >= 0)))
+		while ((END_OF_CHUNK(NEXT_CHUNK(chunk_h)) < vsa_end_addres) && 
+				((chunk_h->c_size >= 0) && ((NEXT_CHUNK(chunk_h))->c_size >= 0)))
 		{
-			chunk_h->c_size += NextChunk(chunk_h)->c_size + LONG_CHUNK_SIZE;
+			chunk_h->c_size += (NEXT_CHUNK(chunk_h))->c_size + LONG_CHUNK_SIZE;
 		}
 
-		chunk_h = NextChunk(chunk_h);
+		chunk_h = NEXT_CHUNK(chunk_h);
 	}
 	
 	return ; 
@@ -178,37 +184,37 @@ static void *GetPtrLazy(vsa_t *vsa, size_t n_bytes)
 	assert(NULL != vsa);
 	assert(0 < n_bytes);
 	
-	vsa_end_addres = EndOfPoolAsChunkType(vsa);
+	vsa_end_addres = POOLENDASCHUNKTYPE(vsa);
 	
-	chunk_h = FirstChunk(vsa);
+	chunk_h = FIRST_CHUNK(vsa);
 	
-	while ((NextChunk(chunk_h) < vsa_end_addres) && (chunk_h->c_size < local_n_bytes))
+	while ((NEXT_CHUNK(chunk_h) < vsa_end_addres) && (chunk_h->c_size < local_n_bytes))
 	{
-		chunk_h = NextChunk(chunk_h);
+		chunk_h = NEXT_CHUNK(chunk_h);
 		
 	}
 	/* if we break uot of the loop becuase chunk_h->c_size is > n_bytes
 	 * need to test if we can add a new chunk header and not overflow to memory
 	 * out of the bondery 
 	 */
-	if ((MoveChunk(chunk_h, n_bytes) < vsa_end_addres) && 
+	if ((MOVE_CHUNK(chunk_h, n_bytes) < vsa_end_addres) && 
 		(chunk_h->c_size + LONG_CHUNK_SIZE >= local_n_bytes))			
 	{
 		cur_c_size = chunk_h->c_size;
 		chunk_h->c_size = (-1) * local_n_bytes;
 
 	/* the new chunk head get the reminder from the old size - n_byts */
-		NextChunk(chunk_h)->c_size = cur_c_size - LONG_CHUNK_SIZE - local_n_bytes;
+		(NEXT_CHUNK(chunk_h))->c_size = cur_c_size - LONG_CHUNK_SIZE - local_n_bytes;
 		
 
-		return (UserChunkStart(chunk_h));
+		return (USER_CHUNK_START(chunk_h));
 	}
 	/*if we break uot of the loop becuase chunk_h->c_size is == n_bytes*/
 	else if (chunk_h->c_size == local_n_bytes)
 	{
 		chunk_h->c_size = -(chunk_h->c_size);
 		
-		return (UserChunkStart(chunk_h));
+		return (USER_CHUNK_START(chunk_h));
 	}
 	
 	return (NULL);
@@ -225,35 +231,5 @@ static size_t GetAlinedRoundUp(size_t data)
 	/* % WORDSIZE to avoid addition of WORDSIZE when the data is aligned */
 	align_diff &= (WORDSIZE - 1); 
 	return (align_diff); 
-}
-
-vsa_c_h_t *NextChunk(vsa_c_h_t *chunk)
-{
-	assert(NULL != chunk);
-	return ((vsa_c_h_t *)((char *)chunk + (size_t)labs(chunk->c_size) + CHUNK_SIZE));
-}
-
-vsa_c_h_t *FirstChunk(vsa_t *vsa)
-{
-	assert(NULL != vsa);
-	return ((vsa_c_h_t *)((char *)vsa + VSA_SIZE));
-}
-
-vsa_c_h_t *	MoveChunk(vsa_c_h_t *chunk, size_t n_bytes)
-{
-	assert(NULL != chunk);
-	return ((vsa_c_h_t *)((char *)chunk + n_bytes + CHUNK_SIZE));
-}
-
-void *UserChunkStart(vsa_c_h_t *chunk)
-{
-	assert(NULL != chunk);
-	return ((void *)((char *)chunk + CHUNK_SIZE));
-}
-
-vsa_c_h_t *EndOfPoolAsChunkType(vsa_t *vsa)
-{
-	assert(NULL != vsa);
-	return ((vsa_c_h_t *)((char *)vsa + VSA_SIZE + vsa->pool_size));
 }
 
