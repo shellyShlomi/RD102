@@ -22,13 +22,17 @@ $(OBJ)/$(TARGET)/$(TARGET).o: $(OBJ)/$(TARGET) $(INC)/$(TARGET).h
 $(OBJ)/$(TARGET)/$(TARGET)_test.o: $(OBJ)/$(TARGET) $(INC)/$(TARGET).h
 		$(CC) $(CFLAGS) ../../test/$(TARGET)_test.c -c -o $(OBJ)/$(TARGET)/$(TARGET)_test.o
 
-
+	
+$(OBJ)/$(TARGET)/$(TARGET)_test_eden.o: $(OBJ)/$(TARGET) $(INC)/$(TARGET).h
+		$(CC) $(CFLAGS) ../../test/$(TARGET)_test_eden.c -c -o $(OBJ)/$(TARGET)/$(TARGET)_test_eden.o
+		
 $(OBJ)/$(TARGET) :
 	@mkdir -p $(OBJ)/$(TARGET)  
 
 .PHONY : 
 arc:
 	ar -vr $(LIB)/$(TARGET).a $(OBJECTS)
+
 run:
 	./$(BIN)/$(TARGET)
 
