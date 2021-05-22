@@ -29,7 +29,7 @@ typedef struct vsa_chunk_header
 #define LONG_CHUNK_SIZE (long int)(sizeof(vsa_c_h_t))
 #define WORDSIZE sizeof(size_t)
 
-#define END_OF_CHUNK(X) ((vsa_c_h_t *)((char *)(X) + CHUNK_SIZE))
+#define END_OF_CHUNK_H(X) ((vsa_c_h_t *)((char *)(X) + CHUNK_SIZE))
 #define NEXT_CHUNK(X) ((vsa_c_h_t *)(((char *)(X) + \
 									 (size_t)labs((X)->c_size)) + CHUNK_SIZE))
 #define FIRST_CHUNK(X) (vsa_c_h_t *)((char *)(X) + VSA_SIZE)
@@ -40,7 +40,7 @@ typedef struct vsa_chunk_header
 
 
 
-static void *GetPtrLazy(vsa_t *vsa, size_t n_bytes);
+static void *AllocLasy(vsa_t *vsa, size_t n_bytes);
 static void VSADefragment(vsa_t *vsa); 
 
 /* helper funcs */
@@ -91,14 +91,14 @@ void *VSAAlloc(vsa_t *vsa, size_t n_bytes)
 
 	n_bytes += GetAlinedRoundUp(n_bytes);
 
-	chunk_h = GetPtrLazy(vsa, n_bytes);
+	chunk_h = AllocLasy(vsa, n_bytes);
 	if (NULL != chunk_h)
 	{
 		return (chunk_h);
 	}
 
 	VSADefragment(vsa);	
-	return (GetPtrLazy(vsa, n_bytes)); 
+	return (AllocLasy(vsa, n_bytes)); 
 }
 
 void VSAFree(void *mem_chunck)
@@ -127,7 +127,8 @@ size_t VSALargestChunkAvailable(vsa_t *vsa) /* -> here we call VSADefragment */
 	chunk_header = FIRST_CHUNK(vsa);
 	vsa_end_addres = POOLENDASCHUNKTYPE(vsa);
 	
-	while (vsa_end_addres > chunk_header)
+	/* END_OF_CHUNK_H - end of chunk header */
+	while (vsa_end_addres > END_OF_CHUNK_H(chunk_header))
 	{
 		if (temp_max < chunk_header->c_size)
 		{
@@ -158,9 +159,10 @@ static void VSADefragment(vsa_t *vsa)
 	{
 		/* 
 		 * will the cur chunk is free and the next one is also 
-		 * free add the next chunk size to the cur one 
+		 * free add the next chunk size to the cur one
+		 * END_OF_CHUNK_H - end of chunk header 
 		 */
-		while ((END_OF_CHUNK(NEXT_CHUNK(chunk_h)) < vsa_end_addres) && 
+		while ((END_OF_CHUNK_H(NEXT_CHUNK(chunk_h)) < vsa_end_addres) && 
 				((chunk_h->c_size >= 0) && ((NEXT_CHUNK(chunk_h))->c_size >= 0)))
 		{
 			chunk_h->c_size += (NEXT_CHUNK(chunk_h))->c_size + LONG_CHUNK_SIZE;
@@ -174,7 +176,7 @@ static void VSADefragment(vsa_t *vsa)
 }
 
 
-static void *GetPtrLazy(vsa_t *vsa, size_t n_bytes)
+static void *AllocLasy(vsa_t *vsa, size_t n_bytes)
 {
 	vsa_c_h_t *vsa_end_addres = NULL;
 	vsa_c_h_t *chunk_h = NULL;/*vsa chunk header typedef*/
@@ -188,17 +190,18 @@ static void *GetPtrLazy(vsa_t *vsa, size_t n_bytes)
 	
 	chunk_h = FIRST_CHUNK(vsa);
 	
-	while ((NEXT_CHUNK(chunk_h) < vsa_end_addres) && (chunk_h->c_size < local_n_bytes))
+	while ((END_OF_CHUNK_H(NEXT_CHUNK(chunk_h)) < vsa_end_addres) && 
+			(chunk_h->c_size < local_n_bytes))
 	{
 		chunk_h = NEXT_CHUNK(chunk_h);
-		
 	}
 	/* if we break uot of the loop becuase chunk_h->c_size is > n_bytes
 	 * need to test if we can add a new chunk header and not overflow to memory
 	 * out of the bondery 
+	 * END_OF_CHUNK_H - end of chunk header
 	 */
-	if ((MOVE_CHUNK(chunk_h, n_bytes) < vsa_end_addres) && 
-		(chunk_h->c_size + LONG_CHUNK_SIZE >= local_n_bytes))			
+	if ((END_OF_CHUNK_H(MOVE_CHUNK(chunk_h, n_bytes)) <= vsa_end_addres) && 
+		(chunk_h->c_size >= local_n_bytes + LONG_CHUNK_SIZE))			
 	{
 		cur_c_size = chunk_h->c_size;
 		chunk_h->c_size = (-1) * local_n_bytes;
