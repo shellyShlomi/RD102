@@ -9,8 +9,8 @@ OBJ = ../../obj
 CC = gcc
 CFLAGS =  -ansi -pedantic-errors -Wall -Wextra -g -I$(INC)
 
-OBJECTS = $(OBJ)/$(TARGET)/$(TARGET).o $(OBJ)/$(TARGET)/$(TARGET)_test.o
-SOURCE = ./$(TARGET).c ../../test/$(TARGET)_test.c 
+OBJECTS = $(OBJ)/$(TARGET)/$(TARGET).o $(OBJ)/$(TARGET)/$(TARGET)_test_eden.o
+SOURCE = ./$(TARGET).c ../../test/$(TARGET)_test_eden.c 
 
 
 $(BIN)/$(TARGET): $(SOURCE) $(OBJ)/$(TARGET)  $(OBJECTS) 
@@ -18,9 +18,6 @@ $(BIN)/$(TARGET): $(SOURCE) $(OBJ)/$(TARGET)  $(OBJECTS)
 	
 $(OBJ)/$(TARGET)/$(TARGET).o: $(OBJ)/$(TARGET) $(INC)/$(TARGET).h
 	$(CC) $(CFLAGS) ./$(TARGET).c -c -o $(OBJ)/$(TARGET)/$(TARGET).o
-	
-$(OBJ)/$(TARGET)/$(TARGET)_test.o: $(OBJ)/$(TARGET) $(INC)/$(TARGET).h
-		$(CC) $(CFLAGS) ../../test/$(TARGET)_test.c -c -o $(OBJ)/$(TARGET)/$(TARGET)_test.o
 
 	
 $(OBJ)/$(TARGET)/$(TARGET)_test_eden.o: $(OBJ)/$(TARGET) $(INC)/$(TARGET).h
@@ -29,9 +26,7 @@ $(OBJ)/$(TARGET)/$(TARGET)_test_eden.o: $(OBJ)/$(TARGET) $(INC)/$(TARGET).h
 $(OBJ)/$(TARGET) :
 	@mkdir -p $(OBJ)/$(TARGET)  
 
-.PHONY :
-eden:
-	make -f ./make/Makefile
+.PHONY : 
 arc:
 	ar -vr $(LIB)/$(TARGET).a $(OBJECTS)
 

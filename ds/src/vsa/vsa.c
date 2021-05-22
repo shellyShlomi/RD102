@@ -147,7 +147,7 @@ static void VSADefragment(vsa_t *vsa)
 	chunk_h = (vsa_c_h_t *)((char *)vsa + VSA_SIZE);
 	positive_c_size = (size_t)labs(chunk_h->c_size);
 	
-	while ((size_t)((char *)chunk_h + positive_c_size + CHUNK_SIZE) < vsa_end_addres)
+	while ((size_t)(chunk_h) < vsa_end_addres)
 	{
 
 			/* 
@@ -155,21 +155,20 @@ static void VSADefragment(vsa_t *vsa)
 			 * free add the next chunk size to the cur one 
 			 */
 			 
-			while ((((size_t)((char *)chunk_h + positive_c_size + CHUNK_SIZE)) <
+			while ((((size_t)((char *)chunk_h + (size_t)labs(chunk_h->c_size) + CHUNK_SIZE)) <
 					 vsa_end_addres ) && 
-					 
 					((chunk_h->c_size >= 0) &&
 					(((vsa_c_h_t *)((char *)chunk_h + CHUNK_SIZE +
-							positive_c_size))->c_size >= 0)))
+							(size_t)labs(chunk_h->c_size)))->c_size >= 0)))
 			{
 				chunk_h->c_size += ((vsa_c_h_t *)((char *)chunk_h + 
-									positive_c_size))->c_size + (long int)CHUNK_SIZE;
+				(long int)CHUNK_SIZE + positive_c_size))->c_size + (long int)CHUNK_SIZE;
 				positive_c_size = (size_t)labs(chunk_h->c_size);
 			}
 
 		chunk_h = (vsa_c_h_t *)((char *)chunk_h + (size_t)labs(chunk_h->c_size) + CHUNK_SIZE);
 		
-		if ((size_t)((char *)chunk_h + positive_c_size + CHUNK_SIZE) >= vsa_end_addres)
+		if ((size_t)(chunk_h) >= vsa_end_addres)
 		{
 			break;
 		}
