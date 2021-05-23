@@ -533,15 +533,6 @@ static void TestDefragment()
 			printf("Actual result : %ld\n", *(long int *)((char *)ptr_alloc_c[i] - CHUNK_SIZE)); 	
 		}
 		
-		
-		/*	printf("\n");
-			printf("alloc size : %lu\n", alloc_c[i]);
-			printf("alloced chunk addreses : %lu\n", (size_t)ptr_alloc_c[i]);
-			printf("next chunk addreses not alloced : %lu\n", 
-			(size_t)((char *)ptr_alloc_c[i] + alloc_c[i])); 	
-			printf("the diff size is: %lu\n",  (size_t)((char *)ptr_alloc_c[i] + alloc_c[i]) - (size_t)ptr_alloc_c[i]);
-			printf("\n");
-		*/
 	}
 	/*a header chunk 8 block is sepos to be at the end*/
 	for (i = 0; i < size; ++i)
@@ -574,41 +565,4 @@ static void TestDefragment()
 	
 	return ;
 }
-
-
-			/*VSAFree(ptr_alloc_c[4]);
-			VSAFree(ptr_alloc_c[3]);
-			ptr_alloc_c[3] = VSAAlloc(init_res, alloc_c[5]);
-*/
-
-/*
-static size_t GetPoolAlignment(size_t mem_offset, size_t pool_size)
-{
-	pool_size -= mem_offset;
-	pool_size -= (pool_size & (WORDSIZE - 1)) + VSA_SIZE; 
-	
-	return (pool_size); 
-}
-
-
-static size_t GetAlinedRoundUp(size_t data)
-{
-	size_t align_diff = 0;
-	
-	align_diff = (WORDSIZE - (data & (WORDSIZE - 1)));
-	align_diff &= (WORDSIZE - 1); 
-	return (align_diff); 
-}
-
-
-
-
-	mem_pool = (void *)malloc(pool_size[0]);
-	exp_pool_size_unaligned[i] = GetAlinedRoundUp((size_t)((char *)mem_pool + 1 * 3));
-				printf("%lu \n",exp_pool_size_unaligned[i]);
-		exp_pool_size_unaligned[i] = 	GetPoolAlignment(exp_pool_size_unaligned[i], pool_size[0]);
-			printf("%lu \n",exp_pool_size_unaligned[i]);
-		
-				free(mem_pool);	
-	*/
 
