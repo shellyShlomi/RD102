@@ -16,8 +16,8 @@ static void TestInit();
 static void TestAlloc();
 static void TestAllocAndFree();
 static void TestAllocAndFreeWithDefragment();
-/*static size_t GetAlinedRoundUp(size_t data);
-static size_t GetPoolAlignment(size_t mem_offset, size_t pool_size);*/
+static void TestDefragment();
+
 
 
 int main()
@@ -34,6 +34,7 @@ static void VSATests()
 	TestAlloc();
 	TestAllocAndFree();
 	TestAllocAndFreeWithDefragment();
+	TestDefragment();
 	
 	return;
 }
@@ -421,11 +422,11 @@ static void TestAllocAndFreeWithDefragment()
 	}
 
 	/* there is no room to make this allocation expect NULL */
-	ptr_alloc_c[4] = VSAAlloc(vsa_ptr, 24);
+	ptr_alloc_c[4] = VSAAlloc(vsa_ptr, 32);
 	if(NULL != ptr_alloc_c[4])
 	{
 		printf("TestAllocAndFreeWithDefragment->VSAAlloc failed line: %d \n", __LINE__ );
-		return ;
+
 	}
 	/* there is no room to make anoder allocation expext - 0 */
 	i = VSALargestChunkAvailable(vsa_ptr);
@@ -470,6 +471,107 @@ static void TestAllocAndFreeWithDefragment()
 	}
 	
 	free(mem_pool);			
+	return ;
+}
+
+static void TestDefragment()
+{
+	vsa_t *init_res = NULL;
+	void *mem_pool = NULL;
+	size_t pool_size = 120;
+	size_t alloc_c[] = {16, 16, 16, 8, 8};
+	void *ptr_alloc_c[] = {NULL, NULL, NULL, NULL, NULL};
+	size_t i = 0;
+	size_t size = sizeof(alloc_c)/ sizeof(alloc_c[0]);
+	
+	
+		mem_pool = (void *)malloc(pool_size);
+		if(NULL == mem_pool)
+		{
+			return ;
+		}
+		
+		init_res = VSAInit(mem_pool, pool_size);
+		if(NULL == init_res)
+		{
+			return ;
+		}
+			
+		if (mem_pool != init_res)
+		{
+			printf("TestDefragment->VSAInit ");
+			printf("error at line: %d index: %ld\n", __LINE__,i);
+		}
+		
+		if (pool_size - VSA_SIZE!= *(size_t *)init_res)
+		{
+			printf("TestDefragment->VSAInit  \n");
+			printf("error at line: %d index: %ld\n", __LINE__,i);
+			printf("expected pool size : %lu\n", pool_size- VSA_SIZE);
+			printf("Actual result : %lu\n", *(size_t *)init_res); 	
+		}
+		
+		if ((long int)(pool_size - CHUNK_SIZE - VSA_SIZE) != 
+			*(long int *)((char *)init_res + (long int)VSA_SIZE))
+		{
+			printf("TestDefragment->VSAInit befor alloc\n");
+			printf("error at line: %d index: %ld\n", __LINE__,i);
+			printf("expected chunk size : %ld\n", pool_size - CHUNK_SIZE- VSA_SIZE);
+			printf("Actual result : %ld\n", *(long int *)((char *)init_res + VSA_SIZE)); 	
+		}
+		
+	for (i = 0; i < size; ++i)
+	{
+		
+		ptr_alloc_c[i] = VSAAlloc(init_res, alloc_c[i]);
+		
+		if ((long int)-(alloc_c[i]) != *(long int *)((char *)ptr_alloc_c[i] - CHUNK_SIZE))
+		{
+			printf("TestDefragment->VSAAlloc After alloc \n");
+			printf("error at line: %d index: %ld\n", __LINE__,i);
+			printf("expected chunk size : %ld\n", -(alloc_c[i]));
+			printf("Actual result : %ld\n", *(long int *)((char *)ptr_alloc_c[i] - CHUNK_SIZE)); 	
+		}
+		
+		
+		/*	printf("\n");
+			printf("alloc size : %lu\n", alloc_c[i]);
+			printf("alloced chunk addreses : %lu\n", (size_t)ptr_alloc_c[i]);
+			printf("next chunk addreses not alloced : %lu\n", 
+			(size_t)((char *)ptr_alloc_c[i] + alloc_c[i])); 	
+			printf("the diff size is: %lu\n",  (size_t)((char *)ptr_alloc_c[i] + alloc_c[i]) - (size_t)ptr_alloc_c[i]);
+			printf("\n");
+		*/
+	}
+	/*a header chunk 8 block is sepos to be at the end*/
+	for (i = 0; i < size; ++i)
+	{
+		
+		
+		VSAFree(ptr_alloc_c[i]);
+		
+		if ((long int)alloc_c[i] != *(long int *)((char *)ptr_alloc_c[i] - CHUNK_SIZE))
+		{
+			printf("TestDefragment->VSAAlloc After alloc \n");
+			printf("error at line: %d index: %ld\n", __LINE__,i);
+			printf("expected chunk size : %ld\n", (long int)alloc_c[i]);
+			printf("Actual result : %ld\n", *(long int *)((char *)ptr_alloc_c[i] - CHUNK_SIZE)); 	
+		}
+	}
+	
+	
+	if (pool_size - CHUNK_SIZE - VSA_SIZE  != VSALargestChunkAvailable(init_res))
+	{
+		printf("TestDefragment->VSALargestChunkAvailable \n");
+		printf("error at line: %d index: %ld\n", __LINE__,i);
+		printf("expected LargestChunkAvailable : %ld\n", pool_size - CHUNK_SIZE - VSA_SIZE);
+		printf("Actual result : %ld\n", VSALargestChunkAvailable(init_res)); 	
+	}
+	
+	
+	
+	free(mem_pool);	
+	
 	return ;
 }
 
