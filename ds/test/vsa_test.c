@@ -462,9 +462,9 @@ static void TestAllocAndFreeWithDefragment()
 		printf("TestAllocAndFreeWithDefragment->VSAAlloc failed line: %d \n", __LINE__ );
 
 	}
-	i = VSALargestChunkAvailable(vsa_ptr);
-	printf("%ld \n", i);
-	ptr_alloc_c[3] = VSAAlloc(vsa_ptr, 16);
+	/*i = VSALargestChunkAvailable(vsa_ptr);
+	printf("%ld \n", i);*/
+	ptr_alloc_c[3] = VSAAlloc(vsa_ptr, 8);
 	if(NULL == ptr_alloc_c[3])
 	{
 		printf("TestAllocAndFreeWithDefragment->VSAAlloc failed line: %d \n", __LINE__ );
@@ -554,7 +554,7 @@ static void TestDefragment()
 	if (pool_size - CHUNK_SIZE - VSA_SIZE  != VSALargestChunkAvailable(init_res))
 	{
 		printf("TestDefragment->VSALargestChunkAvailable \n");
-		printf("error at line: %d index: %ld\n", __LINE__,i);
+		printf("error at line: %d index\n", __LINE__);
 		printf("expected LargestChunkAvailable : %ld\n", pool_size - CHUNK_SIZE - VSA_SIZE);
 		printf("Actual result : %ld\n", VSALargestChunkAvailable(init_res)); 	
 	}
