@@ -20,7 +20,8 @@ struct sorted_list_iter
 };
 
 #endif
-
+/* the (void *) data returns from functions, souled not be change, 	*
+ * will impact the sorted list structur 							*/
 
 /*SortedLLCreate
  * DESCRIPTION		:	The function return a pointer to list 
