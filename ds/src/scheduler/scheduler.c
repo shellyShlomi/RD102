@@ -51,7 +51,7 @@ scheduler_t *SchedulerCreate()
 	}
 	
 	scheduler->pq = PQueueCreate(CmpFunc);
-	scheduler->run = 1;
+	scheduler->is_running = 0;
 	scheduler->task_cur = NULL;
 	
 		
@@ -122,7 +122,7 @@ size_t SchedulerSize(const scheduler_t *scheduler)
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 
-	return (PQueueSize(scheduler->pq));
+	return (PQueueSize(scheduler->pq) + (!!scheduler->task_cur));
 }
 
 
@@ -131,7 +131,8 @@ int SchedulerIsEmpty(const scheduler_t *scheduler)
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
-	return (PQueueIsEmpty(scheduler->pq));
+
+	return (PQueueIsEmpty(scheduler->pq) - (!!scheduler->task_cur));
 }
 
 
@@ -173,9 +174,9 @@ int SchedulerRun(scheduler_t *scheduler)
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
-	scheduler->run = 1;
+	scheduler->is_running = 1;
 
-	while (!SchedulerIsEmpty(scheduler) && scheduler->run)
+	while (!PQueueIsEmpty(scheduler->pq) && scheduler->is_running)
 	{
 		time_now = time(NULL);
 	
@@ -195,7 +196,7 @@ int SchedulerRun(scheduler_t *scheduler)
 			 */
 			case SUCCESS:
 			{
-				/* for task that remove hemself at run 
+				/* for task that remove hemself at run
 				 * time with a success (0)status do Destroy 
 				 * and now the scheduler->task_cur == null
 				 */
@@ -234,7 +235,7 @@ int SchedulerRun(scheduler_t *scheduler)
 				}
 
 				/* TaskUpdateExecutionTime or PQueueEnqueue - 
-				 *run status of system faile (1)
+				 * run status of system faile (1)
 				 */
 				
 				TaskUpdateExecutionTime(scheduler->task_cur); 
@@ -256,7 +257,7 @@ int SchedulerRun(scheduler_t *scheduler)
 		}
 	}
 	
-	if (!scheduler->run)
+	if (!scheduler->is_running)
 	{
 		/*the stop func was activeted - 
 		 *run status (3)
@@ -271,7 +272,7 @@ void SchedulerStop(scheduler_t *scheduler)
 {
 	assert(NULL != scheduler);
 	
-	scheduler->run = 0;
+	scheduler->is_running = 0;
 	
 	return ;
 }
@@ -282,7 +283,7 @@ void SchedulerClear(scheduler_t *scheduler)
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
-	while (!SchedulerIsEmpty(scheduler))
+	while (!PQueueIsEmpty(scheduler->pq))
 	{
 		TaskDestroy(PQueueDequeue(scheduler->pq));
 	}
