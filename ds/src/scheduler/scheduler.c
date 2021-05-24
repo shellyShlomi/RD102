@@ -255,8 +255,8 @@ int SchedulerRun(scheduler_t *scheduler)
 			}
 
 		}
-	}
-	
+	}	
+
 	if (!scheduler->is_running)
 	{
 		/*the stop func was activeted - 
@@ -264,7 +264,9 @@ int SchedulerRun(scheduler_t *scheduler)
 		 */
 		return (STOPED); 
 	}
-	
+
+	scheduler->task_cur = NULL;
+		
 	return (SUCCESS);
 
 }
