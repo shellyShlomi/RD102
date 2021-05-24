@@ -3,8 +3,8 @@
  *  Status:Reviewed by anna;									*
  *  Date Of Creation:06.05.21;									*
  *  End Date: 08.05.21;											*
- *  Date Of Approval:--.05.21;									*
- *  Approved By:												*
+ *  Date Of Approval:09.05.21;									*
+ *  Approved By:anna											*
  *  Description: application - scheduler;						*/
  
 #include <sys/types.h> /* time_t */
@@ -35,9 +35,9 @@ static int IsMatch(const void *data, const void *param);
 
 struct scheduler
 {
-	int run;
 	pq_t *pq;
 	task_t *task_cur;
+	int is_running;
 };
 
 
@@ -89,7 +89,7 @@ void SchedulerDestroy(scheduler_t *scheduler)
 int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 {
 	int status = 1;
-	task_t *task = NULL;
+	task_t *task_to_remove = NULL;
 	
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
@@ -104,12 +104,11 @@ int SchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 		return (!status);
 	}
 	
-	task = (task_t *)(PQueueErase(scheduler->pq, IsMatch, (void *)&uid));
+	task_to_remove = (task_t *)(PQueueErase(scheduler->pq, IsMatch, (void *)&uid));
 	
-	if (NULL != task)
+	if (NULL != task_to_remove)
 	{
-		TaskDestroy(task);
-		task = NULL;
+		TaskDestroy(task_to_remove);
 
 		status = 0;
 	}
@@ -174,15 +173,12 @@ int SchedulerRun(scheduler_t *scheduler)
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
+	scheduler->run = 1;
+
 	while (!SchedulerIsEmpty(scheduler) && scheduler->run)
 	{
 		time_now = time(NULL);
 	
-		if ((time_t)-1 == time_now)
-		{
-			return (SYSTEM_FAILURE);
-		}	
-		
 		scheduler->task_cur = PQueueDequeue(scheduler->pq);
 		
 		remainder = (int)TaskGetExecutionTime(scheduler->task_cur) - time_now;
@@ -240,14 +236,9 @@ int SchedulerRun(scheduler_t *scheduler)
 				/* TaskUpdateExecutionTime or PQueueEnqueue - 
 				 *run status of system faile (1)
 				 */
-				if (TaskUpdateExecutionTime(scheduler->task_cur))
-				{
-					TaskDestroy(scheduler->task_cur);
-					scheduler->task_cur = NULL;
-					
-					return (SYSTEM_FAILURE);
-				}
 				
+				TaskUpdateExecutionTime(scheduler->task_cur); 
+		
 				if (PQueueEnqueue(scheduler->pq, scheduler->task_cur))
 				{
 					TaskDestroy(scheduler->task_cur);
@@ -267,8 +258,6 @@ int SchedulerRun(scheduler_t *scheduler)
 	
 	if (!scheduler->run)
 	{
-		scheduler->run = 1;
-		
 		/*the stop func was activeted - 
 		 *run status (3)
 		 */
@@ -303,7 +292,7 @@ void SchedulerClear(scheduler_t *scheduler)
 
 
  
-int IsMatch(const void *data, const void *param)
+static int IsMatch(const void *data, const void *param)
 {
 	return (UidIsSame(TaskGetUid((task_t *)data), (*((ilrd_uid_t *)param)))); 		
 } 
