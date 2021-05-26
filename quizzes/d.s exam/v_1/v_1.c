@@ -403,7 +403,6 @@ void PushChar(char c, cq_t *que)
 	}
 	else
 	{
-	{
 		que->queue[/*que->*/read + que->size] = c;	
 	
 	}
