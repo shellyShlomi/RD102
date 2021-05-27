@@ -2,6 +2,87 @@
 #include <stdio.h>
 #include <assert.h>
 
+#define VSA_SIZE sizeof(vsa_t)
+#define CHUNK_SIZE sizeof(vsa_c_h_t)
+#define WORDSIZE sizeof(size_t)
+
+#define NEXT_CHUNK(X) (vsa_c_h_t *)((char *)(X) + ((vsa_c_h_t *)(X))->c_size + CHUNK_SIZE)
+#define MOVE_CHUNK(X, N) (vsa_c_h_t *)(((char *)(X)) + CHUNK_SIZE + (N))		
+
+
+/*	q	1.2 
+ *	malloc
+ */
+
+void *LazyAlloc(vsa_t *vsa, size_t n)
+{
+	size_t vsa_end_addr = 0;/*needs to be (vsa_c_h_t *)*/
+	long int loc_n = (long int)n;
+	vsa_c_h_t *chunk_h = (vsa_c_h_t *)(vsa + 1);
+
+	assert(vsa);
+	
+	vsa_end_addr = (size_t)(vsa_c_h_t *)((char *)vsa + VSA_SIZE + vsa->pool_size);
+
+	while (vsa_end_addres <= NEXT_CHUNK(chunk_h))
+	{
+
+		if (chunk_h->c_size + (long int)CHUNK_SIZE) => loc_n)
+		{
+			(MOVE_CHUNK(chunk_h, n))->c_size = chunk_h->c_size -(long int)CHUNK_SIZE) - loc_n;
+
+			chunk_h->c_size = -(loc_n);
+			
+			return (void *))(chunk_h + 1);
+		}
+		if (chunk_h->c_size == local_n_bytes)
+		{
+			chunk_h->c_size = -(loc_n);
+
+			return (void *))(chunk_h + 1);
+		}
+		
+		NEXT_CHUNK(chunk_h);/*the chunk is not moving forwords*/
+	
+	}
+	return (NULL);
+}
+
+void *Alloc(vsa_t *vsa, size_t n)
+{
+	void *chunk = NULL;
+	size_t alinged_n = (WORDSIZE - (n & (WORDSIZE - 1))) & (WORDSIZE - 1) + n ;
+
+	assert(vsa);
+
+
+	chunk = LazyAlloc(vsa, alinged_n);
+	if (!chunk)
+	{
+		VSADefragment(vsa);	
+		return (LazyAlloc(vsa, alinged_n)); 
+	}
+
+	return (chunk);
+}
+
+
+
+
+
+/*	q	1.2 
+ *	free
+ */
+
+void VSAFree(void *block)
+{
+	assert(block);
+	
+	((vsa_c_h_t *)block - 1)->c_size *= -1;  
+	
+	return ; 
+
+}
 
 
 /*	q	1.3 
