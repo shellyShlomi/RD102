@@ -480,7 +480,7 @@ void PushChar(char c, cq_t *que)
 	
 	if (que->read - /*que->size*/que < Q_SIZE)
 	{
-		que->queue[/*que->*/read - que->size] = c;	
+		que->queue[/*que->*/read - que->size /* + 1*/] = c;	
 	}
 	else
 	{
@@ -492,21 +492,46 @@ void PushChar(char c, cq_t *que)
 	
 	return ;
 }
+
+int PushChar(queue_t *queue , const char data)
+{
+    assert(queue);
+
+    if (Q_SIZE == queue.m_elements_in_q)
+    {
+        return (FAILD);
+    }
+
+    queue.m_queue[(queue.m_first_element + queue.m_elements_in_q) % Q_SIZE] = data;
+
+    queue.m_elements_in_q += 1;
+
+    return (SUCCSESS);
+}
+int PopChar(queue_t *queue)
+{
+    assert(queue);
+
+    if (0 == queue.m_elements_in_q)
+    {
+        return (FAILD);
+    }
+
+    queue.m_first_element = (queue.m_first_element + 1) % Q_SIZE; 
+    queue.m_elements_in_q -= 1;
+
+    return (SUCCSESS);
+}
+
 /*v.1-fix*/
+
 void PushChar(cq_t *que, char c)
 {
 	
 	assert(que);
 	assert(que->size < Q_SIZE);
 	
-	if (que->read - que->size < Q_SIZE)
-	{
-		que->queue[que->size - que->read + 1] = c;	
-	}
-	if (que->read + que->size < Q_SIZE) 
-	{
-		que->queue[que->read + que->size] = c;	
-	}
+	que->queue[(que->read + que->size) % Q_SIZE] = c;	
 
 	++que->size;
 	
@@ -520,20 +545,13 @@ char PopChar(cq_t *que)
 	assert(que);
 	assert(que->size > 0);
 	
-	if (que->read == Q_SIZE)
-	{	
-		chr = que->queue[que->read - 1];
-		que->read = 0;
-	}
-	if (que->read < que->size) 
-	{
-		chr = que->queue[que->read];
-		++que->read;
-	
-	}
+	chr = que->queue[que->read % Q_SIZE];
+
+	que->read = (que->read + 1)% Q_SIZE; 
 	--que->size;
 	
 	return chr;
 }
+
 
 
