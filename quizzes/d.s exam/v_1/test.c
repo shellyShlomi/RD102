@@ -10,6 +10,7 @@ typedef struct circular_queue
 	size_t read;
 
 }cq_t;
+
 char PopChar(cq_t *que);
 
 void PushChar(cq_t *que, char c)
@@ -62,7 +63,7 @@ void TestQueue()
     
 	printf("\n%c\n\n",output);
 	
-	 PushChar(que, inputs[3]);
+	PushChar(que, inputs[3]);
     PushChar(que, inputs[4]);
 	
     for(i = 0; i < 3; ++i)
@@ -80,6 +81,9 @@ void TestQueue()
     
 	printf("\n%c\n",output);
 	printf("%lu\n",que->size);
+	
+	free(que);
+
     return;
 }
 

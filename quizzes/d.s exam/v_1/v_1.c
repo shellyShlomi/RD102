@@ -438,6 +438,31 @@ int DLLInsert(node_t *node, void *data)
 
 }
 
+/*v.1-fix*/
+
+d_list_iter_t DLLInsert(d_list_iter_t node, void *data)
+{
+	d_list_iter_t node1 = NULL;
+	
+	assert(node);
+	
+	node1 = (d_list_iter_t )malloc(sizeof(d_list_iter_t));
+	
+	if (!node1)
+	{
+		return (node);
+	}
+	
+	node1->data = data;
+	node1->next = node;
+	node1->prev = node->prev;
+	
+	node->prev->next = node1;
+	node->prev = node1;
+	
+	return (node1);
+}
+
 /*	q	6
  *	FindMissingNum
  */
@@ -459,7 +484,6 @@ int FindMissingNum(int arr[], size_t size)
 	}
 	return ((int)xor);
 }
-
 
 /*	q	8
  *	PushChar
@@ -525,6 +549,7 @@ int PopChar(queue_t *queue)
 
 /*v.1-fix*/
 
+
 void PushChar(cq_t *que, char c)
 {
 	
@@ -552,6 +577,3 @@ char PopChar(cq_t *que)
 	
 	return chr;
 }
-
-
-
