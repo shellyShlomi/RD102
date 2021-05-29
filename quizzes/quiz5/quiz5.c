@@ -7,7 +7,7 @@
    Description: Quiz5 - IsRotation */
 
 void TestRotation();
-int IsRotation(char *str1, char *str2);
+int IsRotation(const char *str1,const char *str2);
 
 int main()
 {		
@@ -73,14 +73,18 @@ int IsRotation(const char *str1,const char *str2)
 	
 	length_sub = strlen(sub_string); 
 	
-	first_comp = strncmp( sub_string, str1, length_sub );
-	second_comp = strncmp( str2, (str1 + length_sub), (length1 - length_sub) );
-											
-	if (0 == second_comp && 0 == first_comp)
-	{	
-		printf("IT'S a Rotation\n");
-		printf("\n"); 
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 			return 1;	
+	first_comp = strncmp( sub_string, str1, length_sub);
+	
+	if (!first_comp)
+	{
+		second_comp = strncmp(str2, (str1 + length_sub), (length1 - length_sub));
+		
+		if (0 == second_comp)
+		{	
+			printf("IT'S a Rotation\n");
+			printf("\n"); 
+			                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             				return 1;	
+		}
 	}
 	
 	printf("NOT a Rotation\n"); 

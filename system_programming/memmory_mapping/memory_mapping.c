@@ -21,7 +21,6 @@ int main(int argc, char **argv, char **envp)
 	char *arg = argv[0];
 	
 	void (*func)(void) = NULL;
-	void *func1 = NULL;
 	void *var_glob = NULL;
 	
 	void *handle = NULL;
@@ -33,8 +32,8 @@ int main(int argc, char **argv, char **envp)
 	(void)i;
 	boo();
 	foo();
-	
-/*	printf("---------------------inplicit dynamic linking; shared library-------------------\n\n");
+/*	
+	printf("---------------------inplicit dynamic linking; shared library-------------------\n\n");
 
 	goo();
 */
@@ -47,10 +46,10 @@ int main(int argc, char **argv, char **envp)
 		printf("handle == NULL\n");
 		return 0;	
 	}
+
+	*(void **)&func = dlsym(handle, "goo");
 	
-	func1 = dlsym(handle, "goo");
-	
-	if (NULL == func1)
+	if (NULL == func)
 	{
 		printf("func1 == NULL\n");
 		return 0;	
@@ -63,14 +62,12 @@ int main(int argc, char **argv, char **envp)
 		printf("var_glob == NULL\n");
 		return 0;	
 	}
-
-	*(void **)&func = func1;
 	
 	*(int *)var_glob = 0;
 	
 	printf("\t\t---------------------from main---------------------\n\n");
 	
-	printf("\t\tfunction: &func = %p\n", func1);
+	printf("\t\tfunction: &func = %p\n", func);
 
 	printf("\t\tvar_glob = %p\n\n", dlsym(handle, "global_var"));
 	

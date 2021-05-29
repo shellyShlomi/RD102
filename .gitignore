@@ -4,13 +4,16 @@
 
 
 *
+/**/shelly
+shelly
+/**/ws7
 
 !/**/
-!/c/**/
-!/ds/**/
-!/projects/**/
-!/quizzes/**/
-!/system_programming/**/
+!/c/
+!/ds/
+!/projects/
+!/quizzes/
+!/system_programming/
 
 
 !.myFunc
@@ -18,5 +21,6 @@
 !*.md
 !*.h
 !.gitignore
-
-
+!Makefile
+!makefile
+!v_1.txt

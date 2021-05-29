@@ -18,6 +18,7 @@ static void StackQueueFillOut(stk_queue_t *queue);
 static void StackQueueFillEnter(stk_queue_t *queue);
 static stk_queue_t *StackQueueCreate(size_t capacity);
 static void StackQDestroy(stk_queue_t *queue);
+
 /*---------------test func-----------------*/
 void TestOne();
 void TestTwo();

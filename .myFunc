@@ -6,7 +6,7 @@ alias gconGun='git config --global user.name'
 alias gic='git commit -m'
 alias gip='git push -u origin master'
 alias gsi='git status --ignored'
-alias gs='git status'
+alias gst='git status'
 alias gia='git add'
 
 alias go='gcc -ansi -pedantic-errors -Wall -Wextra -g -c'
@@ -15,21 +15,20 @@ alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3'
 alias gd9='gcc -std=c99 -pedantic-errors -Wall -Wextra -g'
 alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -O3'
 alias vlg='valgrind --leak-check=yes --track-origins=yes'
+alias gi='g -I'
 
 alias G='gedit'
 alias h='history'
 alias l='ll'
 alias c='cd'
-alias gcw='f(){ cd git/c/ws$@;unset -f f; }; f'
-alias gq='f(){ cd  git/quizzes/quiz$@;unset -f f; }; f'
+function gq { cd  ~/git/quizzes/quiz$@; }
+function gcw { cd  ~/git/c/ws$@; }
 alias gs='c git/shelly/'
-alias gi='g -I'
-alias gds='c git/ds/src'
+
+function gds { cd  ~/git/ds/src/$@; }
 alias gdi='c git/ds/include'
 alias gdt='c git/ds/test'
 alias gd='c git/ds/'
-
-
-
+alias t='touch'
 
 #'f(){cd git/c/ws"$@" f; }; f'

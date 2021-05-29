@@ -48,9 +48,15 @@ err_status_t BalancedParenthees(const char *str)
   				
 				break;
 			}
-	
+					
 			case ']':
 			{	
+				if(StackIsEmpty(s))
+				{	
+					StackDestroy(s);
+					return !SUCCESS; 
+				} 
+				
   				if('[' == *(char *)StackPeek(s))
   				{
   					StackPop(s);
@@ -61,6 +67,12 @@ err_status_t BalancedParenthees(const char *str)
 			}
 		   	case ')':
 		    {	
+		    	if(StackIsEmpty(s))
+				{	
+					StackDestroy(s);
+					return !SUCCESS; 
+				} 
+				
   				if('(' == *(char *)StackPeek(s))
   				{
   					StackPop(s);
@@ -71,6 +83,12 @@ err_status_t BalancedParenthees(const char *str)
 			}			
   			case '}':
   			{	
+  				if(StackIsEmpty(s))
+				{	
+					StackDestroy(s);
+					return !SUCCESS; 
+				} 
+				
   				if('{' == *(char *)StackPeek(s))
   				{
   					StackPop(s);

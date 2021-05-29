@@ -36,8 +36,8 @@ s_list_iter_t SLLnthElement(s_list_t *list, size_t n)
 	
 	while(NULL != SLLNext(iter))
 	{
-		iter = SLLNext(iter);
 		temp_iter = SLLNext(temp_iter);
+		iter = SLLNext(iter);
 	}
 	
 
@@ -106,10 +106,8 @@ static void Test()
 			if ((arr[size - arr_n[i]]) != *(int *)SLLGetData(SLLnthElement(list, arr_n[i])))
 			{
 				printf("SLLnthElement error at line: ");
-				printf("%d \n", __LINE__); 
+				printf("%d\n", __LINE__); 
 			}
-			
-			iter = SLLNext(iter);
 			
 		}
 	}

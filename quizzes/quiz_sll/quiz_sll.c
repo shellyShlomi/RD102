@@ -22,6 +22,7 @@ static void TestHasIntersection();
 static void TestSplitIntersection();
 static void TestSplitIntersectionWith();
 
+
 int main()
 {
 	TestHasIntersectionWith();
@@ -51,7 +52,6 @@ int HasIntersection(node_t *head_1, node_t *head_2)
 
 	return (head_1 == head_2);
 }
-
 
 
 

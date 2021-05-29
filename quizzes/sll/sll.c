@@ -232,7 +232,7 @@ static void TestOpenLoop()
 }
 
 /*------------------------------implementetion--------------------------------*/
-int HasLoop(const node_t *head)
+int HasLoop(node_t const *head)
 {
 	node_t *fast = (node_t *)head;
 	node_t *slow = (node_t *)head;
@@ -310,7 +310,7 @@ int OpenLoop(const node_t *head)
 }
 /*------------------------------helper functions------------------------------*/
 
-static node_t *PtrLoop(node_t *head)
+static node_t *PtrLoop(node_t const *head)
 {
 	node_t *fast = (node_t *)head;
 	node_t *slow = (node_t *)head;

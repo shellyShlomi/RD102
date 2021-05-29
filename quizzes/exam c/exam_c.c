@@ -93,8 +93,7 @@ size_t StrLen(const char *str)
 	
 	return counter;
 }
-
-
+/*
 int StrCmp(const char *str1, const char *str2)
 {
 	
@@ -112,6 +111,22 @@ int StrCmp(const char *str1, const char *str2)
 	}
 
 	return 0;
+}
+*/
+
+int StrCmp(const char *str1, const char *str2)
+{
+	
+	assert(NULL != str1);
+	assert(NULL != str2);
+
+	while ((('\0' != *str1) || ('\0' != *str2)) && (*str1 == *str2))
+	{
+		++str1;
+		++str2;
+	}
+
+	return (*str1 - *str2);;
 }
 
 char *StrCpy(char *dest, const char *src)
