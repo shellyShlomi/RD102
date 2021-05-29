@@ -142,6 +142,19 @@ node_t *Flip(node_t *head)
 	node->next = temp;
 	return (node);
 }
+/* q	3.1
+ * 
+ * base on list with dummy the sll impl did in the class
+ * free O(1)?? im a dummy!
+ * remove O(1)
+ * insert O(1)
+ * creat O(n) space
+ * destroy O(n)
+ * count O(n)
+ * 
+ */
+
+
 /*	q	3.2.a 
  *	HasLoop
  */
@@ -386,7 +399,7 @@ void SLLRemove(s_list_node *node)
 
 /*	q	5.1
  *	DLLRemove
- * 
+ * 	
  */
 void DLLRemove(node_t *node)
 {
@@ -432,7 +445,7 @@ int DLLInsert(node_t *node, void *data)
 	node1->prev = prev;
 	node1->next = node;
 	
-	node->next = node1;
+	node->next/*need to be prev*/ = node1;
 	
 	return (0);
 
@@ -515,36 +528,6 @@ void PushChar(char c, cq_t *que)
 	++que->size;
 	
 	return ;
-}
-
-int PushChar(queue_t *queue , const char data)
-{
-    assert(queue);
-
-    if (Q_SIZE == queue.m_elements_in_q)
-    {
-        return (FAILD);
-    }
-
-    queue.m_queue[(queue.m_first_element + queue.m_elements_in_q) % Q_SIZE] = data;
-
-    queue.m_elements_in_q += 1;
-
-    return (SUCCSESS);
-}
-int PopChar(queue_t *queue)
-{
-    assert(queue);
-
-    if (0 == queue.m_elements_in_q)
-    {
-        return (FAILD);
-    }
-
-    queue.m_first_element = (queue.m_first_element + 1) % Q_SIZE; 
-    queue.m_elements_in_q -= 1;
-
-    return (SUCCSESS);
 }
 
 /*v.1-fix*/
