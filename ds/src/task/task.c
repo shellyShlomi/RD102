@@ -12,18 +12,18 @@
 #include <assert.h> /* assret */
 #include <time.h>	/* time_t */
 
-
+#include "uid.h"
 #include "task.h"
+
 
 struct task
 {
-	ilrd_uid_t uid;
+	time_t execution_time;
+	size_t interval;
 	int (*action_func)(void *param);
 	void *param;
-	size_t interval;
-	time_t execution_time;
+	ilrd_uid_t uid;
 };
-
 
 
 task_t *TaskCreate(	int (*action_func)(void *param), 
@@ -32,13 +32,16 @@ task_t *TaskCreate(	int (*action_func)(void *param),
 {
 
 	ilrd_uid_t task_uid = {0};
-	
 	task_t *task = NULL;
-	
-	time_t time_now = 0;
+	time_t time_now = time(NULL);
 
 	assert(NULL != action_func);	
-
+	
+	if (((time_t)-1) == time_now)
+	{
+		return (NULL);
+	}	
+	
 	task_uid = UidCreate();
 
 	if (UidIsSame(GetBadUid(), task_uid))
@@ -46,17 +49,10 @@ task_t *TaskCreate(	int (*action_func)(void *param),
 		return (NULL);
 	}
 	
-	time_now = time(NULL);
-	
-	if ((time_t)-1 == time_now)
-	{
-		return (NULL);
-	}	
-	
 	task = (task_t *)malloc(sizeof(task_t));
 	
 	if (NULL == task)
-	{
+	{	
 		return (NULL);
 	}
 	
@@ -64,12 +60,12 @@ task_t *TaskCreate(	int (*action_func)(void *param),
 	task->action_func = action_func;
 	task->param = param;
 	task->interval = interval_in_sec;
-	task->execution_time = time_now + task->interval;
-	
+	task->execution_time = time_now + interval_in_sec;
 	
 	return (task);
 
 }
+
 
 void TaskDestroy(task_t *task)
 {
@@ -77,13 +73,12 @@ void TaskDestroy(task_t *task)
 	
 	task->action_func = NULL;
 	task->param = NULL;
-
+	task->execution_time = ((time_t)-1);
+	
 	free(task);
 	
 	return ; 
 }
-
-
 
 
 ilrd_uid_t TaskGetUid(const task_t *task)
@@ -94,15 +89,13 @@ ilrd_uid_t TaskGetUid(const task_t *task)
 }
 
 
-
-
 int TaskUpdateExecutionTime(task_t *task)
 {
 	time_t time_now = time(NULL);
 
 	assert(NULL != task);	
 	
-	if ((time_t)-1 == time_now)
+	if (((time_t)-1) == time_now)
 	{
 		return (1);
 	}	
@@ -122,11 +115,10 @@ time_t TaskGetExecutionTime(task_t *task)
 }
 
 
-
-
 int TaskExecute(task_t *task)
 {
 	assert(NULL != task);	
+	assert(NULL != task->action_func);	
 	
 	return (task->action_func(task->param)); 
 }

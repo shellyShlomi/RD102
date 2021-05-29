@@ -465,7 +465,7 @@ static void TestAllocAndFreeWithDefragment()
 	/*i = VSALargestChunkAvailable(vsa_ptr);
 	printf("%ld \n", i);*/
 	ptr_alloc_c[3] = VSAAlloc(vsa_ptr, 8);
-	if(NULL == ptr_alloc_c[3])
+	if(NULL != ptr_alloc_c[3])
 	{
 		printf("TestAllocAndFreeWithDefragment->VSAAlloc failed line: %d \n", __LINE__ );
 	}

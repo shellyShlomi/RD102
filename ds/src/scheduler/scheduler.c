@@ -233,11 +233,9 @@ int SchedulerRun(scheduler_t *scheduler)
 				{
 					break;
 				}
-
 				/* TaskUpdateExecutionTime or PQueueEnqueue - 
 				 * run status of system faile (1)
 				 */
-				
 				TaskUpdateExecutionTime(scheduler->task_cur); 
 		
 				if (PQueueEnqueue(scheduler->pq, scheduler->task_cur))

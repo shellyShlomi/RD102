@@ -186,6 +186,7 @@ int SLLForEach(s_list_iter_t from,
 }
 
 /* Approved by Shir */
+
 s_list_iter_t SLLRemove(s_list_iter_t iter)
 {
 	size_t temp = (size_t)SLLNext(iter);
@@ -208,7 +209,8 @@ s_list_iter_t SLLRemove(s_list_iter_t iter)
 	return (iter);
 	
 }
-		/*test if push back failedtest if find failed secound part*/
+
+/*test if push back failedtest if find failed secound part*/
 
 
 /* Approved by Shir */

@@ -196,7 +196,7 @@ int DLLForEach(d_list_iter_t from,
 	
 	return (val);
 }
-/*cheng*/
+
 d_list_iter_t DLLRemove(d_list_iter_t iter)
 {
 	d_list_iter_t temp_next = NULL;
@@ -217,6 +217,7 @@ d_list_iter_t DLLRemove(d_list_iter_t iter)
 	return (temp_next);
 	
 }
+
 
 void DLLDestroy(d_list_t *list)
 {

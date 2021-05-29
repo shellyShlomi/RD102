@@ -132,6 +132,7 @@ void *PQueueErase(	pq_t *p_queue,
 					void *param)
 {
 	sorted_list_iter_t temp = {0};
+	
 	void *temp_data = NULL;
 	
 	assert(NULL != p_queue);

@@ -32,9 +32,9 @@ typedef struct vsa_chunk_header
 #define END_OF_CHUNK_H(X) ((vsa_c_h_t *)((char *)(X) + CHUNK_SIZE))
 #define NEXT_CHUNK(X) ((vsa_c_h_t *)(((char *)(X) + \
 									 (size_t)labs((X)->c_size)) + CHUNK_SIZE))
-#define FIRST_CHUNK(X) (vsa_c_h_t *)((char *)(X) + VSA_SIZE)
+#define FIRST_CHUNK(X) (vsa_c_h_t *)((vsa_c_h_t *)(X) + 1)
 #define MOVE_CHUNK(X, Y) (vsa_c_h_t *)(((char *)(X)) + (Y) + CHUNK_SIZE)	
-#define USER_CHUNK_START(X) (void *)((char *)(X) + CHUNK_SIZE)	
+#define USER_CHUNK_START(X) (void *)((vsa_c_h_t *)(X) + 1)	
 #define END_OF_POOL_AS_CHUNK_TYPE(X) ((vsa_c_h_t *)((char *)(X) + \
 													VSA_SIZE + (X)->pool_size))	
 

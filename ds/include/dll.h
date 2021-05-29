@@ -44,7 +44,7 @@ void *DLLGetData(d_list_iter_t iter);
 d_list_iter_t DLLRemove(d_list_iter_t iter); 
 
 /* on success: O(1); */
-d_list_iter_t DLLInsert(d_list_iter_t where, void *data);  
+d_list_iter_t DLLInsert(d_list_iter_t node, void *data);  
 
 /* on success: O(1); */
 d_list_iter_t DLLPushFront(d_list_t *list, void *data);                              

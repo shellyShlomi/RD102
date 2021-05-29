@@ -60,9 +60,9 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	
 	for(i = 0; i < num_of_blocks - 1; ++i)
 	{
-		block_header->next_free = (inner_block_size) + sum_block_offset;
+		block_header->next_free = (inner_block_size);
 		sum_block_offset = block_header->next_free;
-		block_header = (fsa_block_header_t *)((char *)mem_pool + sum_block_offset);
+		block_header = (fsa_block_header_t *)((char *)block_header + block_header->next_free);
 	}
 
 	block_header->next_free = 0;
@@ -70,34 +70,38 @@ fsa_t *FSAInit(void *mem_pool, size_t pool_size, size_t inner_block_size)
 	return (pool);
 }
 
-
-
+	
 void *FSAAlloc(fsa_t *fsa)
 {
-	void *temp = NULL;
+	fsa_block_header_t *temp = NULL;
 	
-	assert(NULL != fsa);
+	assert(fsa);
 	
 	if (0 == FSACountFree(fsa))
 	{
 		return (NULL);
 	}
 	
-	temp = (void *)(fsa->next_free + (char *)fsa);
-	fsa->next_free = ((fsa_block_header_t *)temp)->next_free;
+	temp = (fsa_block_header_t *)(fsa->next_free + (char *)fsa);
+	fsa->next_free += (temp)->next_free + sizeof(fsa_block_header_t);
 	
-	return (temp);
+	return (void *)temp;
 }
 
 
-void FSAFree(fsa_t *fsa, void *mem_block)
+
+
+void FSAFree(fsa_t *fsa, void *block)
 {
-	assert(NULL != mem_block);
-	assert(NULL != fsa);
+	fsa_block_header_t *to_free = ((fsa_block_header_t *)block - 1);
+	size_t temp = 0;
 	
-	((fsa_block_header_t *)mem_block)->next_free = fsa->next_free;
-	fsa->next_free = ((size_t)((char *)mem_block - (char *)fsa));
+	assert(fsa);
+	assert(block);
 	
+	temp = fsa->next_free;
+	fsa->next_free = (size_t)(fsa - (fsa_t *)to_free);
+	to_free->next_free = temp - fsa->next_free;
 	return ;
 }
 
@@ -130,7 +134,7 @@ size_t FSACountFree(const fsa_t *fsa)
 	{
 		++count;
 		/* fsa->next is from type fsa_block_header_t */
-		local_start = (fsa_block_header_t *)(local_start->next_free + (char *)fsa); 
+		local_start = (fsa_block_header_t *)(local_start->next_free + (char *)local_start); 
 	}while (0 != local_start->next_free);
 	
 	return (count);

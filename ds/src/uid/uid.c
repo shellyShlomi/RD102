@@ -11,6 +11,10 @@
 
 #include "uid.h"
  
+size_t GetUidCount(const ilrd_uid_t uid);
+time_t GetUidTimeStamp(const ilrd_uid_t uid);
+pid_t GetUidPID(const ilrd_uid_t uid);
+ 
 ilrd_uid_t UidCreate(void)
 {
 	static size_t counter = 1;
@@ -45,4 +49,25 @@ ilrd_uid_t GetBadUid(void)
 	ilrd_uid_t bad_local = {0, 0, (time_t)-1};
 
 	return (bad_local);
+}
+
+
+
+
+/* Iner func to test the task module */
+
+size_t GetUidCount(const ilrd_uid_t uid)
+{
+	return (uid.count);
+}
+
+time_t GetUidTimeStamp(const ilrd_uid_t uid)
+{
+	return (uid.time_stamp);
+}
+
+
+pid_t GetUidPID(const ilrd_uid_t uid)
+{
+	return (uid.process_ID);
 }
