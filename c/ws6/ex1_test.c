@@ -112,8 +112,8 @@ static void TestPow2()
 
 static void TestIsPow2Loop()
 {	
-	unsigned int num_arr[] = {8, 12, 16, 20, 9, 127, 120};
-	int exp_arr[] = {1, 0, 1, 0, 0, 0, 0};
+	unsigned int num_arr[] = {8, 0, 16, 20, 9, 127, 0x8000000};
+	int exp_arr[] = {1, 0, 1, 0, 0, 0, 1};
 	size_t i = 0;
 	size_t size = sizeof(exp_arr) / (sizeof(exp_arr[i]));
 	int err = 0;
@@ -193,11 +193,11 @@ static void TestPrintThreeOn()
 	size_t length = sizeof(nums) / (sizeof(nums[0]));
 	size_t i = 0;
 	
-		while (i < length - 1)
-		{
-			printf("%u  ", nums[i]);
-			++i;
-		}
+	while (i < length - 1)
+	{
+		printf("%u  ", nums[i]);
+		++i;
+	}
 	printf("0\n\n");
 	PrintThreeOn(nums, 7);
 	
@@ -338,8 +338,8 @@ static void TestSwap3And5()
 
 static void TestByteMirrorLoop()
 {
-    unsigned char arr[] = {88, 1, 32, 8, 36, 0, 255};
-    unsigned char exp_arr[] = {26, 128, 4, 16, 36, 0, 255};
+    unsigned char arr[] = {88, 1, 32, 8, 36, 0, 255, 68467311635};
+    unsigned char exp_arr[] = {26, 128, 4, 16, 36, 0, 255, 4};
 	size_t i = 0;
 	size_t size = sizeof(arr) / (sizeof(arr[i]));
 	int err = 0;
@@ -348,7 +348,7 @@ static void TestByteMirrorLoop()
 	{
 		if (exp_arr[i] != ByteMirrorLoop(arr[i]))	
 		{
-			printf("ERROR at index %lu\n", i);
+			printf("ERROR at index %lu\t %lu\n", i, ByteMirrorLoop(arr[i]));
 			err = 1;
 		}
 		++i;

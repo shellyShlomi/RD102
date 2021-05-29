@@ -111,13 +111,11 @@ unsigned char ByteMirrorLoop(unsigned char byte)
 {
 	size_t index = 0;
 	unsigned char mirror = '\0';
-	unsigned char mirror_add = '\0';
 	
 	for (index = 0 ; index < 8; ++index)
 	{							
 		mirror = mirror << 1;
-		mirror_add = byte & 1;
-		mirror = mirror | mirror_add;
+		mirror = mirror | (byte & 1);
 		byte = byte >>1;
 	}
 	return mirror;

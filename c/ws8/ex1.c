@@ -158,12 +158,13 @@ static void InitFloat(element_t *element_arr, size_t ele_num)
 static int InitString(element_t *element_arr, size_t size)
 {
 	char *str[] = {"Hello", "Shelly", "Shelly Shlomi", "Shlomi", "Hi"};
+	size_t str_size = sizeof(str) / sizeof(char *); 
 	char *heap = NULL;
 	size_t i = 0;
 
 	assert(NULL != element_arr);
 
-	for (i = 0; i < size; ++i)
+	for (i = 0; i < str_size; ++i)
 	{
 		heap = (char *)malloc(strlen(*(str + i)) + 1);
 
@@ -280,6 +281,7 @@ static int AddToString(element_t *val, int to_add)
 {
 	size_t count_chr_num = 1;
 	size_t length = 0;
+	char *copy_str = NULL;
 	int addition = to_add;
 	int fail = 0;
 
@@ -294,13 +296,15 @@ static int AddToString(element_t *val, int to_add)
 
 	count_chr_num += CountChrInNum(to_add);
 
-	val->data = realloc(val->data, length + count_chr_num);
+	copy_str = realloc(val->data, length + count_chr_num);
 
-	if (!val->data)
+	if (!copy_str)
 	{
+		val->data = copy_str;
 		return EXIT_FAILURE;
 	}
-
+	
+	val->data = copy_str;
 	fail = sprintf((char *)(val->data) + length, "%d", addition);
 
 	if (0 > fail)

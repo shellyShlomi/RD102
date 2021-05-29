@@ -12,10 +12,8 @@
 
 #define MAX3(a, b, c)((a) > (b) ? MAX2(a, c) : MAX2(b, c))
 
-
 /*Approved by EDEN W*/
 #define SIZEOF_VAR(var)((size_t)(&(var) + 1) - (size_t)(&(var)) )
-
 
 
 /*Approved by EDEN W*/
@@ -27,10 +25,10 @@ static void TestSizeOf();
 
 int main()
 {
-   
     TestMax2();
     TestMax3();
     TestSizeOf();
+    
     return 0;
 }
 
@@ -93,7 +91,6 @@ static void TestSizeOf()
 		int x;
 		int y;
 	};
-	
 
 	int x = 10;
 

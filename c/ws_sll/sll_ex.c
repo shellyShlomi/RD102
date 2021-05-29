@@ -80,6 +80,7 @@ int HasLoop(const node_t *head)
 }
 /* approved by anna					*/
 /* Time complexity:O(n) Space:O(1)	*/
+
 node_t *FindIntersection(node_t *head_1, node_t *head_2)
 {
 	size_t counter_1 = 0;

@@ -2,11 +2,13 @@
    Status: APPROVED BY OHAD;   
    Description: log program */
 
-#include <stdlib.h> /*fopen*/
-#include <assert.h> /*assert*/
-#include <string.h> /*strlen*/
-#include "ex2.h"	/*the function declaration*/
+#include <stdlib.h> /* fopen */
+#include <assert.h> /* assert */
+#include <string.h> /* strlen */
 
+#include "ex2.h"	/* the function declaration */
+
+#define UNUSED(x) (void)(x)
 #define SIZE 5
 #define BUFF 101
 #define TEMP ".tmp"
@@ -18,16 +20,16 @@ typedef enum return_val
 	
 }return_t;
 
-/*flow control functions*/
-static return_t Analyzer(const char *buf , const char *f_name);
-static return_t Comp(const char *str, const char *uesr_str); 
+/* flow control functions */
+static return_t Analyzer	(const char *buf , const char *f_name);
+static return_t Comp		(const char *str, const char *uesr_str); 
 
-/*functions that procces the input and operat on it*/
-static return_t Logger(const char *file_name, const char *buf);
-static return_t Remove(const char *file_name, const char *buf);
-static return_t AddBeginig(const char *file_name, const char *buf);
-static return_t Count(const char *file_name, const char *buf);
-static return_t ExitPorg(const char *file_name, const char *buf);
+/* functions that procces the input and operat on it */
+static return_t Logger		(const char *file_name, const char *buf);
+static return_t Remove		(const char *file_name, const char *buf);
+static return_t AddBeginig	(const char *file_name, const char *buf);
+static return_t Count		(const char *file_name, const char *buf);
+static return_t ExitPorg	(const char *file_name, const char *buf);
 
 
 struct file_sturct
@@ -50,7 +52,7 @@ void Meneger(const char *file_name)
 
 	while (ERROR != ret) 
 	{	
-		fgets(buf, BUFF, stdin);
+		fgets(buf, BUFF -1 , stdin);
 		ret = Analyzer(buf, file_name);
 	}
 	
@@ -59,17 +61,17 @@ void Meneger(const char *file_name)
 
 static return_t Analyzer(const char(*buf), const char(*f_name))
 {	
-	static struct file_sturct arr[SIZE] =
+	static struct file_sturct arr[] =
 	{
-		{"-exit", Comp, ExitPorg},
-		{"<", Comp, AddBeginig},
-		{"-count", Comp, Count},
+		{"-exit",	Comp, ExitPorg},
+		{"<", 		Comp, AddBeginig},
+		{"-count",	Comp, Count},
 		{"-remove", Comp, Remove},
-		{"", Comp, Logger} 
+		{"", 		Comp, Logger} 
 	};
-								
+
 	size_t i = 0;
-	size_t elements = SIZE - 1;
+	size_t elements = sizeof(arr)/sizeof(arr[0]) - 1;
 
 	assert(f_name);
 
@@ -102,10 +104,10 @@ static return_t Comp(const char *str, const char *uesr_str)
 	{
 		if (0 == strncmp(str, uesr_str, str_len))
 		{
-			return SUCCESS;			 
+			return 0;			 
 		}
 	}	
-	return ERROR;
+	return 1;
 }
 /*Addtion of text to the end of the file*/
 static return_t Logger(const char *file_name, const char *buf)

@@ -1,5 +1,5 @@
 #include "ex2.h" /*the function declaration*/
-
+#define UNUSED(x) (void)(x)
 
 int main(int argc, char **argv)
 {	
