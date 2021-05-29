@@ -1,10 +1,10 @@
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:; done												*
+ *  Status: Approved;											*
  *  Date Of Creation:25.05.21;									*
  *  End Date: 27.05.21;											*
- *  Date Of Approval:--.05.21;									*
- *  Approved By:												*
+ *  Date Of Approval:29.05.21;									*
+ *  Approved By: anna											*
  *  Description: sorting functions - algorithms ws				*/
  
  
@@ -24,7 +24,7 @@
 /* helper funcs */
 static void Swap(int *x, int *y);
 static void FindMinAndMax(int arr[], size_t size, int *min, int *max);
-static int CountSortHelper(int arr[], size_t size, size_t param, size_t (*Index)(int arr_val, int param), size_t range);
+static int CountSortHelper(int arr[], size_t size, size_t param, size_t (*index_val)(int arr_val, int param), size_t range);
 size_t GetCount(int arr_val, int param);
 size_t GetRadixBits(int arr_val, int param);
 size_t GetRadixDigits(int arr_val, int param);
@@ -43,21 +43,19 @@ void InsertionSort(int arr[], size_t size)
 	for (i = 1; i < size; ++i)
 	{
 		curr =  arr[i];
-		for (j = i - 1; 0 <= j && arr[j] > curr; --j)
+		for (j = i - 1; (0 <= j) && (arr[j] > curr); --j)
 		{
 			arr[j + 1] = arr[j];
 		}
 		arr[j + 1] = curr;
 	}
 	
-	return ; 
-
+	return; 
 }
 
 
 void SelectionSort(int arr[], size_t size)
 {
-
 	size_t i = 0;
 	size_t j = 0;
 	size_t min_idx = 0;
@@ -73,10 +71,9 @@ void SelectionSort(int arr[], size_t size)
 			min_idx = arr[j] < arr[min_idx] ? j : min_idx; 
 		}
 		Swap((arr + i), (arr + min_idx));
-		
 	}
 	
-	return ; 
+	return; 
 }
 
 
@@ -90,7 +87,7 @@ void BubbleSort(int arr[], size_t size)
 	assert(arr);
 	assert(0 < size);
 	
-	for (i = 0; i < size - 1 && is_sort; ++i)
+	for (i = 0; i < size - 1 && is_unsort; ++i)
 	{
 		is_unsort = BOOL_FALUT;
 		
@@ -101,12 +98,10 @@ void BubbleSort(int arr[], size_t size)
 				Swap((arr + j), (arr + j + 1));	
 				is_unsort = BOOL_TRUE;
 			}
-		
 		}
-		
 	}
 	
-	return ; 
+	return; 
 }
 
 
@@ -166,17 +161,18 @@ int RadixBitsSort(int arr[], size_t size, size_t n_bits)
 	return (EXIT_SUCCESS);
 }
 
+
 /*------------------------------helper functions------------------------------*/
 
 
-static int CountSortHelper(int arr[], size_t size, size_t param, size_t (*Index)(int arr_val, int param), size_t range)
+static int CountSortHelper(int arr[], size_t size, size_t param, size_t (*index_val)(int arr_val, int param), size_t range)
 {
-	int *temp_arr = NULL;
+	int *counts_arr = NULL;
 	int *sort_arr = NULL;
 	long int i = 0;
 	
 	assert(arr);
-	assert(Index);
+	assert(index_val);
 	assert(0 < size);
 	
 	sort_arr = (int *)calloc(size, sizeof(int));
@@ -185,8 +181,8 @@ static int CountSortHelper(int arr[], size_t size, size_t param, size_t (*Index)
 		return (EXIT_FAILURE);
 	}
 	
-	temp_arr = (int *)calloc(range, sizeof(int));
-	if (NULL == temp_arr)
+	counts_arr = (int *)calloc(range, sizeof(int));
+	if (NULL == counts_arr)
 	{
 		free(sort_arr);
 		return (EXIT_FAILURE);
@@ -194,24 +190,24 @@ static int CountSortHelper(int arr[], size_t size, size_t param, size_t (*Index)
 	
 	for (i = 0; (size_t)i < size; ++i)
 	{
-		++temp_arr[Index(arr[i], param)];
+		++counts_arr[index_val(arr[i], param)];
 	}	
 	
 	for (i = 1; (size_t)i < range; ++i)
 	{
-		temp_arr[i] += temp_arr[i  - 1];
+		counts_arr[i] += counts_arr[i  - 1];
 	}
 	
 	for (i = size - 1; i >= 0 ; --i)
 	{
-		sort_arr[temp_arr[Index(arr[i], param)] - 1] = arr[i];
-		--temp_arr[Index(arr[i], param)];
+		sort_arr[counts_arr[index_val(arr[i], param)] - 1] = arr[i];
+		--counts_arr[index_val(arr[i], param)];
 	}
 	
 	memcpy(arr, sort_arr, size * sizeof(int));
 	
 	free(sort_arr);
-	free(temp_arr);
+	free(counts_arr);
 		
 	return (EXIT_SUCCESS);
 }
