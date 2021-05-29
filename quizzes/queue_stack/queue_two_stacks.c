@@ -4,17 +4,23 @@
 #include "stack.h"
 
 #define STACK_IS_FULL(X) (StackGetCapacity(X) == StackSize(X))
-/* implementetion functions */
+#define SIZE 12
+
+/*---------------impl func-----------------*/
 typedef struct stack_queue stk_queue_t;
 int StackQueueEnqueue(stk_queue_t *queue, void *data);
 void *StackQueueDequeue(stk_queue_t *queue);
-stk_queue_t *StackQueueCreate(size_t capacity);
-void StackQDestroy(stk_queue_t *queue);
 
-/* helper functions */
+
+/*---------------helper func---------------*/
 static size_t StackQueueSize(stk_queue_t *queue);
 static void StackQueueFillOut(stk_queue_t *queue);
-
+static void StackQueueFillEnter(stk_queue_t *queue);
+static stk_queue_t *StackQueueCreate(size_t capacity);
+static void StackQDestroy(stk_queue_t *queue);
+/*---------------test func-----------------*/
+void TestOne();
+void TestTwo();
 
 struct stack_queue
 {
@@ -23,97 +29,154 @@ struct stack_queue
 
 };
 
+
+/*------------------------------test for impl---------------------------------*/
 int main()
 {
-	stk_queue_t *queue = StackQueueCreate(10);
-	int arr[10] = {0};
+	TestOne();
+	TestTwo();
+	
+	return (0);
+}
+
+
+
+void TestOne()
+{
+	stk_queue_t *queue = StackQueueCreate(SIZE - 2);
+	int arr[SIZE] = {0};
 	size_t arr_size = sizeof(arr) / sizeof(arr[0]);
-	int extra_thing = 100000;
 	
 	size_t i = 0;
 
-	printf("\n");
+	for (i = 0; i < arr_size; ++i)
+	{
+		arr[i] = i + 1;
+	}
+
+	for (i = 0; i < SIZE / 2; ++i)
+	{
+		if (StackQueueEnqueue(queue, (arr + i)))
+		{
+			printf("StackQueueEnqueue error at line: %d\n", __LINE__);
+		}
+		
+	}
+	
+	if (SIZE / 2 != StackQueueSize(queue))
+	{
+		printf("error at line: %d\n", __LINE__);
+	}
+
+	i = 0;
+	if (arr[i] != *((int *)StackQueueDequeue(queue)))
+	{
+		printf("StackQueueDequeue error at line: %d\n", __LINE__);
+	}
+	
+	++i;
+	if (arr[i] != *((int *)StackQueueDequeue(queue)))
+	{
+		printf("StackQueueDequeue error at line: %d\n", __LINE__);
+	}
+	
+
+	for (i = SIZE / 2; i < SIZE; ++i)
+	{
+		if (StackQueueEnqueue(queue, (arr + i)))
+		{
+			printf("StackQueueEnqueue error at line: %d\n", __LINE__);
+		}
+		
+	}
+
+	if (SIZE - 2 != StackQueueSize(queue))
+	{
+		printf("error at line: %d\n", __LINE__);
+	}
+
+	for (i = 0; 0 < StackQueueSize(queue); ++i)
+	{
+		StackQueueDequeue(queue);
+	}
+
+	if (0 != StackQueueSize(queue))
+	{
+		printf("error at line: %d\n", __LINE__);
+	}
+
+	StackQDestroy(queue);
+	
+	return;
+
+}
+
+void TestTwo()
+{
+
+	stk_queue_t *queue = StackQueueCreate(SIZE - 2);
+	int arr[SIZE] = {0};
+	size_t arr_size = sizeof(arr) / sizeof(arr[0]);
+	
+	size_t i = 0;
 	
 	for (i = 0; i < arr_size; ++i)
 	{
 		arr[i] = i + 1;
 	}
 
-	for (i = 0; i < 7; ++i)
+	i = 0;
+	if (StackQueueEnqueue(queue, (arr + i)))
 	{
-		if (!StackQueueEnqueue(queue, (arr + i)))
-		{
-			printf("StackQueueEnqueue : %d\n", arr[i]);
-		}
-		else 
-		{
-			printf("StackQueueEnqueue faile \n");
-
-		}
+		printf("StackQueueEnqueue error at line: %d\n", __LINE__);
 	}
-
-
-	if (!StackQueueEnqueue(queue, (arr + i)))
-	{
-		printf("StackQueueEnqueue : %d\n", arr[i]);
-	}
-	else 
-	{
-		printf("StackQueueEnqueue faile \n");
-
-	}
-
+	
 	++i;
 
-	if (!StackQueueEnqueue(queue, (arr + i)))
+	if (StackQueueEnqueue(queue, (arr + i)))
 	{
-		printf("StackQueueEnqueue : %d\n", arr[i]);
-	}
-	else 
-	{
-		printf("StackQueueEnqueue faile \n");
-
+		printf("StackQueueEnqueue error at line: %d\n", __LINE__);
 	}
 	
-	if (!StackQueueEnqueue(queue, &extra_thing))
+	if (2 != StackQueueSize(queue))
 	{
-		printf("StackQueueEnqueue : %d\n", extra_thing);
+		printf("error at line: %d\n", __LINE__);
 	}
-	else 
+	
+	i = 0;
+	
+	if (arr[i] != *((int *)StackQueueDequeue(queue)))
 	{
-		printf("StackQueueEnqueue faile \n");
-
+		printf("StackQueueDequeue error at line: %d\n", __LINE__);
 	}
 
-	printf("\n");
+	for (i = 2; i < 11; ++i)
+	{
+		if (StackQueueEnqueue(queue, (arr + i)))
+		{
+			printf("StackQueueEnqueue error at line: %d\n", __LINE__);
+		}
+	}
 
-	printf("Stack Queue Size : %lu\n", StackQueueSize(queue));
-	
-	printf("\n");
-
-	printf("StackQueueDequeue : %d\n", *((int *)StackQueueDequeue(queue)));
-
-	printf("\n");
-
-	printf("Stack Queue Size : %lu\n", StackQueueSize(queue));
-
-	printf("\n");
-	
+	if (SIZE - 2 != StackQueueSize(queue))
+	{
+		printf("error at line: %d\n", __LINE__);
+	}
 
 	for (i = 0; 0 < StackQueueSize(queue); ++i)
 	{
-		printf("StackQueueDequeue : %d\n", *((int *)StackQueueDequeue(queue)));
+		StackQueueDequeue(queue);
 	}
 
-	printf("\n");
-
-	printf("Stack Queue Size : %lu\n", StackQueueSize(queue));
+	if (0 != StackQueueSize(queue))
+	{
+		printf("error at line: %d\n", __LINE__);
+	}
 
 	StackQDestroy(queue);
-
-	return (0);
+	
+	return;
 }
-
 /*------------------------------implementetion--------------------------------*/
 
 int StackQueueEnqueue(stk_queue_t *queue, void *data)
@@ -122,14 +185,6 @@ int StackQueueEnqueue(stk_queue_t *queue, void *data)
 	
 	if (!STACK_IS_FULL(queue->enter))
 	{
-		StackPush(queue->enter, data);
-		return (EXIT_SUCCESS);
-	}
-	
-	if (STACK_IS_FULL(queue->enter) && StackIsEmpty(queue->out))
-	{
-		StackQueueFillOut(queue);
-		
 		StackPush(queue->enter, data);
 		return (EXIT_SUCCESS);
 	}
@@ -144,20 +199,14 @@ void *StackQueueDequeue(stk_queue_t *queue)
 
 	assert(queue);
 	
-	if (!StackIsEmpty(queue->out))
+	if (!StackIsEmpty(queue->enter))
 	{
+		StackQueueFillOut(queue);
+
 		data = StackPeek(queue->out);
 		StackPop(queue->out);
 
-		return (data);
-	}
-	
-	if (StackIsEmpty(queue->out) && !StackIsEmpty(queue->enter))
-	{
-		StackQueueFillOut(queue);
-		
-		data = StackPeek(queue->out);
-		StackPop(queue->out);
+		StackQueueFillEnter(queue);
 	}
 
 	return (data);
@@ -165,7 +214,7 @@ void *StackQueueDequeue(stk_queue_t *queue)
 
 /*------------------------------helper functions------------------------------*/
 
-stk_queue_t *StackQueueCreate(size_t capacity)
+static stk_queue_t *StackQueueCreate(size_t capacity)
 {
 	stk_queue_t *queue = NULL;	
 	stack_t *enter = NULL;
@@ -178,14 +227,14 @@ stk_queue_t *StackQueueCreate(size_t capacity)
 		return (NULL);
 	}
 
-	enter = StackCreate(capacity / 2);
+	enter = StackCreate(capacity);
 	if (NULL == enter)
 	{
 		free(queue);
 		return (NULL);
 	}
 	
-	out = StackCreate(capacity / 2);
+	out = StackCreate(capacity );
 	if (NULL == out)
 	{
 		StackDestroy(queue->enter);
@@ -200,7 +249,7 @@ stk_queue_t *StackQueueCreate(size_t capacity)
 	return (queue);	
 }
 
-void StackQDestroy(stk_queue_t *queue)
+static void StackQDestroy(stk_queue_t *queue)
 {
 	assert(queue);
 	assert(queue->enter);
@@ -229,6 +278,18 @@ static void StackQueueFillOut(stk_queue_t *queue)
 	return;
 }
 
+static void StackQueueFillEnter(stk_queue_t *queue)
+{
+	assert(queue);
+
+	while (!StackIsEmpty(queue->out))
+	{
+			StackPush(queue->enter, StackPeek(queue->out));
+			StackPop(queue->out);
+	}
+
+	return;
+}
 
 static size_t StackQueueSize(stk_queue_t *queue)
 {
@@ -238,3 +299,8 @@ static size_t StackQueueSize(stk_queue_t *queue)
 	
 	return (StackSize(queue->enter) + StackSize(queue->out));
 }
+
+
+
+
+
