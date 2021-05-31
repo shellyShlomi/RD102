@@ -3,9 +3,8 @@
  *  Date Of Creation:18.05.21;									*
  *  Date Of Approval:19.05.21;									*
  *  Approved By: approved by eden.w.;							*
- *  Description: fixed-size blocks allocation;					*/
+ *  Description: Fixed-size blocks allocation;					*/
  
-
 
 #include <stddef.h> /* size_t */
 #include <assert.h> /* assert */
