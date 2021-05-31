@@ -39,7 +39,7 @@ static void Test()
     char inputs[] = {'a', 'b', 'c', 'd', 'e'};
   	size_t size = sizeof(inputs)/ sizeof(inputs[0]);
    	size_t i = 0;
-   	size_t first_pop = 3;
+   	size_t first_loop = 3;
 
     que->read = 0;
     que->size = 0;
@@ -49,7 +49,7 @@ static void Test()
 		 PushChar(que, inputs[i]);
 	}
 
-    for(i = 0; i < first_pop; ++i)
+    for(i = 0; i < first_loop; ++i)
     {
 		if (inputs[i] != PopChar(que))
 		{
@@ -57,12 +57,12 @@ static void Test()
 		}
 	}
 	
-	for(i = first_pop; i < size; ++i)
+	for(i = first_loop; i < size; ++i)
     {
 		 PushChar(que, inputs[i]);
 	}
 	
-	if (first_pop != que->size)
+	if (first_loop != que->size)
 	{
 		printf("PopChar & PushChar error at line: %d\n",__LINE__);
 	}
