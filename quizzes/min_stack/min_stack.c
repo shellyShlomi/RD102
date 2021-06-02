@@ -87,14 +87,10 @@ static void TestMinStack()
 /*------------------------------implementetion--------------------------------*/
 void *GetMinVal(min_stack_t *stack)
 {
-	void *data = NULL;
-
 	assert(stack); 
 	assert(!StackIsEmpty(stack->ms_min_vals));
 	
-	data = StackPeek(stack->ms_min_vals);
-
-	return (data);
+	return (StackPeek(stack->ms_min_vals));
 }
 
 /*------------------------------helper functions------------------------------*/
