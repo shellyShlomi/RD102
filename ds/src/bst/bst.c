@@ -67,7 +67,7 @@ bst_t *BstCreate(cmp_func_t func, void *param)
 
     bst->param = param;
     bst->func = func;
-    SetIter((bst_iter_t) & (bst->dummy),param, NULL, NULL, NULL);
+    SetIter(&(bst->dummy),param, NULL, NULL, NULL);
 
     return (bst);
 }
@@ -127,7 +127,7 @@ bst_iter_t BstEnd(bst_t *tree)
 {
     assert(tree);
 
-    return ((bst_iter_t)&(tree->dummy));
+    return (&(tree->dummy));
 }
 
 bst_iter_t BstNext(bst_iter_t iter)
@@ -385,8 +385,8 @@ static bst_iter_t BstFindParentNode(bst_t *tree, void *data, direction_t *side)
     assert(tree);
     assert(tree->func);
 
-    cur_parent = (bst_iter_t) & (tree->dummy);
-    cur_iter = ((bst_iter_t) & (tree->dummy))->left;
+    cur_parent = &(tree->dummy);
+    cur_iter = (&(tree->dummy))->left;
 
     while (NULL != cur_iter)
     {
