@@ -1,7 +1,6 @@
+#include <stdio.h> /* printf */
 #include <stddef.h> /* size_t */
 #include <assert.h>
-
-#include "bit_map.h"
 
 #define BOOL_FALSE 0
 #define BOOL_TRUE 1
@@ -13,7 +12,6 @@ int IsInSape(size_t size_x_axis, size_t size_y_axis, size_t x, size_t y, size_t 
 
 /*---------------test func-----------------*/
 static void Test();
-
 
 /*------------------------------test for impl---------------------------------*/
 
@@ -145,12 +143,13 @@ int IsInSape(size_t size_x_axis, size_t size_y_axis, size_t x, size_t y, size_t 
         }
     }
 
-    if (0 != (axis_counter & 1))
+    if (axis_counter & 1)
     {
         ++even_odd_counter;
+        axis_counter = 0;
     }
 
-    for (axis_counter = 0, i = 0;i < y; ++i)
+    for (i = 0;i < y; ++i)
     {
         if ((1 == matrix[i][x]) && (0 == matrix[i + 1][x]))
         {
@@ -158,12 +157,13 @@ int IsInSape(size_t size_x_axis, size_t size_y_axis, size_t x, size_t y, size_t 
         }
     }
 	
- 	if (0 != (axis_counter & 1))
+ 	if (axis_counter & 1)
     {
         ++even_odd_counter;
+        axis_counter = 0;
     }
     
-    for (axis_counter = 0, i = x + 1; i < size_x_axis - 1; ++i)
+    for (i = x + 1; i < size_x_axis - 1; ++i)
     {
         if ((1 == matrix[y][i]) && (0 == matrix[y][i + 1]))
         {
@@ -171,13 +171,14 @@ int IsInSape(size_t size_x_axis, size_t size_y_axis, size_t x, size_t y, size_t 
         }
     }
 
- 	if (0 != (axis_counter & 1))
+ 	if (axis_counter & 1)
     {
         ++even_odd_counter;
+        axis_counter = 0;
     }
 
 
-    for (axis_counter = 0, i = 0;i < x; ++i)
+    for (i = 0;i < x; ++i)
     {
         if ((1 == matrix[y][i]) && (0 == matrix[y][i + 1]))
         {
@@ -185,7 +186,7 @@ int IsInSape(size_t size_x_axis, size_t size_y_axis, size_t x, size_t y, size_t 
         }
     }
 
- 	if (0 != (axis_counter & 1))
+ 	if (axis_counter & 1)
     {
         ++even_odd_counter;
     }
