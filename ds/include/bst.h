@@ -1,4 +1,4 @@
-/* Version 2 - 30.05.2021 15:00 */
+/* Version 3 - 30.05.2021 17:35 */
 
 #ifndef _OL_102_BST_H_
 #define _OL_102_BST_H_
@@ -8,31 +8,11 @@
 typedef struct bst bst_t;
 typedef struct bst_node *bst_iter_t; 
 
-typedef int (*cmp_func_ptr_t)(void *, void *, void *);
-typedef int (*act_tunc_ptr_t)(void *, void *);
-
-/* will be in c file  
-
-typedef struct bst
-{
-    struct bst_node *root;
-    struct bst_node *dummy;
-    int (*cmp_func)(const void *data1,const void *data2);
-};
-
-typedef struct bst_node
-{
-    void *data;
-    struct bst_node *left;
-    struct bst_node *right;
-    struct bst_node *parent;
-/*
-}bst_node_t;
-
-*/
+typedef int (*cmp_func_t)(void *, void *, void *);
+typedef int (*act_func_t)(void *, void *);
 
 /* O(1) */
-bst_t *BstCreate(cmp_func_ptr_t, void *param);
+bst_t *BstCreate(cmp_func_t func, void *param);
 
 /* O(n) - n numbert of nodes in tree */
 void BstDestroy(bst_t *tree);
@@ -71,6 +51,7 @@ void *BstGetData(bst_iter_t iter);
 bst_iter_t BstFind(bst_t *tree, void *data);
 
 /* O(n log n) */
-int BstForEach(bst_iter_t from, bst_iter_t to, act_tunc_ptr_t, void *param);
+int BstForEach(bst_iter_t from, bst_iter_t to, act_func_t func, void *param);
 
 #endif /* _OL_102_BST_H_ */
+
