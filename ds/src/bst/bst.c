@@ -1,8 +1,8 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:done;												*
+ *  Status:Approved;											*
  *  Date Of Creation:29.05.21;									*
  *  Date Of Approval:01.06.21;									*
- *  Approved By: ;												*
+ *  Approved By: Avital Mozes;									*
  *  Description:	binary search tree; nodes are arranged via 	*
  *					cmp function send by the user				*/
 
