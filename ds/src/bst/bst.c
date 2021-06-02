@@ -33,12 +33,12 @@ struct bst
 
 typedef enum left_right
 {
-    ME,
+    FIND,
     LEFT,
-    RIGHT = 2,
+    RIGHT,
     NONE,
     TWO_CHILED,
-    UNSET = -1
+    UNSET
 }direction_t;
 
 /*------------- helper funcs ------------*/
@@ -47,7 +47,7 @@ static int CountIters(void *unuesed, void *param);
 static direction_t SideOfMyChild(bst_iter_t iter);
 static direction_t MySideAsAChild(bst_iter_t iter);
 static bst_iter_t BstFindParentNode(bst_t *tree, void *data, direction_t *side);
-static void ConectNodes(bst_iter_t assignd_to_iter, bst_iter_t iter_to_assignd, direction_t side);
+static void ConectNodes(bst_iter_t receiving, bst_iter_t assigned, direction_t side);
 static void SetIter(bst_iter_t iter, void *data, void *left, void *right, void *parent);
 
 /*------------------------------ implementetion --------------------------------*/
@@ -83,6 +83,7 @@ void BstDestroy(bst_t *tree)
 
     tree->func = NULL;
     tree->param = NULL;
+    SetIter(&(tree->dummy),NULL, NULL, NULL, NULL);
 
     free(tree);
 
@@ -100,7 +101,7 @@ size_t BstSize(const bst_t *tree)
 {
     size_t counter = 0;
 
-    assert(NULL != tree);
+    assert(tree);
 
     BstForEach(BstBegin((bst_t *)tree), BstEnd((bst_t *)tree), CountIters, (void *)&counter);
 
@@ -197,7 +198,7 @@ bst_iter_t BstFind(bst_t *tree, void *data)
 
     iter = BstFindParentNode(tree, data, &side);
     
-    if (ME != side)
+    if (FIND != side)
     {
         iter = BstEnd(tree);
     }
@@ -279,7 +280,7 @@ void BstRemove(bst_iter_t iter)
 
         ConectNodes(iter->parent, iter->right, iter_side_at_parent);
     }
-    else if ((NULL == iter->left))
+    else if (RIGHT == iter_side_of_child)
     {
         iter->right->parent = iter->parent;
         ConectNodes(iter->parent, iter->right, iter_side_at_parent);
@@ -351,15 +352,15 @@ static direction_t SideOfMyChild(bst_iter_t iter)
     return UNSET;
 }
 
-static void ConectNodes(bst_iter_t assignd_to_iter, bst_iter_t iter_to_assignd, direction_t side)
+static void ConectNodes(bst_iter_t receiving, bst_iter_t assigned, direction_t side)
 {
     if (RIGHT == side)
     {
-        assignd_to_iter->right = iter_to_assignd;
+        receiving->right = assigned;
     }
     else
     {
-        assignd_to_iter->left = iter_to_assignd;
+        receiving->left = assigned;
     }
     return;
 }
@@ -403,9 +404,9 @@ static bst_iter_t BstFindParentNode(bst_t *tree, void *data, direction_t *side)
             *side = LEFT;
             cur_iter = cur_iter->left;
         }
-        else if (0 == res)
+        else
         {
-            *side = ME;
+            *side = FIND;
             break;
         }
     }
