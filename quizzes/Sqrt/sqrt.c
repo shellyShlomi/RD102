@@ -1,7 +1,6 @@
 #include <assert.h> /* assert */
-#include <math.h> /* fabs */
 #include <stdio.h>/* printf */
-
+#include <math.h> /* sqrt */
 #define PECISION_NUM (1e-5)
 
 static double Sqrt(double num); 
@@ -23,7 +22,7 @@ static double Sqrt(double num)
     
     assert(0 <= num);
     
-    while(fabs(left - right) > PECISION_NUM) /* check whether the interval is small enough*/
+    while((right - left) > PECISION_NUM) /* check whether the interval is small enough*/
     { 
         mid = (left + right) / 2;
         if (mid * mid <= num)
