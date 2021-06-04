@@ -40,7 +40,6 @@ static void Test()
   	size_t size = sizeof(inputs)/ sizeof(inputs[0]);
    	size_t i = 0;
    	size_t first_loop = 3;
-
     que->read = 0;
     que->size = 0;
 
@@ -50,27 +49,35 @@ static void Test()
 	}
 
     for(i = 0; i < first_loop; ++i)
-    {
+	{
 		if (inputs[i] != PopChar(que))
 		{
 			printf("PopChar & PushChar error at line: %d\n",__LINE__);
 		}
 	}
 	
-	for(i = first_loop; i < size; ++i)
+	for(i = 0; i < first_loop; ++i)
     {
 		 PushChar(que, inputs[i]);
 	}
 	
-	if (first_loop != que->size)
+	if (size != que->size)
 	{
 		printf("PopChar & PushChar error at line: %d\n",__LINE__);
 	}
 
 
- 	for(i = 0; que->size > 0; ++i)
-    {
-		if (inputs[i + 2] != PopChar(que))
+ 	for(i = first_loop; que->size > first_loop; ++i)
+	{
+		if (inputs[i] != PopChar(que))
+		{
+			printf("PopChar & PushChar error at line: %d\n",__LINE__);
+		}
+	}
+
+	for(i = 0; que->size > 0; ++i)
+	{
+		if (inputs[i] != PopChar(que))
 		{
 			printf("PopChar & PushChar error at line: %d\n",__LINE__);
 		}
@@ -108,7 +115,7 @@ char PopChar(cq_t *que)
 	assert(que);
 	assert(que->size > 0);
 	
-	chr = que->queue[que->read % Q_SIZE];
+	chr = que->queue[que->read];
 
 	que->read = (que->read + 1)% Q_SIZE; 
 	--que->size;
