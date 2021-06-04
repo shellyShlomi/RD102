@@ -13,8 +13,8 @@ void *GetMinVal(min_stack_t *stack);
 /*---------------helper func---------------*/
 static min_stack_t *MinStackCreate(size_t capacity);
 static void MinStackDestroy(min_stack_t *stack);
-static int MinStackPush(min_stack_t *stack, void *data);
-static void MinStackPop(min_stack_t *stack);
+static int IntMinStackPush(min_stack_t *stack, void *data);
+static void IntMinStackPop(min_stack_t *stack);
 
 /*---------------test func-----------------*/
 
@@ -47,7 +47,7 @@ static void TestMinStack()
 
     for (i = 0; i < size; ++i)
     {
-       MinStackPush(mstack, (void *)(arr1 + i));
+       IntMinStackPush(mstack, (void *)(arr1 + i));
     }
 
     if (-3 != *(int *)GetMinVal(mstack))
@@ -55,26 +55,26 @@ static void TestMinStack()
         printf("GetMinVal function failed at line: %d\n", __LINE__);
     }
 
-    MinStackPop(mstack);
-    MinStackPop(mstack);
-    MinStackPop(mstack);
-    MinStackPop(mstack);
+    IntMinStackPop(mstack);
+    IntMinStackPop(mstack);
+    IntMinStackPop(mstack);
+    IntMinStackPop(mstack);
 
     if (-2 != *(int *)GetMinVal(mstack))
     {
         printf("GetMinVal function failed at line: %d\n", __LINE__);
     }
 
-    MinStackPop(mstack); 
-    MinStackPop(mstack);
+    IntMinStackPop(mstack); 
+    IntMinStackPop(mstack);
 
     if (2 != *(int *)GetMinVal(mstack))
     {
         printf("GetMinVal function failed at line: %d\n", __LINE__);
     } 
 
-    MinStackPop(mstack); 
-    MinStackPop(mstack);
+    IntMinStackPop(mstack); 
+    IntMinStackPop(mstack);
 
     if (100 != *(int *)GetMinVal(mstack))
     {
@@ -95,7 +95,7 @@ void *GetMinVal(min_stack_t *stack)
 
 /*------------------------------helper functions------------------------------*/
 
-static int MinStackPush(min_stack_t *stack, void *data)
+static int IntMinStackPush(min_stack_t *stack, void *data)
 {
 	assert(stack); 
 	assert(!STACK_IS_FULL(stack->ms_data));
@@ -114,7 +114,7 @@ static int MinStackPush(min_stack_t *stack, void *data)
 	return (EXIT_SUCCESS);
 }
 
-static void MinStackPop(min_stack_t *stack)
+static void IntMinStackPop(min_stack_t *stack)
 {
 	assert(stack); 
 	assert(!StackIsEmpty(stack->ms_data));
