@@ -459,7 +459,9 @@ int FindMissingNum(int arr[], size_t size)
 
 /* qustion 7
  * IsInSape
- * O(n + m) n -> size_x_axis, m -> size_y_axis
+ * comment: based on the assumption that the shape has 
+ * only 1 corner to the internal side of the shape 
+ * O(n + m), n -> size_x_axis, m -> size_y_axis
  */
 #define BOOL_FALSE 0
 #define BOOL_TRUE 1
