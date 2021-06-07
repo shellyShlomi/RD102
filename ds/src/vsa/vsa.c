@@ -8,6 +8,7 @@
 #include <stddef.h> /* size_t */
 #include <assert.h> /* assert */
 #include <stdlib.h> /* labs */
+
 #include "vsa.h" 
 
 struct vsa
@@ -197,7 +198,7 @@ static void *AllocLasy(vsa_t *vsa, size_t n_bytes)
 		chunk_h = NEXT_CHUNK(chunk_h);
 	}
 	/* 
-	 * if we break uot of the loop becuase chunk_h->c_size is > n_bytes
+	 * if we break out of the loop becuase chunk_h->c_size is > n_bytes
 	 * need to test if we can add a new chunk header and not overflow to memory
 	 * out of the bondery 
 	 * END_OF_CHUNK_H - end of chunk header
@@ -215,7 +216,7 @@ static void *AllocLasy(vsa_t *vsa, size_t n_bytes)
 		return (USER_CHUNK_START(chunk_h));
 	}
 	/*if we break uot of the loop becuase chunk_h->c_size is == n_bytes*/
-	else if (chunk_h->c_size == local_n_bytes)
+	if (chunk_h->c_size == local_n_bytes)
 	{
 		chunk_h->c_size = -(chunk_h->c_size);
 		
