@@ -1,52 +1,61 @@
 
-TARGET = $(notdir ${PWD})
 
-SRC = .
-BIN = ../../bin
-INC = ../../include
-OBJ = ../../obj/$(TARGET)
-LIB = ../../lib
+SUBDIRS := $(wildcard */.)
 
-TEST = ../../test
+LIB = /home/shelly/git/ds/lib
 
+INC = ../include
+
+OBJ = ../obj
 CC = gcc
-#gd flags
-CFLAGS = -ansi -pedantic-errors -Wall -Wextra -g -I$(INC)
+CFLAGS = -ansi -pedantic-errors -Wall -Wextra -g -I$(INC) 
+RELEASE_FLAGS =  -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
 
-SOURCE = $(wildcard $(SRC)/*.c $(TEST)/$(TARGET)*.c)
-OBJECT = $(patsubst %,$(OBJ)/%, $(notdir $(SOURCE:.c=.o)))
+#----------------shared object flags------------------#
+SOFLAG_FIRST = SS-fpic 
+SOFLAG_SECOND = -shared 
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lds
+#----------------------------------------------------#
 
 
-$(BIN)/$(TARGET) : $(OBJECT) 
-	$(CC) $(CFLAGS) -o $@ $^
 
-$(OBJ)/%.o : $(SRC)/%.c 
-	$(CC) $(CFLAGS) -c $< -o $@
+.PHONY:
 
-$(OBJ)/%.o : $(TEST)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJECT): |$(OBJ)
+libds:
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -maxdepth 1 -type f -regex ".*\.o")  -o $(LIB)/libds.so
 
-$(OBJ):
-	mkdir -p $@ 
-.PHONY: help run clean tree release dir
-dir:
-	@mkdir -p $(OBJ)
-archive:
-	$(AR) r $(LIB)/$(TARGET).a $(OBJECT)
-tree:
-	@tree ../../
 
-release: CFLAGS=-WALL -ansi -pedantic-errors -WALL -Wextra -DNDEBUG -o3
-run:
-	./$(BIN)/$(TARGET)
+exdb:
+	@make -f ./.make/Makefile1
+
+test:
+	@make -f ./.make/Makefile2
+
+so:
+	@make -f ./.make/Makefile
+
+releaseb:
+	@make -f ./.make/makefile3
+	@make -f ./.make/Makefile3
+	@make -f ./.make/makefile
+
+releaseso:
+	@make -f ./.make/makefile3
+	@make -f ./.make/Makefile
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -maxdepth 1 -type f -regex ".*\.o")  -o $(LIB)/libds.so
+	@make -f ./.make/makefile
+
+
 clean:
-	rm -f $(OBJECT) $(BIN)/$(TARGET)
-
-help:
-	@echo "src: $(SOURCE)"
-	@echo "obj: $(OBJECT)"
-	@echo "exe: $(BIN)"
+	@make -f ./.make/clean
 	
-	@echo "test: $(TEST)/$(TARGET)"
+
+cheng:
+	@make -f ./.make/makefile
+
+
+#all:
+#	@make so
+#	$(CC) $(CFLAGS) $(RELEASE_FLAGS) $(shell find $(OBJ)_rel/*/. -maxdepth 1 -type f -regex ".*\.o")  -o $(LIB)/libds_rel.so
+#	@make -f ./.make/makefile3

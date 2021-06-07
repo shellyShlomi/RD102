@@ -1,52 +1,63 @@
 
-TARGET = $(notdir ${PWD})
+TARGET = $(notdir $(shell pwd))
+SHAREDLIB = lib$(notdir $(shell pwd)).so
+TEST_TARGET = $(TARGET)_test
 
 SRC = .
-BIN = ../../bin
 INC = ../../include
-OBJ = ../../obj/$(TARGET)
-LIB = ../../lib
-
+BIN = ../../bin
+LIB = /home/shelly/git/ds/lib
 TEST = ../../test
 
+OBJ = ../../obj
 CC = gcc
-#gd flags
-CFLAGS = -ansi -pedantic-errors -Wall -Wextra -g -I$(INC)
+CFLAGS =  -ansi -pedantic-errors -Wall -Wextra -g -I$(INC) 
+RELEASE_FLAGS =  -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
 
-SOURCE = $(wildcard $(SRC)/*.c $(TEST)/$(TARGET)*.c)
-OBJECT = $(patsubst %,$(OBJ)/%, $(notdir $(SOURCE:.c=.o)))
+OBJECTS = $(OBJ)/$(TARGET)/$(TARGET).o 
+TEST_OBJECTS = $(OBJ)/$(TARGET)/$(TEST_TARGET).o 
+
+#--------------source & test sourec files-------------#
+TEST_SOURCE = $(TEST)/$(TEST_TARGET).c
+SOURCE = $(SRC)/$(TARGET).c 
+
+#----------------shared object flags------------------#
+SOFLAG_FIRST = -c -fpic 
+SOFLAG_SECOND = -shared -o
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lds
+#----------------------------------------------------#
 
 
-$(BIN)/$(TARGET) : $(OBJECT) 
-	$(CC) $(CFLAGS) -o $@ $^
+$(OBJECTS): $(SOURCE) $(INC)/$(TARGET).h
+	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $< -o $@
 
-$(OBJ)/%.o : $(SRC)/%.c 
-	$(CC) $(CFLAGS) -c $< -o $@
+$(LIB)/$(SHAREDLIB): $(OBJECTS) $(SOURCE) 
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $^ -o $@
 
-$(OBJ)/%.o : $(TEST)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(OBJECT): |$(OBJ)
-
-$(OBJ):
-	mkdir -p $@ 
-.PHONY: help run clean tree release dir
-dir:
-	@mkdir -p $(OBJ)
-archive:
-	$(AR) rv $(LIB)/$(TARGET).a $(OBJECT)
-tree:
-	@tree ../../
-
-release: CFLAGS=-WALL -ansi -pedantic-errors -WALL -Wextra -DNDEBUG -o3
-run:
-	./$(BIN)/$(TARGET)
-clean:
-	rm -f $(OBJECT) $(BIN)/$(TARGET)
-
-help:
-	@echo "src: $(SOURCE)"
-	@echo "obj: $(OBJECT)"
-	@echo "exe: $(BIN)"
+$(BIN)/$(TARGET): $(TEST_SOURCE) $(LIB)/libds.so
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ 
 	
-	@echo "test: $(TEST)/$(TARGET)"
+$(TEST_OBJECTS).o: $(TEST_SOURCE) $(INC)/$(TARGET).h
+		$(CC) $(CFLAGS) $< -c -o $(OBJ)/$(TARGET)/$@
+		
+
+.PHONY : build test so clean release
+
+build:
+	@mkdir -p $(OBJ)/$(TARGET)  
+	@make $(BIN)/$(TARGET)
+
+test:
+	@./$(BIN)/$(TARGET)
+
+release:
+	CFLAGS = $(RELEASE_FLAGS)
+
+
+so:
+	@mkdir -p $(OBJ)/$(TARGET)  
+	@make $(LIB)/$(SHAREDLIB)
+
+clean :
+	rm -f -r $(OBJECTS) $(BIN)/$(TARGET) $(LIB)/$(SHAREDLIB) $(OBJ)/$(TARGET) $(LIB)/libds.so 
+
