@@ -1,19 +1,16 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:;        											*
+ *  Status: Approved;        									*
  *  Date Of Creation:09.06.21;									*
- *  Date Of Approval:--.06.21;									*
- *  Approved By:                                           		*
+ *  Date Of Approval:10.06.21;									*
+ *  Approved By: ohad                                      		*
  *  Description: Recurtion;			                    		*/
 
 #include <stddef.h> /* size_t */
 #include <assert.h>
 
 #include "recursion.h"
-#define MAX(a, b) ((a) < (b) ? (b) : (a))
-#define MIN(a, b) ((a) > (b) ? (b) : (a))
 
 static void StackInsert(stack_t *stack, int *num);
-
 
 struct node
 {
@@ -43,14 +40,12 @@ int IterativeFibonacci(int element_index)
     
     assert(element_index >= 0);
     
-    --element_index;
-
-    if (0 >= element_index)
+    if (0 == element_index)
     {
-        return element_index + 1;
+        return element_index;
     }
 
-    while (0 < element_index)
+    while (1 < element_index)
     {
         res = res + prev;
         prev = res - prev;
@@ -62,11 +57,11 @@ int IterativeFibonacci(int element_index)
 
 node_t *FlipList(node_t *node)
 {
-    node_t *to_be_head = {NULL};
+    node_t *to_be_head = NULL;
 
     assert(node);
 
-    if (!(node) || !(node->next))
+    if (!(node->next))
     {
         return (node);
     }
@@ -90,7 +85,7 @@ size_t StrLen(const char *s)
         return (0);
     }
 
-    return (StrLen(++s) + 1);
+    return (StrLen(s + 1) + 1);
 }
 
 
@@ -112,14 +107,14 @@ char *StrCpy(char *dest, const char *src)
     assert(src);
     assert(dest);
     
+    *dest = *src;
+
     if (*src == '\0')
     {
-        *dest = '\0';
         return (dest);
     }
 
-    *dest = *src;
-    StrCpy((dest + 1), ++src);
+    StrCpy((dest + 1), (src + 1));
 
     return (dest);
 }
@@ -150,6 +145,9 @@ char *StrCat(char *dest, const char *src)
 
 char *StrStr(const char *haystack, const char *needle)
 {
+    assert(haystack);
+    assert(needle);
+    
     if ('\0' == *needle)
     {
         return ((char *)haystack);
@@ -162,7 +160,6 @@ char *StrStr(const char *haystack, const char *needle)
 
     if ((*haystack == *needle) && (haystack + 1) == (StrStr(haystack + 1, needle + 1)))
     {
-
         return ((char *)haystack);
     }
 
