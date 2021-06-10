@@ -64,9 +64,9 @@ node_t *FlipList(node_t *node)
 {
     node_t *to_be_head = {NULL};
 
-    assert(node->next);
+    assert(node);
 
-    if (!(node->next) || !(node->next->next))
+    if (!(node) || !(node->next))
     {
         return (node);
     }
@@ -76,7 +76,7 @@ node_t *FlipList(node_t *node)
     node->next->next = node;
     node->next = NULL;
 
-    return (to_be_head->next);
+    return (to_be_head);
 }
 
 
@@ -99,7 +99,7 @@ int StrCmp(const char *s1, const char *s2)
     assert(s1);
     assert(s2);
 
-    if ((*s2 != *s1) || (*s2 != '\0'))
+    if ((*s2 != *s1) || (*s2 == '\0'))
     {
         return (*s1 - *s2);
     }

@@ -110,7 +110,8 @@ static void TestFlip()
     node_3.next = &node_4;
     node_4.next = NULL;
 
-    if (FlipList(head) != head)
+    head = FlipList(head) ;
+    if (head != &node_4)
     {
         printf("FlipList failed at line %d\n", __LINE__);
     }
