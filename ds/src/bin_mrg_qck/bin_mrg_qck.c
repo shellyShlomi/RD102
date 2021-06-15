@@ -14,8 +14,6 @@
 
 typedef int (*compar_t)(const void *, const void *);
 
-/* vers_2
-static int HelperRecBinSearch(int *arr_to_srch, long int left, long int rigth, int num, size_t *output_idx); */
 static int Merge(int *arr_to_sort, size_t left, size_t mid, size_t right);
 static int FindLefAndRitghMergeSort(int *arr_to_sort, size_t left, size_t right);
 
