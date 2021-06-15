@@ -1,8 +1,8 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:;				        							*
+ *  Status:Approved;				        					*
  *  Date Of Creation:13.06.21;									*
  *  Date Of Approval:15.06.21;									*
- *  Approved By:  ;	            								*
+ *  Approved By: Getta;	            							*
  *  Description: Recursive Merge Sort & Quick Sort &            *
  *   binary search (both recutsive and iterativ)                */
 
@@ -16,7 +16,7 @@ typedef int (*compar_t)(const void *, const void *);
 
 /* vers_2
 static int HelperRecBinSearch(int *arr_to_srch, long int left, long int rigth, int num, size_t *output_idx); */
-static int HelperMergeSort(int *arr_to_sort, size_t left, size_t mid, size_t right);
+static int Merge(int *arr_to_sort, size_t left, size_t mid, size_t right);
 static int FindLefAndRitghMergeSort(int *arr_to_sort, size_t left, size_t right);
 
 static void HelperQuickSort(void *arr, long int low, long int high, size_t element_size, compar_t compar);
@@ -55,50 +55,18 @@ int IterBinSearch(int *arr_to_srch, size_t arr_size, int num, size_t *output_idx
     return (1);
 }
 
-/* vers 2
-int RecBinSearch(int *arr_to_srch, size_t arr_size, int num, size_t *output_idx)
-{
-    assert(arr_to_srch);
-    assert(output_idx);
 
-    return (HelperRecBinSearch(arr_to_srch, 0, arr_size - 1, num, output_idx));
-}
-
-int HelperRecBinSearch(int *arr_to_srch, long int left, long int rigth, int num, size_t *output_idx)
-{
-    size_t mid = (rigth + left) / 2;
-
-    if (rigth < left)qsort result: 0.000462
-My result 0.002775
-
-
-
-    if (arr_to_srch[mid] < num)
-    {
-        return (HelperRecBinSearch(arr_to_srch, mid + 1, rigth, num, output_idx));
-    }
-    else if (arr_to_srch[mid] > num)
-    {
-        return (HelperRecBinSearch(arr_to_srch, left, mid - 1, num, output_idx));
-    }
-    else
-    {
-        *output_idx = mid;
-        return (0);
-    }
-}
-*/
 
 int RecBinSearch(int *arr_to_srch, size_t arr_size, int num, size_t *output_idx)
 {
     int status = -1;
     size_t mid = (arr_size) / 2;
-    size_t even_odd = 0;
+    int is_odd = 0;
 
     assert(arr_to_srch);
     assert(output_idx);
 
-    even_odd = (arr_size & 1);
+    is_odd = (arr_size & 1);
 
     if (arr_to_srch[mid] == num)
     {
@@ -115,7 +83,7 @@ int RecBinSearch(int *arr_to_srch, size_t arr_size, int num, size_t *output_idx)
     }
     if (arr_to_srch[mid] < num)
     {
-        status = RecBinSearch(arr_to_srch + mid, mid + even_odd, num, output_idx);
+        status = RecBinSearch(arr_to_srch + mid, mid + is_odd, num, output_idx);
         *output_idx += mid;
     }
 
@@ -139,13 +107,13 @@ static int FindLefAndRitghMergeSort(int *arr_to_sort, size_t left, size_t right)
         mid = (right + left) / 2;
         FindLefAndRitghMergeSort(arr_to_sort, left, mid);
         FindLefAndRitghMergeSort(arr_to_sort, mid + 1, right);
-        status = HelperMergeSort(arr_to_sort, left, mid, right);
+        status = Merge(arr_to_sort, left, mid, right);
     }
 
     return (status);
 }
 
-static int HelperMergeSort(int *arr_to_sort, size_t left, size_t mid, size_t right)
+static int Merge(int *arr_to_sort, size_t left, size_t mid, size_t right)
 {
     size_t j = mid + 1;
     size_t i = left;
@@ -249,6 +217,8 @@ static void Swap(void *elem1, void *elem2, size_t element_size)
     char temp = '\0';
 
     assert(element_size > 0);
+    assert(elem1);
+    assert(elem2);
 
     while (0 < element_size)
     {
@@ -262,3 +232,40 @@ static void Swap(void *elem1, void *elem2, size_t element_size)
 
     return;
 }
+
+
+/* vers_2
+static int HelperRecBinSearch(int *arr_to_srch, long int left, long int rigth, int num, size_t *output_idx); */
+/* vers 2
+int RecBinSearch(int *arr_to_srch, size_t arr_size, int num, size_t *output_idx)
+{
+    assert(arr_to_srch);
+    assert(output_idx);
+
+    return (HelperRecBinSearch(arr_to_srch, 0, arr_size - 1, num, output_idx));
+}
+
+int HelperRecBinSearch(int *arr_to_srch, long int left, long int rigth, int num, size_t *output_idx)
+{
+    size_t mid = (rigth + left) / 2;
+
+    if (rigth < left)qsort result: 0.000462
+My result 0.002775
+
+
+
+    if (arr_to_srch[mid] < num)
+    {
+        return (HelperRecBinSearch(arr_to_srch, mid + 1, rigth, num, output_idx));
+    }
+    else if (arr_to_srch[mid] > num)
+    {
+        return (HelperRecBinSearch(arr_to_srch, left, mid - 1, num, output_idx));
+    }
+    else
+    {
+        *output_idx = mid;
+        return (0);
+    }
+}
+*/

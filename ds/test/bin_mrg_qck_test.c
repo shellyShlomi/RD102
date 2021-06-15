@@ -5,7 +5,7 @@
 
 #include "bin_mrg_qck.h"
 
-#define SIZE (200)
+#define SIZE (1000000)
 #define RANGE_RANDOM (5000)
 #define RANGE_NEGATIV (30)
 #define BITS_TO_CHECK 32
