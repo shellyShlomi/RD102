@@ -1,7 +1,18 @@
-#ifndef _OL_102_FSM_H_
-#define _OL_102_FSM_H_
+#ifndef __OL_102_CALCULATOR_H__
+#define __OL_102_CALCULATOR_H__
 
-int Calculate(const char *expression, double *result);
+typedef enum calc_status
+{
+    SUCCESS,
+    INVALID_EQUETION, /* syntax error */
+    MATH_ERROR, /* division by 0, 0 ^ 0 */
+    SYSTEM_FAIL /* inner program failure */
+}calc_status_t;
+
+calc_status_t Calculate(const char *expression, double *result);
+
+#endif /* __OL_102_CALCULATOR_H__ */
 
 
-#endif /* _OL_102_FSM_H_ */
+
+

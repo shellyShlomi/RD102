@@ -1,324 +1,596 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:;											        *
+ *  Status:done											        *
  *  Date Of Creation:05.06.21;									*
  *  Date Of Approval:--.06.21;									*
  *  Approved By: ;							    	            *
  *  Description:	calulator with moduls of: addition,         * 
  *                  subtraction, multiplication, division       *	
- *					multiplication, division			        */
+ *					power                                       */
 
-#include <stdlib.h> /*EXIT_SUCCESS*/
-#include <assert.h>
-#include <string.h> /*strlen*/
+#include <stdlib.h> /* strtod */
+#include <assert.h> /* assert */
+#include <string.h> /* strlen */
+#include <math.h>   /* pow */
 
 #include "calculator.h"
 #include "stack.h"
 
-#define OPERATION_FUNC_SIZE 256
-#define STATE_ARR_SIZE 3
-#define RETURN_VAL 2
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) ((void)(x))
+
+#define STATE (3)
+#define EVENTS (256)
+#define OPERATORS (8)
+
+#define PEEK_OPER(X) ((operators_t)StackPeek((X)))
+#define STACK_SIZE(X) (StackSize((X)))
+
+/* wait_for_digit state define */
+#define TO_ERROER_STATE                    \
+    {                                      \
+        (ERROR_STATE), (PromoteExpression) \
+    }
+#define STAY_AT_DIGIT                         \
+    {                                         \
+        (WAIT_FOR_DIGIT), (PromoteExpression) \
+    }
+#define PUSH_DIGIT_AND_TO_OPERATOR       \
+    {                                    \
+        (WAIT_FOR_OPERATOR), (PushDigit) \
+    }
+#define STAY_AND_PUSHMINUS            \
+    {                                 \
+        (WAIT_FOR_DIGIT), (PushMinus) \
+    }
+#define STAY_AND_PUSHPARANTHESES     \
+    {                                \
+        (WAIT_FOR_DIGIT), (PushPara) \
+    }
+
+/* wait_for_operator state define */
+#define STAY_AT_OPERATOR                         \
+    {                                            \
+        (WAIT_FOR_OPERATOR), (PromoteExpression) \
+    }
+#define TO_DIGIT_PUSHMULTIPLY                 \
+    {                                         \
+        (WAIT_FOR_DIGIT), (PushStackMultiply) \
+    }
+#define STAY_AND_CALC_PARANTHESES       \
+    {                                   \
+        (WAIT_FOR_OPERATOR), (CalcPara) \
+    }
+#define TO_DIGIT_ACTIVATEOPERATOR               \
+    {                                           \
+        (WAIT_FOR_DIGIT), (ActivateCalculation) \
+    }
 
 typedef struct state state_t;
 typedef struct calculator calculator_t;
-typedef struct lut_state lut_state_t;
+typedef calc_status_t (*check_math_func_t)(double, double);
+typedef int (*aritmethic_action_func_t)(calculator_t *);
+typedef calc_status_t (*check_active_state_t)(calculator_t *, calc_status_t, double *);
 
-typedef enum calc_state 
+/* enum of state */
+typedef enum calc_state
 {
     WAIT_FOR_DIGIT,
     WAIT_FOR_OPERATOR,
     ERROR_STATE
-}calc_state_t;
+} calc_state_t;
 
-typedef enum return_val_user 
+/* enum of operations */
+typedef enum operations
 {
-    ERROR
-}return_val_user_t;
+    DONTDO,
+    PLUS,
+    MINUS,
+    MULTIPLY,
+    DIVISION,
+    POWER,
+    OPEN_PARANTHESES,
+    CLOSE_PARANTHESES
 
-struct lut_state 
-{
-    calc_state_t state;
-    int (*OperFunc)(calc_state_t **next_state, calculator_t *calc);
+} operators_t;
 
-};
-
+/* the struct state */
 struct state
 {
     calc_state_t state;
-    lut_state_t (*operation_state_lut)[OPERATION_FUNC_SIZE];
+    aritmethic_action_func_t oper_func;
 };
 
+/* the struct state */
 struct calculator
 {
-    stack_t *operators_stack;
+    stack_t *oper_stack;
     stack_t *digit_stack;
-    char *expr;
-    char **end_ptr_expr;
-    state_t *active_state;
-    state_t (*states)[STATE_ARR_SIZE];
+    calc_state_t active_state;
+    char *exp;
 };
 
-/*-------------------------------------------------init Calculate--------------------------------------------------------------*/
+/*---------------------------------------------------calculation Manegement Functions----------------------------------------------------*/
 
-static calculator_t *Init(char *expression);
+static int InitCalculator(calculator_t *calc, char *expression);
+static operators_t OperatorToEnum(char exp);
+static int CalcAll(calculator_t *calc);
+static void Destroy(calculator_t *calc);
+static int DoCalculation(calculator_t *calc);
+static int PopPara(calculator_t *calc);
 
-/*-------------------------------------------------init states funcs-----------------------------------------------------------*/
-static void InitStatElem(calculator_t *calc);
-static state_t *WaitForOperationInit();
-static state_t *WaitForDigitInit();
-static state_t *ErrorStateInit();
+static calc_status_t InvalidOrMathErrExpression(calculator_t *calc, calc_status_t res, double *result);
+static calc_status_t ValidOrMathErrExpression(calculator_t *calc, calc_status_t res, double *result);
 
-/*-------------------------------------------------operaion funcs--------------------------------------------------------------*/
-static int DigitFunc(calc_state_t **next_state, calculator_t *calc);
-static int ErrStaet(calc_state_t **next_state, calculator_t *calc);
-static int DoNothing(calc_state_t **next_state, calculator_t *calc);
-static int DigitBracket(calc_state_t **next_state, calculator_t *calc);
+static calc_status_t DontCheck(double first, double second);
+static calc_status_t PowerCheck(double first, double second);
+static calc_status_t DevisionCheck(double first, double second);
 
-/*---------------------------------------------------imple funcs---------------------------------------------------------------*/
+/*-------------------------------------------------------State Operation Functions-------------------------------------------------------*/
+static int PushMinus(calculator_t *calc);
+static int PushPara(calculator_t *calc);
+static int PushStackMultiply(calculator_t *calc);
+static int CalcPara(calculator_t *calc);
+static int ActivateCalculation(calculator_t *calc);
+static int PromoteExpression(calculator_t *calc);
+static int PushDigit(calculator_t *calc);
 
+/*-----------------------------------------------------Aritmethic Action Funcions-------------------------------------------------------*/
 
-double Calculate(const char *expression, double *result)
+static double Addtion(double first, double second);
+static double Subtraction(double first, double second);
+static double Multiplication(double first, double second);
+static double Division(double first, double second);
+static double Power(double first, double second);
+static double DoNothing(double first, double second);
+
+/*--------------------------------------------------------------STATE LUT---------------------------------------------------------------*/
+
+static state_t lut_state[STATE][EVENTS] = {
+
+    /* wait_for_digit state lut */
+    {TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, STAY_AT_DIGIT,
+     STAY_AT_DIGIT, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, STAY_AT_DIGIT, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     STAY_AND_PUSHPARANTHESES, TO_ERROER_STATE, TO_ERROER_STATE, PUSH_DIGIT_AND_TO_OPERATOR, TO_ERROER_STATE, STAY_AND_PUSHMINUS, PUSH_DIGIT_AND_TO_OPERATOR, TO_ERROER_STATE, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR,
+     PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE},
+
+    /* wait_for_operator state lut */
+    {TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, STAY_AT_OPERATOR,
+     STAY_AT_OPERATOR, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, STAY_AT_OPERATOR, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_DIGIT_PUSHMULTIPLY, STAY_AND_CALC_PARANTHESES, TO_DIGIT_ACTIVATEOPERATOR, TO_DIGIT_ACTIVATEOPERATOR, TO_ERROER_STATE, TO_DIGIT_ACTIVATEOPERATOR, TO_ERROER_STATE, TO_DIGIT_ACTIVATEOPERATOR, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_DIGIT_ACTIVATEOPERATOR, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_DIGIT_ACTIVATEOPERATOR, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
+     TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE},
+
+};
+
+/* priority_lut binary lut */
+static int priority_lut[OPERATORS][OPERATORS] = {
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 1, 1, 0, 0, 0, 0, 0},
+    {0, 1, 1, 0, 0, 0, 0, 0},
+    {0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0}};
+/*  dontdo, plus, minus, multiply, division, power, open_parantheses, close_parantheses */
+/*  dontdo, 
+    plus,  
+    minus, 
+    multiply, 
+    division, 
+    power, 
+    open_parantheses, 
+    close_parantheses */
+
+static int math_err[OPERATORS] = {0, 0, 0, 0, 1, 2, 0, 0};
+
+static double (*lut_operator[OPERATORS])(double first, double second) =
+    {DoNothing, Addtion, Subtraction, Multiplication, Division, Power};
+
+static size_t parantheses_lut[OPERATORS] = {0, 0, 0, 0, 0, 0, 1, 0};
+
+/* convert operator to enum function */
+static operators_t OperatorToEnum(char exp)
 {
-    calculator_t *calc = NULL;
-    int res = 0;
-    char *event = (char *)expression;
-    calc_state_t *next_state = NULL;
-    
+    static operators_t lut_operation[EVENTS] =
+        {
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            OPEN_PARANTHESES, CLOSE_PARANTHESES, MULTIPLY, PLUS, DONTDO, MINUS, DONTDO, DIVISION, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, POWER, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO,
+            DONTDO, DONTDO, DONTDO, DONTDO, DONTDO, DONTDO};
+
+    return (lut_operation[(operators_t)exp]);
+}
+
+/*-----------------------------------------------------------------imple funcs----------------------------------------------------------------------*/
+
+calc_status_t Calculate(const char *expression, double *result)
+{
+    check_active_state_t check_active_state[] = {
+        InvalidOrMathErrExpression,
+        ValidOrMathErrExpression,
+        InvalidOrMathErrExpression};
+    calculator_t calc = {0};
+    calc_status_t status = 0;
+    char *exp = NULL;
+
     assert(expression);
     assert(result);
 
-    calc = Init(event);
-    
-    while ('\0'!= *event && ERROR != res && ERROR_STATE != calc->active_state->state)
+    exp = (char *)expression;
+
+    status = InitCalculator(&calc, exp);
+
+    while (ERROR_STATE != calc.active_state && !status && '\0' != *(exp))
     {
-       res = (calc->active_state->operation_state_lut[(size_t)(*event)]->OperFunc(&next_state, calc));
-       calc->active_state = calc->states[*next_state];
-       ++event;
-    }
-    
-    return (res);
-
-}
-
-static calculator_t *Init(char *expression)
-{
-    static calculator_t *calc = {NULL};
-    size_t exp_len = 0;
-    calc->operators_stack = NULL;
-    calc->digit_stack = NULL;
-
-    assert(expression);
-
-    exp_len = strlen(expression);
-
-    calc->operators_stack = StackCreate(exp_len);
-    if (calc->operators_stack)
-    {
-        return NULL;
+        status = lut_state[calc.active_state][(size_t) * (exp)].oper_func(&calc);
+        calc.active_state = lut_state[calc.active_state][(size_t) * (exp)].state;
+        exp = calc.exp;
     }
 
-    calc->digit_stack = StackCreate(exp_len);
-    if (calc->digit_stack)
-    {
-        calc->operators_stack = NULL;
-        StackDestroy(calc->operators_stack);
-        return NULL;
-    }
-
-    InitStatElem(calc);
-
-    return calc;
+    return (check_active_state[calc.active_state](&calc, status, result));
 }
 
+/*-----------------------------------------------------Calculate helper func and calc management-------------------------------------------------------*/
 
-
-
-static int DigitFunc(calc_state_t **next_state, calculator_t *calc)
+/* return status lut funcs */
+static calc_status_t InvalidOrMathErrExpression(calculator_t *calc, calc_status_t status, double *result)
 {
-    UNUSED(next_state);
-    UNUSED(calc);
-
-    return (EXIT_SUCCESS);
-}
-
-
-static int ErrStaet(calc_state_t **next_state, calculator_t *calc)
-{
-    UNUSED(next_state);
-    UNUSED(calc);
-
-    return (EXIT_SUCCESS);
-
-}
-
-static int DoNothing(calc_state_t **next_state, calculator_t *calc)
-{
-    UNUSED(next_state);
-    UNUSED(calc);
-
-    return (EXIT_SUCCESS);
-}
-
-static int DigitBracket(calc_state_t **next_state, calculator_t *calc)
-{
-    UNUSED(next_state);
-    UNUSED(calc);
-
-    return (EXIT_SUCCESS);
-}
-
-
-
-
-static void InitStatElem(calculator_t *calc)
-{
-    static state_t wait_for_digit = {0};
-    static state_t wait_for_operation = {0};
-    static state_t err_state = {0};
-    
-    wait_for_digit= *(WaitForDigitInit());
-    wait_for_digit.state = WAIT_FOR_DIGIT;
-
-    wait_for_operation = *(WaitForOperationInit());
-    wait_for_operation.state = WAIT_FOR_OPERATOR;
-    
-    err_state = *(ErrorStateInit());
-    err_state.state = ERROR_STATE;
-
+    calc_status_t check_active_state[] = {INVALID_EQUETION, SUCCESS, MATH_ERROR};
 
     assert(calc);
 
-    *(calc->states[WAIT_FOR_DIGIT]) = wait_for_digit;
-    *(calc->states[WAIT_FOR_OPERATOR]) = wait_for_operation;
-    *(calc->states[ERROR_STATE]) = err_state;
+    UNUSED(result);
 
-    (calc->active_state) = calc->states[WAIT_FOR_DIGIT];
+    Destroy(calc);
+
+    return (check_active_state[status]);
+}
+
+static calc_status_t ValidOrMathErrExpression(calculator_t *calc, calc_status_t status, double *result)
+{
+    assert(calc);
+
+    CalcAll(calc);
+    *(void **)result = StackPeek(calc->digit_stack);
+
+    Destroy(calc);
+
+    return (status);
+}
+/*------------------------*/
+
+static int InitCalculator(calculator_t *calc, char *expression)
+{
+    double dummy_digit = 0.0;
+    operators_t dummy_operation = PLUS;
+    size_t size = 0;
+
+    assert(calc);
+
+    size = strlen(expression) + 1;
+    calc->exp = expression;
+
+    calc->oper_stack = StackCreate(size);
+    if (NULL == calc->oper_stack)
+    {
+        return (SYSTEM_FAIL);
+    }
+
+    calc->digit_stack = StackCreate(size);
+    if (NULL == calc->digit_stack)
+    {
+        StackDestroy(calc->oper_stack);
+        calc->oper_stack = NULL;
+        return (SYSTEM_FAIL);
+    }
+
+    calc->active_state = WAIT_FOR_DIGIT;
+
+    StackPush(calc->digit_stack, *(void **)&dummy_digit);
+    StackPush(calc->oper_stack, *(void **)&dummy_operation);
+
+    return (SUCCESS);
+}
+
+static void Destroy(calculator_t *calc)
+{
+    StackDestroy(calc->oper_stack);
+    StackDestroy(calc->digit_stack);
+
+    calc->digit_stack = NULL;
+    calc->oper_stack = NULL;
+    calc->exp = NULL;
 
     return;
 }
 
-static state_t *WaitForOperationInit()
+/*-----------------------------------------------------states lut functions-------------------------------------------------------*/
+
+static int PromoteExpression(calculator_t *calc)
 {
-    static state_t wait_for_oper = {0};
+    assert(calc);
 
-    static const lut_state_t do_nothing = {WAIT_FOR_OPERATOR, DoNothing};
-    static const lut_state_t move_to_err = {ERROR_STATE, ErrStaet};
+    ++calc->exp;
 
-    static lut_state_t wait_for_oper_lut[OPERATION_FUNC_SIZE] = 
-    {
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, do_nothing,
-        do_nothing, do_nothing, do_nothing, do_nothing, do_nothing, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err,
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err,
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err,
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err,
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err,
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err,
-   };
-    wait_for_oper.operation_state_lut = &wait_for_oper_lut;
-
-   return (&wait_for_oper);
-}
-    
-
-static state_t *WaitForDigitInit()
-{
-    static state_t wait_for_digit = {0};
-
-    static const lut_state_t move_to_err = {ERROR_STATE, ErrStaet};
-    static const lut_state_t do_nothing = {WAIT_FOR_DIGIT, DoNothing};
-    static const lut_state_t digit_bracket = {WAIT_FOR_DIGIT, DigitBracket};
-    static const lut_state_t digit_func = {WAIT_FOR_OPERATOR, DigitFunc};
-    
-    static lut_state_t wait_for_digit_lut[OPERATION_FUNC_SIZE] = 
-    {
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, do_nothing, 
-        do_nothing, do_nothing, do_nothing, do_nothing, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, do_nothing, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err,  
-        digit_bracket, digit_bracket, move_to_err, digit_func, move_to_err, digit_func, digit_func, move_to_err, digit_func, digit_func,  
-        digit_func, digit_func, digit_func, digit_func, digit_func, digit_func, digit_func, digit_func, move_to_err, move_to_err,  
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, 
-        move_to_err, move_to_err, move_to_err, move_to_err, move_to_err, move_to_err
-    };
-
-    wait_for_digit.operation_state_lut = &wait_for_digit_lut;
-
-    return (&wait_for_digit);
-
+    return (SUCCESS);
 }
 
-static state_t *ErrorStateInit()
+static int ActivateCalculation(calculator_t *calc)
 {
-    static state_t err_state = {0};
+    operators_t index = DONTDO;
 
-    static const lut_state_t stay_in_err = {ERROR_STATE, DoNothing};
-    
-    static lut_state_t error_state_lut[OPERATION_FUNC_SIZE] = 
+    assert(calc);
+
+    index = OperatorToEnum(*(calc->exp));
+
+    while (1 < STACK_SIZE(calc->oper_stack) &&
+           priority_lut[PEEK_OPER(calc->oper_stack)][index])
     {
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err, stay_in_err,
-            stay_in_err, stay_in_err, stay_in_err
-    };
+        DoCalculation(calc);
+    }
 
-    err_state.operation_state_lut = &error_state_lut;
-    
-    return (&err_state); 
+    StackPush(calc->oper_stack, *(void **)&index);
+
+    ++calc->exp;
+
+    return (SUCCESS);
+}
+
+static int CalcPara(calculator_t *calc)
+{
+    static calc_status_t status[] = {INVALID_EQUETION, SUCCESS};
+    size_t cur_operator = 0;
+
+    assert(calc);
+
+    while (1 < STACK_SIZE(calc->oper_stack) &&
+           OPEN_PARANTHESES != PEEK_OPER(calc->oper_stack))
+    {
+        DoCalculation(calc);
+    }
+
+    cur_operator = parantheses_lut[PEEK_OPER(calc->oper_stack)];
+
+    StackPop(calc->oper_stack);
+
+    ++calc->exp;
+
+    return (status[cur_operator]);
+}
+
+static int PushMinus(calculator_t *calc)
+{
+    static calc_status_t status[] = {SUCCESS, MATH_ERROR};
+    operators_t peek_oper = DONTDO;
+    void *peek_digit = NULL;
+    operators_t multiply = MULTIPLY;
+    double num = -1;
+
+    assert(calc);
+
+    peek_digit = StackPeek(calc->digit_stack);
+    peek_oper = PEEK_OPER(calc->oper_stack);
+
+    StackPush(calc->digit_stack, *(void **)&num);
+    StackPush(calc->oper_stack, *(void **)&multiply);
+
+    ++calc->exp;
+
+    return (status[(!(*(double *)&peek_digit)) & (peek_oper == POWER)]);
+}
+
+static int PushPara(calculator_t *calc)
+{
+    operators_t parantheses = OPEN_PARANTHESES;
+
+    assert(calc);
+
+    StackPush(calc->oper_stack, *(void **)&parantheses);
+
+    ++calc->exp;
+
+    return (SUCCESS);
+}
+
+static int PushStackMultiply(calculator_t *calc)
+{
+    operators_t multiply = MULTIPLY;
+
+    assert(calc);
+
+    while (priority_lut[PEEK_OPER(calc->oper_stack)][multiply])
+    {
+        DoCalculation(calc);
+    }
+
+    StackPush(calc->oper_stack, *(void **)&multiply);
+    PushPara(calc);
+
+    return (SUCCESS);
+}
+
+static int PushDigit(calculator_t *calc)
+{
+    double res = 0.0;
+    char *end = NULL;
+    void *num_in_stack = NULL;
+    operators_t peek_OPER = DONTDO;
+    check_math_func_t check_func[] = {DontCheck, DevisionCheck, PowerCheck};
+
+    assert(calc);
+
+    num_in_stack = StackPeek(calc->digit_stack);
+    peek_OPER = PEEK_OPER(calc->oper_stack);
+
+    res = strtod(calc->exp, &end);
+
+    StackPush(calc->digit_stack, *(void **)&res);
+
+    calc->exp = end;
+
+    return (check_func[math_err[peek_OPER]](res, *(double *)&num_in_stack));
+}
+
+/*---------------------------------------------------math error chack functions-------------------------------------------------------*/
+static calc_status_t DevisionCheck(double first, double second)
+{
+    calc_status_t status[] = {SUCCESS, MATH_ERROR};
+
+    UNUSED(second);
+
+    return (status[!first]);
+}
+static calc_status_t PowerCheck(double first, double second)
+{
+    calc_status_t status[] = {SUCCESS, SUCCESS, MATH_ERROR};
+
+    return (status[!first + !second]);
+}
+
+static calc_status_t DontCheck(double first, double second)
+{
+    UNUSED(second);
+    UNUSED(first);
+
+    return (SUCCESS);
+}
+
+/*---------------------------------------------------Calculation func---------------------------------------------------------*/
+static int DoCalculation(calculator_t *calc)
+{
+    void *first = NULL;
+    void *second = NULL;
+
+    assert(calc);
+
+    second = StackPeek(calc->digit_stack);
+    StackPop(calc->digit_stack);
+
+    first = StackPeek(calc->digit_stack);
+    StackPop(calc->digit_stack);
+
+    *(double *)&first =
+        lut_operator[PEEK_OPER(calc->oper_stack)](*(double *)&first, *(double *)&second);
+
+    StackPush(calc->digit_stack, first);
+    StackPop(calc->oper_stack);
+
+    return (SUCCESS);
+}
+
+static int CalcAll(calculator_t *calc)
+{
+    aritmethic_action_func_t operation_handler[] = {DoCalculation, PopPara};
+
+    assert(calc);
+
+    while (0 < STACK_SIZE(calc->oper_stack)) /*compute the dummy of both stacks 0.0 && PLUS*/
+    {
+        operation_handler[parantheses_lut[PEEK_OPER(calc->oper_stack)]](calc);
+    }
+
+    return (SUCCESS);
+}
+
+static int PopPara(calculator_t *calc)
+{
+    assert(calc);
+
+    StackPop(calc->oper_stack);
+
+    return (SUCCESS);
+}
+
+/*---------------------------------------------------Aritmetics functions-------------------------------------------------------*/
+static double Addtion(double first, double second)
+{
+    return (first + second);
+}
+
+static double Multiplication(double first, double second)
+{
+    return (first * second);
+}
+
+static double Division(double first, double second)
+{
+    return (first / second);
+}
+
+static double Subtraction(double first, double second)
+{
+    return (first - second);
+}
+
+static double Power(double first, double second)
+{
+    return (pow(first, second));
+}
+
+static double DoNothing(double first, double second)
+{
+    UNUSED(first);
+    UNUSED(second);
+
+    return (SUCCESS);
 }
