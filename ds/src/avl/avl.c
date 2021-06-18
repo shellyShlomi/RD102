@@ -186,7 +186,6 @@ int AVLInsert(avl_t *tree, void *data)
     return (0);
 }
 
-
 /* O(log n) */
 void AVLRemove(avl_t *tree, const void *data)
 {
@@ -403,7 +402,8 @@ static void UpDateHeight(avl_node_t *node)
 
     if (HAS_RIGHT_CHILD(node) && HAS_LEFT_CHILD(node))
     {
-        node->height = 1 + MAX(node->children[RIGHT]->height, node->children[LEFT]->height);
+        node->height = 1 +
+                       MAX(node->children[RIGHT]->height, node->children[LEFT]->height);
     }
 
     return;
@@ -458,18 +458,21 @@ static avl_node_t *HandlerRemoveMatch(avl_node_t *node, cmp_func_t func)
     avl_node_t *node_min = NULL;
     void *data = NULL;
     data = node->data;
+        printf("remove : node->data: %p\n", node->data);
 
     if (HAS_RIGHT_CHILD(node))
     {
+
         node_min = GetMinNode(node->children[RIGHT]);
-        memmove(node->data, node_min->data, sizeof(data));
-        node->children[RIGHT] = 
-                        AVLRecRemove(node->children[RIGHT], node->data, func);
+        node->data= node_min->data;
+        node->children[RIGHT] =
+            AVLRecRemove(node->children[RIGHT], node->data, func);
 
         return (node);
     }
     else
     {
+
         child_node = node->children[LEFT];
 
         SetNode(node, NULL, NULL, 0, NULL);
