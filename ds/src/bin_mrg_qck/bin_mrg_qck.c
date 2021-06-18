@@ -11,7 +11,7 @@
 #include <assert.h>/*  assert */
 
 #include "bin_mrg_qck.h"
-
+/*
 typedef int (*compar_t)(const void *, const void *);
 
 static int Merge(int *arr_to_sort, size_t left, size_t mid, size_t right);
@@ -20,7 +20,7 @@ static int FindLefAndRitghMergeSort(int *arr_to_sort, size_t left, size_t right)
 static void HelperQuickSort(void *arr, long int low, long int high, size_t element_size, compar_t compar);
 static size_t PartitionQsort(void *arr, long int low, long int high, size_t element_size, compar_t compar);
 static void Swap(void *elem1, void *elem2, size_t element_size);
-
+*/
 int IterBinSearch(int *arr_to_srch, size_t arr_size, int num, size_t *output_idx)
 {
     long int top = arr_size - 1; /*for arr size 10 the mid is 4 (0-9 indexses) && lower rang val of index*/
@@ -87,7 +87,7 @@ int RecBinSearch(int *arr_to_srch, size_t arr_size, int num, size_t *output_idx)
 
     return (status);
 }
-
+/*
 int MergeSort(int *arr_to_sort, size_t arr_size)
 {
     return (FindLefAndRitghMergeSort(arr_to_sort, 0, arr_size - 1));
@@ -230,7 +230,7 @@ static void Swap(void *elem1, void *elem2, size_t element_size)
 
     return;
 }
-
+*/
 
 /* vers_2
 static int HelperRecBinSearch(int *arr_to_srch, long int left, long int rigth, int num, size_t *output_idx); */

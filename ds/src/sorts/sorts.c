@@ -29,6 +29,15 @@ static size_t GetCount(int arr_val, int param);
 static size_t GetRadixBits(int arr_val, int param);
 static size_t GetRadixDigits(int arr_val, int param);
 
+static int Merge(int *arr_to_sort, size_t left, size_t mid, size_t right);
+static int FindLefAndRitghMergeSort(int *arr_to_sort, size_t left, size_t right);
+static void SwapM(void *elem1, void *elem2, size_t element_size);
+static void HelperQuickSort(void *arr, long int low, long int high,
+                                    size_t element_size, compar_t compar);
+static size_t PartitionQsort(void *arr, long int low, long int high,
+                             size_t element_size, compar_t compar);
+static void HelperQuickSort(void *arr, long int low, long int high,
+                                    size_t element_size, compar_t compar);							 
 /*------------------------------implementetion--------------------------------*/
 
 void InsertionSort(int arr[], size_t size)
@@ -160,6 +169,151 @@ int RadixBitsSort(int arr[], size_t size, size_t n_bits)
 
 	return (EXIT_SUCCESS);
 }
+
+
+int MergeSort(int *arr_to_sort, size_t arr_size)
+{
+    return (FindLefAndRitghMergeSort(arr_to_sort, 0, arr_size - 1));
+}
+
+static int FindLefAndRitghMergeSort(int *arr_to_sort, size_t left, size_t right)
+{
+    size_t mid = 0;
+    int status = -1;
+
+    assert(arr_to_sort);
+
+    if (left < right)
+    {
+        mid = (right + left) / 2;
+        FindLefAndRitghMergeSort(arr_to_sort, left, mid);
+        FindLefAndRitghMergeSort(arr_to_sort, mid + 1, right);
+        status = Merge(arr_to_sort, left, mid, right);
+    }
+
+    return (status);
+}
+
+static int Merge(int *arr_to_sort, size_t left, size_t mid, size_t right)
+{
+    size_t j = mid + 1;
+    size_t i = left;
+    size_t k = 0;
+
+    int *arr = (int *)malloc(sizeof(int) * ((right - left) + 1));
+    assert(arr_to_sort);
+
+    if (!arr)
+    {
+        return (1);
+    }
+
+    while (i <= mid && j <= right)
+    {
+        if (arr_to_sort[i] < arr_to_sort[j])
+        {
+            arr[k] = arr_to_sort[i];
+            ++i;
+            ++k;
+        }
+        else
+        {
+
+            arr[k] = arr_to_sort[j];
+            ++j;
+            ++k;
+        }
+    }
+
+    while (i <= mid)
+    {
+        arr[k] = arr_to_sort[i];
+        ++i;
+        ++k;
+    }
+
+    while (j <= right)
+    {
+        arr[k] = arr_to_sort[j];
+        ++j;
+        ++k;
+    }
+
+    for (i = left, k = 0; i <= right; ++i, ++k)
+    {
+        arr_to_sort[i] = arr[k];
+    }
+
+    free(arr);
+
+    return (0);
+}
+
+void RecQsort(void *base, size_t arr_size, size_t element_size, compar_t compar)
+{
+    HelperQuickSort(base, 0, arr_size - 1, element_size, compar);
+}
+
+static void HelperQuickSort(void *arr, long int low, long int high,
+                                    size_t element_size, compar_t compar)
+{
+    long int pivot = 0;
+    assert(arr);
+
+    if (low < high)
+    {
+        pivot = PartitionQsort(arr, low, high, element_size, compar);
+
+        HelperQuickSort(arr, low, (pivot - 1), element_size, compar);
+        HelperQuickSort(arr, (pivot + 1), high, element_size, compar);
+    }
+}
+
+static size_t PartitionQsort(void *arr, long int low, long int high,
+                             size_t element_size, compar_t compar)
+{
+    long int i = low - 1;
+    assert(arr);
+
+    while (low < high)
+    {
+        if (0 > compar((char *)arr + (low * element_size),
+                       (char *)arr + (high * element_size)))
+        {
+            ++i;
+            SwapM((char *)arr + (i * element_size),
+                 (char *)arr + (low * element_size), element_size);
+        }
+        ++low;
+    }
+
+    SwapM((char *)arr + ((i + 1) * element_size),
+         (char *)arr + (high * element_size), element_size);
+
+    return ((size_t)(i + 1));
+}
+
+static void SwapM(void *elem1, void *elem2, size_t element_size)
+{
+    char temp = '\0';
+
+    assert(element_size > 0);
+    assert(elem1);
+    assert(elem2);
+
+    while (0 < element_size)
+    {
+        temp = *(char *)elem1;
+        *(char *)elem1 = *(char *)elem2;
+        *(char *)elem2 = temp;
+        ++(*(char *)&elem1);
+        ++(*(char *)&elem2);
+        --element_size;
+    }
+
+    return;
+}
+
 
 
 /*------------------------------helper functions------------------------------*/

@@ -76,7 +76,6 @@ size_t StackGetCapacity(const stack_t *stack)
 void StackPush(stack_t *stack, void *data)
 {
 	assert(NULL != stack);
-	assert(NULL != data);
 	assert(stack->capacity != stack->top);
 
 	*(stack->elements + stack->top) = data;

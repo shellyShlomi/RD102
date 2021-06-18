@@ -5,6 +5,7 @@ SUBDIRS := $(wildcard */.)
 LIB = /home/shelly/git/ds/lib
 
 INC = ../include
+BIN = ../bin
 
 OBJ = ../obj
 CC = gcc
@@ -12,47 +13,56 @@ CFLAGS = -ansi -pedantic-errors -Wall -Wextra -g -I$(INC)
 RELEASE_FLAGS =  -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
 
 #----------------shared object flags------------------#
-SOFLAG_FIRST = SS-fpic 
+
 SOFLAG_SECOND = -shared 
 LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lds
 #----------------------------------------------------#
 
 
-
-.PHONY:
-
+.PHONY: libds build_single build test shared_obj_debug release release_single
+		change clean 
 
 libds:
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -maxdepth 1 -type f -regex ".*\.o")  -o $(LIB)/libds.so
+	
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libds.so
 
 
-exdb:
-	@make -f ./.make/Makefile1
+build_single:
+	@make -f ./.make/build_single
+
+build:
+	@make libds
+	@make -f ./.make/build
 
 test:
-	@make -f ./.make/Makefile2
+	@make -f ./.make/run
 
-so:
-	@make -f ./.make/Makefile
+test_release:
 
-releaseb:
-	@make -f ./.make/makefile3
-	@make -f ./.make/Makefile3
-	@make -f ./.make/makefile
+	@make -f ./.make/run_rel
 
-releaseso:
-	@make -f ./.make/makefile3
-	@make -f ./.make/Makefile
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -maxdepth 1 -type f -regex ".*\.o")  -o $(LIB)/libds.so
-	@make -f ./.make/makefile
+shared_obj_debug:
+	@mkdir -p $(OBJ)/tests_for_sorts
+	$(CC) $(CFLAGS) ./tests_for_sorts.c -c -fpic -o $(OBJ)/tests_for_sorts/tests_for_sorts.o 
+	@make -f ./.make/shared_obj
 
+release:
+	@make -f ./.make/releass1
+	@make libds
+	@make -f ./.make/releass2_build
+
+release_so:
+	@make -f ./.make/releass1
+
+change:
+	@make -f ./.make/change
 
 clean:
 	@make -f ./.make/clean
+	@rm -r -f $(LIB)/libds.so
 	
 
-cheng:
-	@make -f ./.make/makefile
+
 
 
 #all:
