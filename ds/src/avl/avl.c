@@ -43,7 +43,7 @@ struct avl
 /*------------- helper funcs ------------*/
 static int Count(void *unuesed, void *param);
 
-static int AVLPostOrderForPrintHeight(avl_node_t *node, act_func_t func, void *param);
+/* static int AVLPostOrderForPrintHeight(avl_node_t *node, act_func_t func, void *param);*/
 
 static void SetNode(avl_node_t *node, avl_node_t *left_child,
                     avl_node_t *right_child, size_t higth, void *data);
@@ -71,14 +71,14 @@ static void UpDateHeight(avl_node_t *node);
 
 static void BalanceTree(avl_node_t *node);
 
-static void AVLDestroyHelp(avl_node_t *node);
+static void AVLRecDestroy(avl_node_t *node);
 
 /*------------- helper lut for ForEach ------------*/
 
 for_each_t order_for_for_each[] = {AVLPreOrder,
                                    AVLInOrder,
-                                   AVLPostOrder,
-                                   AVLPostOrderForPrintHeight};
+                                   AVLPostOrder/*,
+                                   AVLPostOrderForPrintHeight*/};
 
 /*------------------------------ implementetion --------------------------------*/
 
@@ -112,7 +112,7 @@ void AVLDestroy(avl_t *tree)
         return;
     }
 
-    AVLDestroyHelp(tree->root);
+    AVLRecDestroy(tree->root);
     tree->func = NULL;
     tree->root = NULL;
 
@@ -325,20 +325,17 @@ static void SetNode(avl_node_t *node, avl_node_t *left_child,
 }
 
 /* distroy helper */
-static void AVLDestroyHelp(avl_node_t *node)
+static void AVLRecDestroy(avl_node_t *node)
 {
     if (!node)
     {
         return;
     }
 
-    AVLDestroyHelp(node->children[LEFT]);
-    AVLDestroyHelp(node->children[RIGHT]);
+    AVLRecDestroy(node->children[LEFT]);
+    AVLRecDestroy(node->children[RIGHT]);
 
-    node->height = 0;
-    node->children[RIGHT] = NULL;
-    node->children[LEFT] = NULL;
-    node->data = NULL;
+    SetNode(node, NULL, NULL, 0, NULL);
 
     free(node);
     node = NULL;
@@ -350,6 +347,7 @@ static void AVLDestroyHelp(avl_node_t *node)
 static int Count(void *unuesed, void *param)
 {
     (void)unuesed;
+    assert(param);
 
     *(size_t *)param = *(size_t *)param + 1;
 
@@ -361,6 +359,7 @@ static avl_node_t *AVLRecInsert(avl_node_t *node, avl_node_t *node_malloc,
                                 cmp_func_t func)
 {
     assert(func);
+    assert(node_malloc);
 
     if (!node)
     {
@@ -403,7 +402,7 @@ static void UpDateHeight(avl_node_t *node)
     if (HAS_RIGHT_CHILD(node) && HAS_LEFT_CHILD(node))
     {
         node->height = 1 +
-                       MAX(node->children[RIGHT]->height, node->children[LEFT]->height);
+                MAX(node->children[RIGHT]->height, node->children[LEFT]->height);
     }
 
     return;
@@ -456,15 +455,14 @@ static avl_node_t *HandlerRemoveMatch(avl_node_t *node, cmp_func_t func)
 {
     avl_node_t *child_node = NULL;
     avl_node_t *node_min = NULL;
-    void *data = NULL;
-    data = node->data;
-        printf("remove : node->data: %p\n", node->data);
+
+    assert(node);
 
     if (HAS_RIGHT_CHILD(node))
     {
 
         node_min = GetMinNode(node->children[RIGHT]);
-        node->data= node_min->data;
+        node->data = node_min->data;
         node->children[RIGHT] =
             AVLRecRemove(node->children[RIGHT], node->data, func);
 
@@ -521,7 +519,7 @@ static avl_node_t *AVLRecFind(avl_node_t *node, void *data,
 }
 
 /* to test the height of each node */
-static int AVLPostOrderForPrintHeight(avl_node_t *node, act_func_t func, void *param)
+/*static int AVLPostOrderForPrintHeight(avl_node_t *node, act_func_t func, void *param)
 {
     int status = 0;
 
@@ -543,7 +541,7 @@ static int AVLPostOrderForPrintHeight(avl_node_t *node, act_func_t func, void *p
     }
 
     return (func((void *)node->height, (void *)node->data));
-}
+}*/
 
 /* stub */
 static void BalanceTree(avl_node_t *node)
@@ -558,6 +556,8 @@ static int AVLBalancedDiff(avl_node_t *node)
 {
     size_t left_child_height = 0;
     size_t right_child_height = 0;
+
+    assert(node);
 
     if (HAS_RIGHT_CHILD(node))
     {
