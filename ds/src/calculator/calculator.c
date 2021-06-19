@@ -120,9 +120,9 @@ static int PopPara(calculator_t *calc);
 static calc_status_t InvalidOrMathErrExpression(calculator_t *calc, calc_status_t res, double *result);
 static calc_status_t ValidOrMathErrExpression(calculator_t *calc, calc_status_t res, double *result);
 
-static calc_status_t DontCheck(double first, double second);
-static calc_status_t PowerCheck(double first, double second);
-static calc_status_t DevisionCheck(double first, double second);
+static calc_status_t DontCheck(double strtod_res, double num_in_stack);
+static calc_status_t PowerCheck(double strtod_res, double num_in_stack);
+static calc_status_t DevisionCheck(double strtod_res, double num_in_stack);
 
 /*-------------------------------------------------------State Operation Functions-------------------------------------------------------*/
 static int PushMinus(calculator_t *calc);
@@ -151,7 +151,7 @@ static state_t lut_state[STATE][EVENTS] = {
      STAY_AT_DIGIT, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
      TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
      TO_ERROER_STATE, TO_ERROER_STATE, STAY_AT_DIGIT, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
-     STAY_AND_PUSHPARANTHESES, TO_ERROER_STATE, TO_ERROER_STATE, PUSH_DIGIT_AND_TO_OPERATOR, TO_ERROER_STATE, STAY_AND_PUSHMINUS, PUSH_DIGIT_AND_TO_OPERATOR, TO_ERROER_STATE, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR,
+     STAY_AND_PUSHPARANTHESES, TO_ERROER_STATE, TO_ERROER_STATE, STAY_AT_DIGIT, TO_ERROER_STATE, STAY_AND_PUSHMINUS, PUSH_DIGIT_AND_TO_OPERATOR, TO_ERROER_STATE, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR,
      PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, PUSH_DIGIT_AND_TO_OPERATOR, TO_ERROER_STATE, TO_ERROER_STATE,
      TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
      TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE, TO_ERROER_STATE,
@@ -214,7 +214,7 @@ static int priority_lut[OPERATORS][OPERATORS] = {
     {0, 1, 1, 1, 1, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0}};
-/*  dontdo, plus, minus, multiply, division, power, open_parantheses, close_parantheses */
+/*          dontdo, plus, minus, multiply, division, power, open_parantheses, close_parantheses */
 /*  dontdo, 
     plus,  
     minus, 
@@ -295,7 +295,7 @@ calc_status_t Calculate(const char *expression, double *result)
 /* return status lut funcs */
 static calc_status_t InvalidOrMathErrExpression(calculator_t *calc, calc_status_t status, double *result)
 {
-    calc_status_t check_active_state[] = {INVALID_EQUETION, SUCCESS, MATH_ERROR};
+    calc_status_t check_active_state[] = {INVALID_EQUATION, SUCCESS, MATH_ERROR};
 
     assert(calc);
 
@@ -398,7 +398,7 @@ static int ActivateCalculation(calculator_t *calc)
 
 static int CalcPara(calculator_t *calc)
 {
-    static calc_status_t status[] = {INVALID_EQUETION, SUCCESS};
+    static calc_status_t status[] = {INVALID_EQUATION, SUCCESS};
     size_t cur_operator = 0;
 
     assert(calc);
@@ -474,13 +474,13 @@ static int PushDigit(calculator_t *calc)
     double res = 0.0;
     char *end = NULL;
     void *num_in_stack = NULL;
-    operators_t peek_OPER = DONTDO;
+    operators_t peek_oper = DONTDO;
     check_math_func_t check_func[] = {DontCheck, DevisionCheck, PowerCheck};
 
     assert(calc);
 
     num_in_stack = StackPeek(calc->digit_stack);
-    peek_OPER = PEEK_OPER(calc->oper_stack);
+    peek_oper = PEEK_OPER(calc->oper_stack);
 
     res = strtod(calc->exp, &end);
 
@@ -488,29 +488,52 @@ static int PushDigit(calculator_t *calc)
 
     calc->exp = end;
 
-    return (check_func[math_err[peek_OPER]](res, *(double *)&num_in_stack));
+    return (check_func[math_err[peek_oper]](res, *(double *)&num_in_stack));
 }
 
-/*---------------------------------------------------math error chack functions-------------------------------------------------------*/
-static calc_status_t DevisionCheck(double first, double second)
+/*---------------------------------------------------math error check functions-------------------------------------------------------*/
+static calc_status_t DevisionCheck(double strtod_res, double num_in_stack)
 {
     calc_status_t status[] = {SUCCESS, MATH_ERROR};
 
-    UNUSED(second);
+    UNUSED(num_in_stack);
 
-    return (status[!first]);
+    return (status[!strtod_res]);
 }
-static calc_status_t PowerCheck(double first, double second)
+static calc_status_t PowerCheck(double strtod_res, double num_in_stack)
 {
-    calc_status_t status[] = {SUCCESS, SUCCESS, MATH_ERROR};
+    calc_status_t status[] = {SUCCESS, MATH_ERROR};
+    size_t check = 0;
+    int strtod_res_as_int = (int)strtod_res;
+    double is_fracture = (double)strtod_res_as_int / strtod_res;
+    
+    /*NOTE:
+     * The first part of the check expression: (!strtod_res & !num_in_stack)
+     *
+     * checks if both numbers are 0 (0^0).
+     *
+     *  
+     * The second part check expression: 
+     * ((num_in_stack < 0) && ((is_fracture < 1) && (is_fracture >= 0))
+     * 
+     * checks if the number to push into the stack is fracture and we have 
+     * negativ power base (the number allready in the stack)-> (num_in_stack < 0).
+     * the "(double)strtod_res_as_int / strtod_res" compute a value of int / double
+     * if the double has a fractional part, the divition would yield a fracture
+     * between 0 and 1 (where 0 is included)-> ((is_fracture < 1) && (is_fracture >= 0))
+     * (for example: (-2)^ 3.5) 
+     */
 
-    return (status[!first + !second]);
+    check = (((!strtod_res & !num_in_stack) == 1) || 
+            ((num_in_stack < 0) && ((is_fracture < 1) && (is_fracture >= 0))));    
+    
+    return (status[check]);
 }
 
-static calc_status_t DontCheck(double first, double second)
+static calc_status_t DontCheck(double strtod_res, double num_in_stack)
 {
-    UNUSED(second);
-    UNUSED(first);
+    UNUSED(num_in_stack);
+    UNUSED(strtod_res);
 
     return (SUCCESS);
 }
