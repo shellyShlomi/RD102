@@ -19,7 +19,7 @@ static void TestOpenLoop();
 
 /* helper functions */
 static size_t CountElemInList(node_t *head);
-static node_t *PtrLoop(node_t *head);
+static node_t *PtrLoop(node_t const *head);
 
 
 int main()
@@ -257,26 +257,20 @@ int HasLoop(node_t const *head)
 node_t *Flip(node_t *head)
 {
 	node_t *node = head;
-	node_t *next = NULL;
 	node_t *temp = NULL;
+	node_t *next = NULL;
 
-	assert(NULL != head);
-	
-	next = head->next;
-	head->next = NULL;
+	assert(head);
 
-	while(NULL != next->next)
+	while (NULL != node->next)
 	{
-		temp = next->next;
-		next->next = node;
+		next = node->next;
+		node->next = temp;
+		temp = node;
 		node = next;
-		next = temp; 
 	}
-	
-	next->next = node;
-	
-	return (next);
 
+	return (node);
 }
 
 int OpenLoop(const node_t *head)

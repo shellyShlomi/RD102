@@ -7,17 +7,17 @@
 #define SIZE 12
 
 /*---------------impl func-----------------*/
-typedef struct stack_queue stk_queue_t;
-int StackQueueEnqueue(stk_queue_t *queue, void *data);
-void *StackQueueDequeue(stk_queue_t *queue);
+typedef struct stack_queue min_stack_t;
+int StackQueueEnqueue(min_stack_t *queue, void *data);
+void *StackQueueDequeue(min_stack_t *queue);
 
 
 /*---------------helper func---------------*/
-static size_t StackQueueSize(stk_queue_t *queue);
-static void StackQueueFillOut(stk_queue_t *queue);
-static void StackQueueFillEnter(stk_queue_t *queue);
-static stk_queue_t *StackQueueCreate(size_t capacity);
-static void StackQDestroy(stk_queue_t *queue);
+static size_t StackQueueSize(min_stack_t *queue);
+static void StackQueueFillOut(min_stack_t *queue);
+static void StackQueueFillEnter(min_stack_t *queue);
+static min_stack_t *StackQueueCreate(size_t capacity);
+static void StackQDestroy(min_stack_t *queue);
 
 /*---------------test func-----------------*/
 void TestOne();
@@ -44,10 +44,9 @@ int main()
 
 void TestOne()
 {
-	stk_queue_t *queue = StackQueueCreate(SIZE - 2);
+	min_stack_t *queue = StackQueueCreate(SIZE - 2);
 	int arr[SIZE] = {0};
 	size_t arr_size = sizeof(arr) / sizeof(arr[0]);
-	
 	size_t i = 0;
 
 	for (i = 0; i < arr_size; ++i)
@@ -69,20 +68,15 @@ void TestOne()
 		printf("error at line: %d\n", __LINE__);
 	}
 
-	i = 0;
-	if (arr[i] != *((int *)StackQueueDequeue(queue)))
+	for (i = 0; i < SIZE / 3; ++i)
 	{
-		printf("StackQueueDequeue error at line: %d\n", __LINE__);
+		if (arr[i] != *((int *)StackQueueDequeue(queue)))
+		{
+			printf("StackQueueDequeue error at line: %d\n", __LINE__);
+		}
 	}
-	
-	++i;
-	if (arr[i] != *((int *)StackQueueDequeue(queue)))
-	{
-		printf("StackQueueDequeue error at line: %d\n", __LINE__);
-	}
-	
 
-	for (i = SIZE / 2; i < SIZE; ++i)
+	for (i = SIZE / 2; (SIZE - 2) != StackQueueSize(queue); ++i)
 	{
 		if (StackQueueEnqueue(queue, (arr + i)))
 		{
@@ -115,7 +109,7 @@ void TestOne()
 void TestTwo()
 {
 
-	stk_queue_t *queue = StackQueueCreate(SIZE - 2);
+	min_stack_t *queue = StackQueueCreate(SIZE - 2);
 	int arr[SIZE] = {0};
 	size_t arr_size = sizeof(arr) / sizeof(arr[0]);
 	
@@ -180,7 +174,7 @@ void TestTwo()
 }
 /*------------------------------implementetion--------------------------------*/
 
-int StackQueueEnqueue(stk_queue_t *queue, void *data)
+int StackQueueEnqueue(min_stack_t *queue, void *data)
 {
 	assert(queue);
 	
@@ -194,7 +188,7 @@ int StackQueueEnqueue(stk_queue_t *queue, void *data)
 }
 
 
-void *StackQueueDequeue(stk_queue_t *queue)
+void *StackQueueDequeue(min_stack_t *queue)
 {
 	void *data = NULL;
 
@@ -215,13 +209,13 @@ void *StackQueueDequeue(stk_queue_t *queue)
 
 /*------------------------------helper functions------------------------------*/
 
-static stk_queue_t *StackQueueCreate(size_t capacity)
+static min_stack_t *StackQueueCreate(size_t capacity)
 {
-	stk_queue_t *queue = NULL;	
+	min_stack_t *queue = NULL;	
 	stack_t *enter = NULL;
 	stack_t *out = NULL;
 
-	queue = (stk_queue_t *)malloc(sizeof(stk_queue_t));
+	queue = (min_stack_t *)malloc(sizeof(min_stack_t));
 	
 	if (NULL == queue)
 	{
@@ -250,7 +244,7 @@ static stk_queue_t *StackQueueCreate(size_t capacity)
 	return (queue);	
 }
 
-static void StackQDestroy(stk_queue_t *queue)
+static void StackQDestroy(min_stack_t *queue)
 {
 	assert(queue);
 	assert(queue->enter);
@@ -266,7 +260,7 @@ static void StackQDestroy(stk_queue_t *queue)
 }
 
 
-static void StackQueueFillOut(stk_queue_t *queue)
+static void StackQueueFillOut(min_stack_t *queue)
 {
 	assert(queue);
 
@@ -279,7 +273,7 @@ static void StackQueueFillOut(stk_queue_t *queue)
 	return;
 }
 
-static void StackQueueFillEnter(stk_queue_t *queue)
+static void StackQueueFillEnter(min_stack_t *queue)
 {
 	assert(queue);
 
@@ -292,7 +286,7 @@ static void StackQueueFillEnter(stk_queue_t *queue)
 	return;
 }
 
-static size_t StackQueueSize(stk_queue_t *queue)
+static size_t StackQueueSize(min_stack_t *queue)
 {
 	assert(queue);
 	assert(queue->enter);
