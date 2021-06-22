@@ -1,5 +1,5 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:in development;                                      *
+ *  Status:done;                                      *
  *  Date Of Creation:20.06.21;									*
  *  Date Of Approval:--.06.21;									*
  *  Approved By:  ;	            								*
@@ -91,24 +91,6 @@ void HashDestroy(hash_t *hash)
     return;
 }
 
-/* int HashInsert(hash_t *hash, void *key)
-{
-    size_t index = 0;
-
-    assert(hash);
-    assert(hash->func);
-
-    index = hash->func(key);
-
-    if (DLLIsSameIter(DLLPushFront(hash->hash_table[index], key), DLLEnd(hash->hash_table[index])))
-    {
-        return (EXIT_FAILURE);
-    }
-
-    ++hash->size;
-
-    return (EXIT_SUCCESS);
-}  */
 
 int HashInsert(hash_t *hash, void *key)
 {
@@ -141,8 +123,7 @@ void HashRemove(hash_t *hash, const void *key)
     if (!DLLIsSameIter(to_remove, dummy))
     {
         DLLRemove(to_remove);
-/*         --hash->size;
- */    }
+    }
 
     return;
 }
@@ -208,12 +189,6 @@ size_t HashSize(const hash_t *hash)
     return (counter);
 }
 
-/*  size_t HashSize(const hash_t *hash)
-{
-    assert(hash);
-
-    return (hash->size);
-}  */
 
 /*------------------------------helper_function---------------------------------*/
 
