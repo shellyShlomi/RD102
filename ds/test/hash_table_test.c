@@ -10,12 +10,14 @@
 #define INSERT_SIZE 5
 #define DICT_SIZE 102401
 
+#define ASCII_SIZE 256
+#define ESC 27
+
 typedef struct test
 {
     size_t i;
     char **arr;
 } test_t;
-
 
 /*---------------func for API-----------------*/
 /* to test the value in the hash table and comper it to expected value */
@@ -31,7 +33,7 @@ static int CmpArrChar(void *data1, void *data2);
 static char *DictLoad(hash_t *table);
 
 /*---------------Spell Checker-----------------*/
-static int SpellChecker(hash_t *table);
+static void SpellChecker(hash_t *table);
 
 /*---------------test func-----------------*/
 static void Test();
@@ -143,7 +145,6 @@ static void SimpleTest()
 
 static void TestLodeDic()
 {
-    int status = 0;
     hash_t *table = HashCreate(DICT_SIZE, HashFunc, MatchFunc);
     char *str = NULL;
 
@@ -174,11 +175,7 @@ static void TestLodeDic()
         printf("result HashSize after DictLoad: %lu\n", HashSize(table));
     }
 
-    status = SpellChecker(table);
-    if (status)
-    {
-        printf("no such word in the dictionery \n");
-    }
+    SpellChecker(table);
 
     free(str);
     HashDestroy(table);
@@ -194,9 +191,9 @@ static int MatchFunc(const void *str1, const void *str2)
 static int CmpArrChar(void *data1, void *data2)
 {
     char *elem = (((test_t *)data2)->arr[((test_t *)data2)->i]);
-    
+
     ((test_t *)data2)->i += 1;
-    
+
     return (strcmp((char *)data1, elem));
 }
 
@@ -265,16 +262,17 @@ static char *DictLoad(hash_t *table)
 }
 
 /* Spell Checker */
-static int SpellChecker(hash_t *table)
+static void SpellChecker(hash_t *table)
 {
     char buf[50] = {'\0'};
 
-    fgets(buf, SIZE, stdin);
-
-    if (NULL == (char *)HashSearch(table, buf))
+    while (NULL != fgets(buf, SIZE, stdin) && (ESC != *buf))
     {
-        return (1);
+        if (NULL == (char *)HashSearch(table, buf))
+        {
+            printf("no such word in the dictionery \n");
+        }
     }
 
-    return (0);
+    return;
 }

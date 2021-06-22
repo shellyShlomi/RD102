@@ -30,7 +30,6 @@ typedef struct hash_counter
 } hash_counter_t;
 
 static void SetHash(hash_t *hash, size_t capacity, size_t size, hash_func_t func, match_func_t match);
-static int CountElem(void *unuesed, void *param);
 
 hash_t *HashCreate(size_t size, hash_func_t func, match_func_t match)
 {
@@ -79,18 +78,17 @@ void HashDestroy(hash_t *hash)
     {
         DLLDestroy(hash->hash_table[i]);
     }
-
-    hash->size = 0;
+    SetHash(hash, 0, 0, NULL, NULL);
+    /*     hash->size = 0;
     hash->capacity = 0;
     hash->func = NULL;
-    hash->match = NULL;
+    hash->match = NULL; */
 
     free(hash);
     hash = NULL;
 
     return;
 }
-
 
 int HashInsert(hash_t *hash, void *key)
 {
@@ -180,7 +178,7 @@ size_t HashSize(const hash_t *hash)
     size_t i = 0;
 
     assert(hash);
-    
+
     for (i = 0; i < hash->capacity; ++i)
     {
         counter += DLLSize(((hash_t *)hash)->hash_table[i]);
@@ -188,7 +186,6 @@ size_t HashSize(const hash_t *hash)
 
     return (counter);
 }
-
 
 /*------------------------------helper_function---------------------------------*/
 
