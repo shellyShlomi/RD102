@@ -22,7 +22,7 @@ static int Compare(void *data1, void *data2);
 static int CmpArrInts(void *data1, void *data2);
 
 /* static int PrintData(void *data1, void *data2);*/
-/*static int PrintHieght(void *data1, void *data2);*/
+ /*static int PrintHieght(void *data1, void *data2);*/
 /*---------------test func-----------------*/
 
 static void Test();
@@ -298,8 +298,9 @@ static void TestRemove()
     int exp_after_remove1[] = {0, 2, 7, 10, 15, 16, 17, 18, 20, 45, 89};
     int exp_after_remove2[] = {0, 2, 7, 10, 15, 16, 17, 18, 45, 89};
     int exp_after_remove3[] = {2, 7, 10, 15, 16, 17, 18, 45, 89};
+    int exp_after_remove4[] = {2, 7, 10, 15, 16, 18, 45, 89};
 
-    int remove[] = {8, 100, 20, 0, 4};
+    int remove[] = {8, 100, 20, 0, 4, 17};
 
     size_t arr_size = sizeof(arr) / sizeof(int);
 
@@ -313,7 +314,16 @@ static void TestRemove()
         AVLInsert(tree, arr + i);
         ++i;
     }
-    /*     printf("Height , Data\n");
+
+/*  i = 0;
+    while (i < arr_size)
+    {
+        printf("%d \n", *(arr + i));
+
+        ++i;
+    }
+
+    printf("Height , Data\n");
     AVLForEach(tree, PrintHieght, NULL, HIGTH);
     printf("\n");
  */
@@ -362,7 +372,30 @@ static void TestRemove()
         printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
     }
 
-    /*     printf("\n");
+    for_each.arr = exp_after_remove4;
+    for_each.i = 0;
+    ++j;
+    AVLRemove(tree, remove + j);
+    if (0 != AVLForEach(tree, CmpArrInts, (void *)(&for_each), IN_ORDER))
+    {
+        printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
+    }
+
+/*	i = 0;
+    while (i < arr_size)
+    {
+        printf("%d \n", *(arr + i));
+
+        ++i;
+    }
+    
+
+    if (0 != AVLForEach(tree, PrintData, (void *)(&for_each), IN_ORDER))
+    {
+        printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
+    }
+
+	printf("\n");
     AVLForEach(tree, PrintHieght, NULL, HIGTH);
     printf("\n");
  */
@@ -385,8 +418,8 @@ static int CmpArrInts(void *data1, void *data2)
     ((testfe_t *)data2)->i += 1;
     return (*(int *)data1 - elem);
 }
-
-/*static int PrintData(void *data1, void *data2)
+/*
+static int PrintData(void *data1, void *data2)
 {
     UNUSED(data2);
 

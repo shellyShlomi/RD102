@@ -28,6 +28,9 @@ static void TestInsertionSort();
 static void TestCountSort();
 static void TestRadixDigitsSort();
 static void TestRadixBitsSort();
+static void TestMergeSort();
+static void TestRecQsort();
+
 
 int main()
 {
@@ -37,6 +40,8 @@ int main()
 	TestCountSort();
 	TestRadixDigitsSort();
 	TestRadixBitsSort();
+    TestMergeSort();
+    TestRecQsort();
 
 	return 0;
 }
@@ -666,6 +671,214 @@ static void TestRadixBitsSort()
 	return;
 }
 
+static void TestRecQsort()
+{
+	clock_t start_time = 0;
+	clock_t end_time = 0;
+	int *actual = NULL;
+	int *exp = NULL;
+	size_t size = SIZE;
+
+	actual = CreateRandomNegativ(size, RANGE_RANDOM);
+	exp = CopyArr(actual, size);
+
+	start_time = clock();
+	qsort(exp, size, sizeof(int), Compare);
+	end_time = clock();
+
+	printf("\n");
+	printf("------------------------------RecQsort Test--------------------------------\n");
+	printf("\n");
+	printf("Random Array\n\n");
+	
+	printf("qsort result: %f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	start_time = clock();
+	RecQsort(actual, size, sizeof(int), Compare);
+	end_time = clock();
+
+	if (0 == AreSameArr(actual, exp, size))
+	{
+		printf("Test failed at %d\n", __LINE__);
+		printf("----------------------------ACTUAL-------------------------------------\n");
+		PrintArray(actual, size);
+		printf("----------------------------EXP-------------------------------------\n");
+		PrintArray(exp, size);
+	}
+	printf("My result %f\n\n\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	free(actual);
+	free(exp);
+
+	actual = CreateReversSorted(size, RANGE_RANDOM);
+	exp = CopyArr(actual, size);
+
+	start_time = clock();
+	qsort(exp, size, sizeof(int), Compare);
+	end_time = clock();
+	printf("Revers Sorted Array\n\n");
+
+	printf("qsort result: %f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	start_time = clock();
+	RecQsort(actual, size, sizeof(int), Compare);
+	end_time = clock();
+
+	qsort(exp, size, sizeof(int), Compare);
+
+	if (0 == AreSameArr(actual, exp, size))
+	{
+		printf("Test failed at %d\n", __LINE__);
+		printf("----------------------------ACTUAL-------------------------------------\n");
+		PrintArray(actual, size);
+		printf("----------------------------EXP-------------------------------------\n");
+		PrintArray(exp, size);
+	}
+
+	printf("My result %f\n\n\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	free(actual);
+	free(exp);
+
+	actual = CreateSorted(size, RANGE_RANDOM);
+	exp = CopyArr(actual, size);
+
+	start_time = clock();
+	qsort(exp, size, sizeof(int), Compare);
+	end_time = clock();
+	printf("Sorted Array\n\n");
+
+	printf("qsort result: %f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	start_time = clock();
+	RecQsort(actual, size, sizeof(int), Compare);
+
+    end_time = clock();
+
+	qsort(exp, size, sizeof(int), Compare);
+
+	if (0 == AreSameArr(actual, exp, size))
+	{
+		printf("Test failed at %d\n", __LINE__);
+		printf("----------------------------ACTUAL-------------------------------------\n");
+		PrintArray(actual, size);
+		printf("----------------------------EXP-------------------------------------\n");
+		PrintArray(exp, size);
+	}
+
+	printf("My result %f\n\n\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	free(actual);
+	free(exp);
+
+	return;
+}
+
+
+
+
+static void TestMergeSort()
+{
+	clock_t start_time = 0;
+	clock_t end_time = 0;
+	int *actual = NULL;
+	int *exp = NULL;
+	size_t size = SIZE;
+
+	actual = CreateRandomNegativ(size, RANGE_RANDOM);
+	exp = CopyArr(actual, size);
+
+	start_time = clock();
+	qsort(exp, size, sizeof(int), Compare);
+	end_time = clock();
+
+	printf("\n");
+	printf("------------------------------MergeSort Test--------------------------------\n");
+	printf("\n");
+	printf("Random Array\n\n");
+	
+	printf("qsort result: %f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	start_time = clock();
+    MergeSort(actual, size);
+	end_time = clock();
+
+	if (0 == AreSameArr(actual, exp, size))
+	{
+		printf("Test failed at %d\n", __LINE__);
+		printf("----------------------------ACTUAL-------------------------------------\n");
+		PrintArray(actual, size);
+		printf("----------------------------EXP-------------------------------------\n");
+		PrintArray(exp, size);
+	}
+	printf("My result %f\n\n\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	free(actual);
+	free(exp);
+
+	actual = CreateReversSorted(size, RANGE_RANDOM);
+	exp = CopyArr(actual, size);
+
+	start_time = clock();
+	qsort(exp, size, sizeof(int), Compare);
+	end_time = clock();
+	printf("Revers Sorted Array\n\n");
+
+	printf("qsort result: %f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	start_time = clock();
+    MergeSort(actual, size);
+	end_time = clock();
+
+	qsort(exp, size, sizeof(int), Compare);
+
+	if (0 == AreSameArr(actual, exp, size))
+	{
+		printf("Test failed at %d\n", __LINE__);
+		printf("----------------------------ACTUAL-------------------------------------\n");
+		PrintArray(actual, size);
+		printf("----------------------------EXP-------------------------------------\n");
+		PrintArray(exp, size);
+	}
+
+	printf("My result %f\n\n\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	free(actual);
+	free(exp);
+
+	actual = CreateSorted(size, RANGE_RANDOM);
+	exp = CopyArr(actual, size);
+
+	start_time = clock();
+	qsort(exp, size, sizeof(int), Compare);
+	end_time = clock();
+	printf("Sorted Array\n\n");
+
+	printf("qsort result: %f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	start_time = clock();
+    MergeSort(actual, size);
+
+    end_time = clock();
+
+	qsort(exp, size, sizeof(int), Compare);
+
+	if (0 == AreSameArr(actual, exp, size))
+	{
+		printf("Test failed at %d\n", __LINE__);
+		printf("----------------------------ACTUAL-------------------------------------\n");
+		PrintArray(actual, size);
+		printf("----------------------------EXP-------------------------------------\n");
+		PrintArray(exp, size);
+	}
+
+	printf("My result %f\n\n\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
+
+	free(actual);
+	free(exp);
+
+	return;
+}
 /*------------------------------helper functions------------------------------*/
 
 static int Compare(const void *data1, const void *data2)
