@@ -13,7 +13,7 @@
 #define SIZE 10
 typedef struct test
 {
-    size_t i;
+    long int i;
     int *arr;
 } testfe_t;
 /*---------------helper iner func-----------------*/
@@ -21,13 +21,12 @@ typedef struct test
 static int Compare(void *data1, void *data2);
 static int CmpArrInts(void *data1, void *data2);
 
-/* static int PrintData(void *data1, void *data2);*/
- /*static int PrintHieght(void *data1, void *data2);*/
 /*---------------test func-----------------*/
 
 static void Test();
 static void TestAVL();
 static void TestRemove();
+static void TestRemove1();
 
 static void TestInsertAVL();
 static void TestForEachAVL();
@@ -48,7 +47,7 @@ static void Test()
     TestForEachAndFindAVL();
     TestAVLHeight();
     TestRemove();
-
+    TestRemove1();
     return;
 }
 
@@ -111,8 +110,8 @@ static void TestForEachAVL()
     avl_t *tree = AVLCreate(Compare);
     int arr[] = {10, 8, 15, 17, 16, 7, 2};
     int exp_in_order[] = {2, 7, 8, 10, 15, 16, 17};
-    int exp_post_order[] = {2, 7, 8, 16, 17, 15, 10};
-    int exp_pre_order[] = {10, 8, 7, 2, 15, 17, 16};
+    int exp_pre_order[] = {10, 7, 2, 8, 16, 15, 17};
+    int exp_post_order[] = {2, 8, 7, 15, 17, 16, 10};
 
     size_t size = sizeof(arr) / sizeof(int);
     size_t i = 0;
@@ -138,6 +137,7 @@ static void TestForEachAVL()
     {
         printf("TestAVL AVLForEach IN_ORDER failed at line:%d \n", __LINE__);
     }
+
     for_each.arr = exp_pre_order;
     for_each.i = 0;
 
@@ -145,6 +145,7 @@ static void TestForEachAVL()
     {
         printf("TestAVL AVLForEach PRE_ORDER failed at line:%d \n", __LINE__);
     }
+
     for_each.arr = exp_post_order;
     for_each.i = 0;
     if (0 != AVLForEach(tree, CmpArrInts, (&for_each), POST_ORDER))
@@ -161,8 +162,8 @@ static void TestForEachAndFindAVL()
 {
     int array[] = {4, 10, 7, 3, 2, 8, 9, 5, 1, 6};
     int exp_in_order[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    int exp_pre_order[] = {4, 3, 2, 1, 10, 7, 5, 6, 8, 9};
-    int exp_post_order[] = {1, 2, 3, 6, 5, 9, 8, 7, 10, 4};
+    int exp_pre_order[] = {7, 3, 2, 1, 5, 4, 6, 9, 8, 10};
+    int exp_post_order[] = {1, 2, 4, 6, 5, 3, 8, 10, 9, 7};
     size_t size = sizeof(array) / sizeof(array[0]);
     size_t i = 0;
     avl_t *tree = AVLCreate(Compare);
@@ -180,8 +181,9 @@ static void TestForEachAndFindAVL()
 
     for (i = 0; i < size; ++i)
     {
-        AVLInsert(tree, (void *)(array + i));
+        AVLInsert(tree, (array + i));
     }
+
     if (size != AVLSize(tree))
     {
         printf("TestAVL AVLInsert failed at line: %d %lu\n", __LINE__, AVLSize(tree));
@@ -219,7 +221,7 @@ static void TestForEachAndFindAVL()
             printf("find val :%d\n", *(int *)AVLFind(tree, (void *)(array + i)));
         }
     }
-    /*
+
     for (i = 0; i < size; ++i)
     {
         AVLRemove(tree, (void *)(array + i));
@@ -227,7 +229,7 @@ static void TestForEachAndFindAVL()
     if (0 != AVLSize(tree))
     {
         printf("TestAVL AVLRemove failed at line: %d %lu\n", __LINE__, AVLSize(tree));
-    }*/
+    }
 
     AVLDestroy(tree);
     return;
@@ -240,7 +242,7 @@ static void TestAVLHeight()
     size_t size = sizeof(array) / sizeof(array[0]);
     size_t i = 0;
     size_t first_height = 3;
-    size_t scond_height = 5;
+    size_t scond_height = 4;
 
     avl_t *tree = AVLCreate(Compare);
 
@@ -293,16 +295,16 @@ static void TestAVLHeight()
 static void TestRemove()
 {
     avl_t *tree = AVLCreate(Compare);
-    int arr[] = {10, 8, 15, 17, 16, 7, 2, 100, 45, 18, 20, 0, 89};
-    int exp_after_remove[] = {0, 2, 7, 10, 15, 16, 17, 18, 20, 45, 89, 100};
-    int exp_after_remove1[] = {0, 2, 7, 10, 15, 16, 17, 18, 20, 45, 89};
-    int exp_after_remove2[] = {0, 2, 7, 10, 15, 16, 17, 18, 45, 89};
-    int exp_after_remove3[] = {2, 7, 10, 15, 16, 17, 18, 45, 89};
-    int exp_after_remove4[] = {2, 7, 10, 15, 16, 18, 45, 89};
+    int arr[] = {10, 8, 15, 17, 16, 7, 2, 100, 45, 18, 20, 89};
+    int exp_after_remove[] = {2, 7, 10, 15, 16, 17, 18, 20, 45, 89, 100};
+    int exp_after_remove1[] = {2, 7, 10, 15, 16, 17, 18, 20, 45, 89};
+    int exp_after_remove2[] = {2, 7, 10, 15, 16, 17, 18, 45, 89};
+    int exp_after_remove3[] = {2, 7, 10, 15, 16, 18, 45, 89};
+    int exp_after_remove4[] = {2, 7, 10, 15, 16, 45, 89};
 
-    int remove[] = {8, 100, 20, 0, 4, 17};
+    int remove[] = {8, 100, 20, 4, 17, 18};
 
-    size_t arr_size = sizeof(arr) / sizeof(int);
+    size_t arr_size = sizeof(arr) / sizeof(arr[0]);
 
     size_t i = 0;
     size_t j = 0;
@@ -314,19 +316,6 @@ static void TestRemove()
         AVLInsert(tree, arr + i);
         ++i;
     }
-
-/*  i = 0;
-    while (i < arr_size)
-    {
-        printf("%d \n", *(arr + i));
-
-        ++i;
-    }
-
-    printf("Height , Data\n");
-    AVLForEach(tree, PrintHieght, NULL, HIGTH);
-    printf("\n");
- */
 
     for_each.arr = exp_after_remove;
     for_each.i = 0;
@@ -354,8 +343,6 @@ static void TestRemove()
     {
         printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
     }
-
-    for_each.arr = exp_after_remove3;
     for_each.i = 0;
     ++j;
     AVLRemove(tree, remove + j);
@@ -364,6 +351,7 @@ static void TestRemove()
         printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
     }
 
+    for_each.arr = exp_after_remove3;
     for_each.i = 0;
     ++j;
     AVLRemove(tree, remove + j);
@@ -381,24 +369,61 @@ static void TestRemove()
         printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
     }
 
-/*	i = 0;
-    while (i < arr_size)
-    {
-        printf("%d \n", *(arr + i));
-
-        ++i;
-    }
-    
-
-    if (0 != AVLForEach(tree, PrintData, (void *)(&for_each), IN_ORDER))
+    /*  if (0 != AVLForEach(tree, PrintData, (void *)(&for_each), IN_ORDER))
     {
         printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
     }
 
-	printf("\n");
+    printf("\n");
     AVLForEach(tree, PrintHieght, NULL, HIGTH);
     printf("\n");
  */
+    AVLDestroy(tree);
+
+    return;
+}
+
+static void TestRemove1()
+{
+    avl_t *tree = AVLCreate(Compare);
+    size_t hights[] = {3, 3, 3, 3, 3, 3, 2, 2, 2, 1};
+    int arr[] = {10, 8, 15, 17, 16, 7, 2, 100, 45, 18, 20, 0, 89};
+    int remove[] = {8, 100, 20, 0, 10, 17, 16, 7, 2, 45};
+
+    size_t exp_height = 6;
+    size_t arr_size = sizeof(arr) / sizeof(int);
+    size_t remove_size = sizeof(remove) / sizeof(int);
+    size_t i = 0;
+
+    while (i < arr_size)
+    {
+        AVLInsert(tree, arr + i);
+        ++i;
+    }
+
+    if (4 != AVLHeight(tree))
+    {
+        printf("LINE:%d error.\n", __LINE__);
+        printf("Expected hight: %lu.\n", exp_height);
+        printf("Actual hight: %lu.\n\n", AVLHeight(tree));
+    }
+
+    i = 0;
+
+    while (i < remove_size)
+    {
+        AVLRemove(tree, remove + i);
+
+        if (hights[i] != AVLHeight(tree))
+        {
+            printf("LINE:%d error.\n", __LINE__);
+            printf("Expected hight: %lu.\n", hights[i]);
+            printf("Actual hight: %lu.\n\n", AVLHeight(tree));
+        }
+
+        ++i;
+    }
+
     AVLDestroy(tree);
 
     return;
@@ -418,19 +443,5 @@ static int CmpArrInts(void *data1, void *data2)
     ((testfe_t *)data2)->i += 1;
     return (*(int *)data1 - elem);
 }
-/*
-static int PrintData(void *data1, void *data2)
-{
-    UNUSED(data2);
 
-    printf("%d, ", *(int *)data1);
 
-    return (EXIT_SUCCESS);
-}
-
-static int PrintHieght(void *data1, void *data2)
-{
-    printf("%lu  %d, ", ((size_t)data1), *(int *)data2);
-    return (EXIT_SUCCESS);
-}
-*/
