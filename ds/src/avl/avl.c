@@ -1,8 +1,8 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:done;                                      *
+ *  Status:Approved;                                            *
  *  Date Of Creation:15.06.21;									*
  *  Date Of Approval:--.06.21;									*
- *  Approved By:  ;	            								*
+ *  Approved By: Eden.w. ;	            						*
  *  Description: slef balancing tree with based on the height   * 
  *             with a limit of abs 2 diff beetwin child nodes   */
 
@@ -205,6 +205,7 @@ void *AVLFind(const avl_t *tree, const void *data)
     return (node->data);
 }
 
+/* O(n) */
 int AVLForEach(avl_t *tree, act_func_t func, void *param, order_t order)
 {
     avl_node_t *node = NULL;
@@ -536,7 +537,7 @@ static avl_node_t *BalanceTree(avl_node_t *node)
     return (node);
 }
 
-/* for pash 2 */
+/* compute the height diffrenc between both childrens */
 static int AVLBalancedDiff(avl_node_t *node)
 {
     size_t left_child_height = 0;
@@ -556,6 +557,7 @@ static int AVLBalancedDiff(avl_node_t *node)
     return (right_child_height - left_child_height);
 }
 
+/* left rotation */
 static avl_node_t *LLRotation(avl_node_t *node)
 {
     avl_node_t *right_child = node->children[RIGHT];
@@ -570,6 +572,7 @@ static avl_node_t *LLRotation(avl_node_t *node)
     return (right_child);
 }
 
+/* right rotation */
 static avl_node_t *RRRotation(avl_node_t *node)
 {
     avl_node_t *left_child = node->children[LEFT];
@@ -583,41 +586,3 @@ static avl_node_t *RRRotation(avl_node_t *node)
 
     return (left_child);
 }
-
-/* static size_t AVLRecHeight(avl_node_t *node)
-{
-    size_t left_child_height = 0;
-    size_t right_child_height = 0;
-
-    if (!node)
-    {
-        return (0);
-    }
-    if (!node->children[LEFT] && !node->children[RIGHT])
-    {
-        return (0);
-    }
-
-    if (HAS_RIGHT_CHILD(node))
-    {
-        right_child_height += AVLRecHeight(node->children[RIGHT]);
-    }
-    if (HAS_LEFT_CHILD(node))
-    {
-        left_child_height += AVLRecHeight(node->children[LEFT]);
-    }
-
-    return (MAX(left_child_height, right_child_height) + 1);
-}
-
-static size_t InnerHeight(avl_node_t *node)
-{
-    if (NULL == node)
-    {
-        return (0);
-    }
-
-    return (MAX(InnerHeight(node->children[LEFT]),
-                InnerHeight(node->children[RIGHT])) +
-            1);
-} */

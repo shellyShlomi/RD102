@@ -1,5 +1,5 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:in development;                                      *
+ *  Status:done;                                                *
  *  Date Of Creation:15.06.21;									*
  *  Description: TESTS for slef balancing tree                  *
  *               with a limit of abs 2 for the balancing factor */
@@ -369,15 +369,6 @@ static void TestRemove()
         printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
     }
 
-    /*  if (0 != AVLForEach(tree, PrintData, (void *)(&for_each), IN_ORDER))
-    {
-        printf("TestAVL AVLRemove failed at line:%d \n", __LINE__);
-    }
-
-    printf("\n");
-    AVLForEach(tree, PrintHieght, NULL, HIGTH);
-    printf("\n");
- */
     AVLDestroy(tree);
 
     return;
