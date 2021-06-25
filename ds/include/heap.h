@@ -24,7 +24,7 @@ size_t HeapSize(const heap_t *heap);
 
 int HeapIsEmpty(const heap_t *heap);
 
-void HeapRemove(heap_t *heap, is_match_func_t is_match, const void *searched_data);
+void *HeapRemove(heap_t *heap, is_match_func_t is_match, const void *searched_data);
 
 #endif /* __OL_102_HEAP_H__ */
 
