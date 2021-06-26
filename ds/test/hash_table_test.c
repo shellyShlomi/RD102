@@ -63,6 +63,7 @@ static void SimpleTest()
     size_t i = 0;
     int status = 0;
     test_t for_each = {0};
+    void *temp_key = NULL;
 
     hash_t *table = HashCreate(INSERT_SIZE, HashFuncSimpleTest, MatchFunc);
 
@@ -97,7 +98,7 @@ static void SimpleTest()
         printf("HashRemove error at line: %lu\n", HashSize(table));
     }
 
-    while (i < INSERT_SIZE)
+    while (i < INSERT_SIZE - 1)
     {
         if (0 != HashInsert(table, *(key + i)))
         {
@@ -106,24 +107,26 @@ static void SimpleTest()
         ++i;
     }
 
-    if (!MatchFunc(*key, (char *)HashSearch(table, *key)))
+    temp_key = *key;
+    if (!MatchFunc(temp_key, (char *)HashSearch(table, *key)))
     {
         printf("HashSearch error at line: %d\n", __LINE__);
         printf("expected HashSearch: %s\n", *key);
         printf("result HashSearch: %s\n", (char *)HashSearch(table, *key));
     }
-
+    
     /* removing nonexsisting element */
-    /* HashRemove(table, key[INSERT_SIZE]);
+    HashRemove(table, key[INSERT_SIZE - 1]);
 
-    if (NULL != (HashSearch(table, key[INSERT_SIZE])))
+    if (NULL != (HashSearch(table, key[INSERT_SIZE - 1])))
     {
         printf("HashSearch error at line: %d\n", __LINE__);
         printf("expected HashSearch: ron\n");
-        printf("result HashSearch: %s\n", (char *)HashSearch(table, key[INSERT_SIZE]));
+        printf("result HashSearch: %s\n", (char *)HashSearch(table, key[INSERT_SIZE - 1]));
     }
- */
-    if (INSERT_SIZE != HashSize(table))
+
+    HashRemove(table, key[INSERT_SIZE - 1]);
+    if (INSERT_SIZE - 1 != HashSize(table))
     {
         printf("HashSize error at line: %lu\n", HashSize(table));
     }
@@ -202,7 +205,7 @@ size_t HashFuncSimpleTest(const void *key)
 {
     size_t index = 0;
 
-    index = (size_t)(atoi((char *)key) - 1);
+    index = (size_t)(*((char *)key) - '1');
 
     return (index % INSERT_SIZE);
 }
@@ -244,6 +247,7 @@ static char *DictLoad(hash_t *table)
     file_ptr = fopen("/usr/share/dict/words", "r");
     if (NULL == file_ptr)
     {
+        free(start);
         return NULL;
     }
 
@@ -265,6 +269,8 @@ static char *DictLoad(hash_t *table)
 static void SpellChecker(hash_t *table)
 {
     char buf[50] = {'\0'};
+    
+    printf("Insert words for spellcheck.\n**No longer then a 50 chars**\n hit ESC and ENTER to quit\n");
 
     while (NULL != fgets(buf, SIZE, stdin) && (ESC != *buf))
     {

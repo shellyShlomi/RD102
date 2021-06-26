@@ -232,6 +232,7 @@ static return_t Count(const char *file_name, const char *buf)
 			++line_count;
 		}
 	}
+	
 	printf("num of lines in your file is: %d\n", line_count);
 
 	fclose(file_ptr);

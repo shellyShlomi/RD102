@@ -14,7 +14,7 @@ typedef int (*act_func_t)(void *, void *);
 /* O(1) */
 bst_t *BstCreate(cmp_func_t func, void *param);
 
-/* O(n) - n numbert of nodes in tree */
+/* O(n log n) - n numbert of nodes in tree */
 void BstDestroy(bst_t *tree);
 
 /* O(n log n) - n numbert of nodes in tree  ? */

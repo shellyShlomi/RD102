@@ -4,7 +4,7 @@
 typedef enum calc_status
 {
     SUCCESS,
-    INVALID_EQUETION, /* syntax error */
+    INVALID_EQUATION, /* syntax error */
     MATH_ERROR, /* division by 0, 0 ^ 0 */
     SYSTEM_FAIL /* inner program failure */
 }calc_status_t;

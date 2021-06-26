@@ -19,7 +19,7 @@
 #define DEC_ELEMS 10
 #define DEC_OFFSET 10
 
-
+/*TODO:*/
 enum ELEM
 {
 	REJECT = -1,

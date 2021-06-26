@@ -6,19 +6,19 @@
 typedef struct pq pq_t;
 
 
-pq_t 	  *HPQueueCreate (int (*cmp_func)(const void *data1, const void *data2)); 	/* O(1) */
-void       HPQueueDestroy(pq_t *p_queue);			         	            		/* O(n) */	
+pq_t 	  *HeapPQueueCreate (int (*cmp_func)(const void *data1, const void *data2)); 	/* O(1) */
+void       HeapPQueueDestroy(pq_t *p_queue);			         	            		/* O(n) */	
 
-size_t     HPQueueSize   (const pq_t *p_queue);       			        			/* O(n) */ 
-int        HPQueueIsEmpty(const pq_t *p_queue);		   			        			/* O(1) */
+size_t     HeapPQueueSize   (const pq_t *p_queue);       			        			/* O(n) */ 
+int        HeapPQueueIsEmpty(const pq_t *p_queue);		   			        			/* O(1) */
 
-int        HPQueueEnqueue(pq_t *p_queue, void *data);   	 				    	    /* O(n) */
-void      *HPQueueDequeue(pq_t *p_queue);		    		 	   				    /* O(1) */
-void      *HPQueuePeek   (const pq_t *p_queue);				      	    		    /* O(1) */
+int        HeapPQueueEnqueue(pq_t *p_queue, void *data);   	 				    	    /* O(n) */
+void      *HeapPQueueDequeue(pq_t *p_queue);		    		 	   				    /* O(1) */
+void      *HeapPQueuePeek   (const pq_t *p_queue);				      	    		    /* O(1) */
 
 
 
-/*HPQueueClear
+/*HeapPQueueClear
  * DESCRIPTION		:	The function erase elemrnt in the priority queue and 
  *						return a pointer to the data
  * 
@@ -30,11 +30,11 @@ void      *HPQueuePeek   (const pq_t *p_queue);				      	    		    /* O(1) */
  * COMPLEXITY   	:   Time - O(1) 
  */
 
-void 	   HPQueueClear  (pq_t *p_queue);
+void 	   HeapPQueueClear  (pq_t *p_queue);
 
 
 
-/*HPQueueErase
+/*HeapPQueueErase
  * DESCRIPTION		:	The function erase elemrnt in the priority queue and 
  *						return a pointer to the data
  * 
@@ -63,7 +63,7 @@ void 	   HPQueueClear  (pq_t *p_queue);
  * 
  * COMPLEXITY   	:   Time - O(n) 
  */					            			/* O(n) */
-void 	  *HPQueueErase  (pq_t *p_queue, 
+void 	  *HeapPQueueErase  (pq_t *p_queue, 
 						 int (*is_match_func)(const void *data, const void *param),
 						 void *param); 			     					  		    /* O(n) */
 

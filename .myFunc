@@ -22,13 +22,18 @@ alias h='history'
 alias l='ll'
 alias c='cd'
 function gq { cd  ~/git/quizzes/quiz$@; }
-function gcw { cd  ~/git/c/ws$@; }
 alias gs='c git/shelly/'
 
-function gds { cd  ~/git/ds/src/$@; }
-alias gdi='c git/ds/include'
-alias gdt='c git/ds/test'
-alias gd='c git/ds/'
+
+function GDSD { cd  ~/git/ds/src/$@; }
+alias cdi='c git/ds/include'
+alias cdb='c git/ds/bin'
+alias cdt='c git/ds/test'
+alias cds='c git/ds/src'
+
 alias t='touch'
+function maket { ./../bin/$@; }
+function mkvlg { vlg ./../bin/$@; }
+
 
 #'f(){cd git/c/ws"$@" f; }; f'

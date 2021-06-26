@@ -28,14 +28,14 @@ typedef struct param
 static void Test();
 
 
-static void HSchedulerCreateTest();
-static void HSchedulerRunTest();
+static void HeapSchedulerCreateTest();
+static void HeapSchedulerRunTest();
 static void NoIntervalRunNoStopTest();
 static void NoIntervalRunTest();
 static void RepitesRunTest();
-static void HSchedulerAddRemoveTest();
-static void TaskAddingHSchedulerRunTest();
-static void TaskErrorHSchedulerRunTest();
+static void HeapSchedulerAddRemoveTest();
+static void TaskAddingHeapSchedulerRunTest();
+static void TaskErrorHeapSchedulerRunTest();
 
 static int SelfRemoveFuncWithInterval(void *param);
 static int RemoveFuncWithInterval(void *param);
@@ -75,51 +75,51 @@ int main()
 
 static void Test()
 {
-	HSchedulerCreateTest();
-	HSchedulerAddRemoveTest();
+	HeapSchedulerCreateTest();
+	HeapSchedulerAddRemoveTest();
 	NoIntervalRunNoStopTest();
 	NoIntervalRunTest();
 	RepitesRunTest();
-	HSchedulerRunTest();
-	TaskAddingHSchedulerRunTest();
-	TaskErrorHSchedulerRunTest();
+	HeapSchedulerRunTest();
+	TaskAddingHeapSchedulerRunTest();
+	TaskErrorHeapSchedulerRunTest();
 	
 	return;
 
 }
 
 
-static void HSchedulerCreateTest()
+static void HeapSchedulerCreateTest()
 {	
-	scheduler_t *scheduler = HSchedulerCreate();
+	scheduler_t *scheduler = HeapSchedulerCreate();
 	
 	if (NULL == scheduler)
 	{
-		printf("HSchedulerCreateTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("HeapSchedulerCreateTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 		
 		return ; 
 	}
 	
-	/* test HSchedulerIsEmpty on empty list */
-	if (1 != HSchedulerIsEmpty(scheduler))
+	/* test HeapSchedulerIsEmpty on empty list */
+	if (1 != HeapSchedulerIsEmpty(scheduler))
 	{
-		printf("HSchedulerCreateTest->HSchedulerIsEmpty error at line: %d\n", __LINE__);
+		printf("HeapSchedulerCreateTest->HeapSchedulerIsEmpty error at line: %d\n", __LINE__);
 	}
 	
-	/* test HSchedulerSize on empty list  */
-	if (0 != HSchedulerSize(scheduler))
+	/* test HeapSchedulerSize on empty list  */
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerCreateTest->HSchedulerSize error at line: %d\n", __LINE__);
+		printf("HeapSchedulerCreateTest->HeapSchedulerSize error at line: %d\n", __LINE__);
 	}
 	
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
 	return ;
 }
 
 /*remove with no repites*/
-static void HSchedulerAddRemoveTest()
+static void HeapSchedulerAddRemoveTest()
 {	
 
 	int arr[] = {1, 2, 5, 3, 1, 2};
@@ -128,11 +128,11 @@ static void HSchedulerAddRemoveTest()
 	ilrd_uid_t arr_uid[SIEZ_UID_ARR] = {0};
 	size_t i = 0;
 	
-	scheduler_t *scheduler = HSchedulerCreate();
+	scheduler_t *scheduler = HeapSchedulerCreate();
 	
 	if (NULL == scheduler)
 	{
-		printf("HSchedulerCreateTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("HeapSchedulerCreateTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -140,30 +140,30 @@ static void HSchedulerAddRemoveTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = HSchedulerAdd(scheduler, ActionFunc1, *(arr_interval + i), (void *)(arr + i));
+		arr_uid[i] = HeapSchedulerAdd(scheduler, ActionFunc1, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
-	if (size != HSchedulerSize(scheduler))
+	if (size != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerAddTest->HSchedulerAdd error at line: %d %lu\n", __LINE__,HSchedulerSize(scheduler));
+		printf("HeapSchedulerAddTest->HeapSchedulerAdd error at line: %d %lu\n", __LINE__,HeapSchedulerSize(scheduler));
 	}
 	
 	for (i = 0; i < size; ++i)
 	{
-		if (0 != HSchedulerRemove(scheduler, arr_uid[i]))
+		if (0 != HeapSchedulerRemove(scheduler, arr_uid[i]))
 		{
-			printf("HSchedulerAddTest->HSchedulerRemove ");
-			printf("error at line: %d index: %ld %ld\n", __LINE__,i, HSchedulerSize(scheduler)); 	
+			printf("HeapSchedulerAddTest->HeapSchedulerRemove ");
+			printf("error at line: %d index: %ld %ld\n", __LINE__,i, HeapSchedulerSize(scheduler)); 	
 		}
 
 	}
 
-	if (0 != HSchedulerSize(scheduler))
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerAddTest->HSchedulerIsEmpty error at line: %d\n", __LINE__);
+		printf("HeapSchedulerAddTest->HeapSchedulerIsEmpty error at line: %d\n", __LINE__);
 	}
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
 	return ;
@@ -183,11 +183,11 @@ static void RepitesRunTest()
 	size_t interval = 5;
 	size_t i = 0;
 	
-	scheduler_t *scheduler = HSchedulerCreate();
+	scheduler_t *scheduler = HeapSchedulerCreate();
 	
 	if (NULL == scheduler)
 	{
-		printf("RepitesRunTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("RepitesRunTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -195,28 +195,28 @@ static void RepitesRunTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = HSchedulerAdd(scheduler, PrintActionFuncRepit, *(arr_interval + i), (void *)(arr + i));
+		arr_uid[i] = HeapSchedulerAdd(scheduler, PrintActionFuncRepit, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
-	if (size != HSchedulerSize(scheduler))
+	if (size != HeapSchedulerSize(scheduler))
 	{
-		printf("RepitesRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("RepitesRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, StopFunc, interval, scheduler);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, StopFunc, interval, scheduler);
 
-	arr_uid[i + 1] = HSchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
+	arr_uid[i + 1] = HeapSchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
 
 	Yellow();
 
 	printf("\nRepitesRunTest\n \n"); 
 	
-	printf("\nHSchedulerRun return: %d \n\n",HSchedulerRun(scheduler)); 
+	printf("\nHeapSchedulerRun return: %d \n\n",HeapSchedulerRun(scheduler)); 
 	
-	if (size + 1 != HSchedulerSize(scheduler))
+	if (size + 1 != HeapSchedulerSize(scheduler))
 	{
-		printf("RepitesRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("RepitesRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 
 	
@@ -225,30 +225,30 @@ static void RepitesRunTest()
 		if (6 == i)
 		{
 		
-			if (1 != HSchedulerRemove(scheduler, arr_uid[i]))
+			if (1 != HeapSchedulerRemove(scheduler, arr_uid[i]))
 			{
-				printf("RepitesRunTest->HSchedulerRemove ");
-				printf("error at line: %d index: %ld %ld\n", __LINE__,i, HSchedulerSize(scheduler)); 	
+				printf("RepitesRunTest->HeapSchedulerRemove ");
+				printf("error at line: %d index: %ld %ld\n", __LINE__,i, HeapSchedulerSize(scheduler)); 	
 			}
 			
 			++i;
 		}
 
-		if (0 != HSchedulerRemove(scheduler, arr_uid[i]))
+		if (0 != HeapSchedulerRemove(scheduler, arr_uid[i]))
 		{
-			printf("RepitesRunTest->HSchedulerRemove ");
-			printf("error at line: %d index: %ld %ld\n", __LINE__,i, HSchedulerSize(scheduler)); 	
+			printf("RepitesRunTest->HeapSchedulerRemove ");
+			printf("error at line: %d index: %ld %ld\n", __LINE__,i, HeapSchedulerSize(scheduler)); 	
 		}
 	}
 	
-	if (0 != HSchedulerSize(scheduler))
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("RepitesRunTest->HSchedulerSize error at line: %d \n", __LINE__);
+		printf("RepitesRunTest->HeapSchedulerSize error at line: %d \n", __LINE__);
 	}
 	
 	Reset();
 	
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
 	return ;
@@ -265,11 +265,11 @@ static void NoIntervalRunNoStopTest()
 	size_t size = sizeof(arr)/ sizeof(arr[0]);
 	size_t i = 0;
 	
-	scheduler_t *scheduler = HSchedulerCreate();
+	scheduler_t *scheduler = HeapSchedulerCreate();
 	
 	if (NULL == scheduler)
 	{
-		printf("HSchedulerCreateTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("HeapSchedulerCreateTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -277,13 +277,13 @@ static void NoIntervalRunNoStopTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		HSchedulerAdd(scheduler, ActionFunc1, *(arr_interval + i), (void *)(arr + i));
+		HeapSchedulerAdd(scheduler, ActionFunc1, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
-	if (size != HSchedulerSize(scheduler))
+	if (size != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerAddTest->HSchedulerAdd error at line: %d %lu\n", __LINE__,HSchedulerSize(scheduler));
+		printf("HeapSchedulerAddTest->HeapSchedulerAdd error at line: %d %lu\n", __LINE__,HeapSchedulerSize(scheduler));
 	}
 	
 	
@@ -291,15 +291,15 @@ static void NoIntervalRunNoStopTest()
 	sleep(3);
 	printf("\nNoIntervalRunNoStopTest delay of 3 sec\n \n"); 
 	
-	printf("\nHSchedulerRun return: %d \n\n",HSchedulerRun(scheduler)); 
+	printf("\nHeapSchedulerRun return: %d \n\n",HeapSchedulerRun(scheduler)); 
 	
-	if (0 != HSchedulerSize(scheduler))
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerAddTest->HSchedulerIsEmpty error at line: %d\n", __LINE__);
+		printf("HeapSchedulerAddTest->HeapSchedulerIsEmpty error at line: %d\n", __LINE__);
 	}
 	Reset();
 	
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
 	return ;
@@ -319,11 +319,11 @@ static void NoIntervalRunTest()
 	size_t interval = 5;
 	size_t i = 0;
 	
-	scheduler_t *scheduler = HSchedulerCreate();
+	scheduler_t *scheduler = HeapSchedulerCreate();
 	
 	if (NULL == scheduler)
 	{
-		printf("NoIntervalRunTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("NoIntervalRunTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -331,27 +331,27 @@ static void NoIntervalRunTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = HSchedulerAdd(scheduler, ActionFunc1, *(arr_interval + i), (void *)(arr + i));
+		arr_uid[i] = HeapSchedulerAdd(scheduler, ActionFunc1, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
-	if (size != HSchedulerSize(scheduler))
+	if (size != HeapSchedulerSize(scheduler))
 	{
-		printf("NoIntervalRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("NoIntervalRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, StopFunc, interval, scheduler);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, StopFunc, interval, scheduler);
 
-	arr_uid[i + 1] = HSchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
+	arr_uid[i + 1] = HeapSchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
 	
 	Blue();
 	printf("\nNoIntervalRunTest\n \n"); 
 	
-	printf("\nHSchedulerRun return: %d \n\n",HSchedulerRun(scheduler)); 
+	printf("\nHeapSchedulerRun return: %d \n\n",HeapSchedulerRun(scheduler)); 
 	
-	if (size/2 != HSchedulerSize(scheduler))
+	if (size/2 != HeapSchedulerSize(scheduler))
 	{
-		printf("NoIntervalRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("NoIntervalRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 
 	
@@ -361,30 +361,30 @@ static void NoIntervalRunTest()
 		{
 		
 		/* the stop task that Destroy hearself*/
-			if (1 != HSchedulerRemove(scheduler, arr_uid[i]))
+			if (1 != HeapSchedulerRemove(scheduler, arr_uid[i]))
 			{
-				printf("NoIntervalRunTest->HSchedulerRemove ");
-				printf("error at line: %d index: %ld %ld\n", __LINE__,i, HSchedulerSize(scheduler)); 	
+				printf("NoIntervalRunTest->HeapSchedulerRemove ");
+				printf("error at line: %d index: %ld %ld\n", __LINE__,i, HeapSchedulerSize(scheduler)); 	
 			}
 			
 			continue;
 		}
 
-		if (0 != HSchedulerRemove(scheduler, arr_uid[i]))
+		if (0 != HeapSchedulerRemove(scheduler, arr_uid[i]))
 		{
-			printf("NoIntervalRunTest->HSchedulerRemove ");
-			printf("error at line: %d index: %ld %ld\n", __LINE__,i, HSchedulerSize(scheduler)); 	
+			printf("NoIntervalRunTest->HeapSchedulerRemove ");
+			printf("error at line: %d index: %ld %ld\n", __LINE__,i, HeapSchedulerSize(scheduler)); 	
 		}
 	}
 	
-	if (0 != HSchedulerSize(scheduler))
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("NoIntervalRunTest->HSchedulerSize error at line: %d \n", __LINE__);
+		printf("NoIntervalRunTest->HeapSchedulerSize error at line: %d \n", __LINE__);
 	}
 	
 	Reset();
 	
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
 	return ;
@@ -394,7 +394,7 @@ static void NoIntervalRunTest()
 
 
 /*task that Destroy herself and other tasks with repites*/
-static void HSchedulerRunTest()
+static void HeapSchedulerRunTest()
 {	
 
 	int arr[] = {1, 2, 5, 3, 1, 2};
@@ -407,11 +407,11 @@ static void HSchedulerRunTest()
 	size_t interval1 = 2;
 	size_t i = 0;
 	
-	scheduler_t *scheduler = HSchedulerCreate();
+	scheduler_t *scheduler = HeapSchedulerCreate();
 	
 	if (NULL == scheduler)
 	{
-		printf("HSchedulerRunTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("HeapSchedulerRunTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -419,22 +419,22 @@ static void HSchedulerRunTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = HSchedulerAdd(scheduler, ActionFuncRepit1, *(arr_interval + i), (void *)(arr + i));
+		arr_uid[i] = HeapSchedulerAdd(scheduler, ActionFuncRepit1, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
-	if (size != HSchedulerSize(scheduler))
+	if (size != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerRunTest->HSchedulerAdd error at line: %d %lu\n", __LINE__,HSchedulerSize(scheduler));
+		printf("HeapSchedulerRunTest->HeapSchedulerAdd error at line: %d %lu\n", __LINE__,HeapSchedulerSize(scheduler));
 	}
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, ActionFuncRepitChar, *(arr_interval), (void *)str);
 
 	/*task remove herself*/
 	
 	++i;
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, SelfRemoveFuncWithInterval, interval1, (void *)&remove);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, SelfRemoveFuncWithInterval, interval1, (void *)&remove);
 	
 	remove.scheduler = scheduler;
 	remove.uid = arr_uid[i];
@@ -442,55 +442,55 @@ static void HSchedulerRunTest()
 	
 	++i;
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
 
 	Purple();
 
-	printf("\nHSchedulerRunTest with task that is selfDestroy \n \n"); 
+	printf("\nHeapSchedulerRunTest with task that is selfDestroy \n \n"); 
 	
-	printf("\nHSchedulerRun return: %d \n\n",HSchedulerRun(scheduler)); 
+	printf("\nHeapSchedulerRun return: %d \n\n",HeapSchedulerRun(scheduler)); 
 	
-	if (size + 1 != HSchedulerSize(scheduler))
+	if (size + 1 != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerRunTest->HSchedulerAdd error at line: %d \n", __LINE__);
+		printf("HeapSchedulerRunTest->HeapSchedulerAdd error at line: %d \n", __LINE__);
 	}
 
 	
-	for (i = 0; !HSchedulerIsEmpty(scheduler); ++i)
+	for (i = 0; !HeapSchedulerIsEmpty(scheduler); ++i)
 	{
 		if (7 == i)
 		{
 
-			if (1 != HSchedulerRemove(scheduler, arr_uid[i]))
+			if (1 != HeapSchedulerRemove(scheduler, arr_uid[i]))
 			{	
-				printf("HSchedulerRunTest->HSchedulerRemove ");
-				printf("error at line: %d index: %ld %ld\n", __LINE__,i, HSchedulerSize(scheduler)); 	
+				printf("HeapSchedulerRunTest->HeapSchedulerRemove ");
+				printf("error at line: %d index: %ld %ld\n", __LINE__,i, HeapSchedulerSize(scheduler)); 	
 			}
 			
 			++i;
 		}
 		
-		if (0 != HSchedulerRemove(scheduler, arr_uid[i]))
+		if (0 != HeapSchedulerRemove(scheduler, arr_uid[i]))
 		{
-			printf("HSchedulerRunTest->HSchedulerRemove ");
-			printf("error at line: %d index: %ld %ld\n", __LINE__,i, HSchedulerSize(scheduler)); 	
+			printf("HeapSchedulerRunTest->HeapSchedulerRemove ");
+			printf("error at line: %d index: %ld %ld\n", __LINE__,i, HeapSchedulerSize(scheduler)); 	
 		}
 	}
 	
-	if (0 != HSchedulerSize(scheduler))
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerRunTest->HSchedulerSize error at line: %d \n", __LINE__);
+		printf("HeapSchedulerRunTest->HeapSchedulerSize error at line: %d \n", __LINE__);
 	}
 	
 	Reset();
 	
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	
-	scheduler = HSchedulerCreate();
+	scheduler = HeapSchedulerCreate();
 	
 	if (NULL == scheduler)
 	{
-		printf("HSchedulerRunTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("HeapSchedulerRunTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -498,22 +498,22 @@ static void HSchedulerRunTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = HSchedulerAdd(scheduler, ActionFuncRepit2, *(arr_interval + i), (void *)(arr + i));
+		arr_uid[i] = HeapSchedulerAdd(scheduler, ActionFuncRepit2, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
-	if (size != HSchedulerSize(scheduler))
+	if (size != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerRunTest->HSchedulerAdd error at line: %d %lu\n", __LINE__,HSchedulerSize(scheduler));
+		printf("HeapSchedulerRunTest->HeapSchedulerAdd error at line: %d %lu\n", __LINE__,HeapSchedulerSize(scheduler));
 	}
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, ActionFuncRepitChar1, *(arr_interval), (void *)str);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, ActionFuncRepitChar1, *(arr_interval), (void *)str);
 
 	/*task remove other tasks */
 	
 	++i;
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, RemoveFuncWithInterval, interval1, (void *)&remove);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, RemoveFuncWithInterval, interval1, (void *)&remove);
 	
 	remove.scheduler = scheduler;
 	remove.uid = arr_uid[i - 1]; /*removal of str*/
@@ -521,23 +521,23 @@ static void HSchedulerRunTest()
 	
 	++i;
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
 
 	Cyan();
 
-	printf("\nHSchedulerRunTest with task that Destroy other tasks\nshelly will be removed \n\n"); 
+	printf("\nHeapSchedulerRunTest with task that Destroy other tasks\nshelly will be removed \n\n"); 
 	
-	printf("\nHSchedulerRun return: %d \n\n",HSchedulerRun(scheduler)); 
+	printf("\nHeapSchedulerRun return: %d \n\n",HeapSchedulerRun(scheduler)); 
 	
-	HSchedulerClear(scheduler);
+	HeapSchedulerClear(scheduler);
 	
-	if (0 != HSchedulerSize(scheduler))
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("HSchedulerRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("HeapSchedulerRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 	Reset();
 	
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
 	return ;
@@ -546,7 +546,7 @@ static void HSchedulerRunTest()
 
 
 /*task that addes other tasks and remove herself after 2 times*/
-static void TaskAddingHSchedulerRunTest()
+static void TaskAddingHeapSchedulerRunTest()
 {	
 
 	int arr[] = {1, 2, 5, 3, 1, 2};
@@ -558,12 +558,12 @@ static void TaskAddingHSchedulerRunTest()
 	size_t interval1 = 2;
 	size_t i = 0;
 	
-	scheduler_t *scheduler = HSchedulerCreate();
+	scheduler_t *scheduler = HeapSchedulerCreate();
 
 	
 	if (NULL == scheduler)
 	{
-		printf("TaskAddingHSchedulerRunTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("TaskAddingHeapSchedulerRunTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -571,20 +571,20 @@ static void TaskAddingHSchedulerRunTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		arr_uid[i] = HSchedulerAdd(scheduler, ActionFuncRepit3, *(arr_interval + i), (void *)(arr + i));
+		arr_uid[i] = HeapSchedulerAdd(scheduler, ActionFuncRepit3, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
-	if (size != HSchedulerSize(scheduler))
+	if (size != HeapSchedulerSize(scheduler))
 	{
-		printf("TaskAddingHSchedulerRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("TaskAddingHeapSchedulerRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 	
 	/*task that addes other tasks and remove herself after 2 times*/
 	
 	++i;
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, TaskAddingActionFunc, interval1, (void *)&adding);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, TaskAddingActionFunc, interval1, (void *)&adding);
 	
 	adding.scheduler = scheduler;
 	adding.uid = arr_uid[i]; /*removal of herself*/
@@ -592,25 +592,25 @@ static void TaskAddingHSchedulerRunTest()
 		
 	++i;
 	
-	arr_uid[i] = HSchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
+	arr_uid[i] = HeapSchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
 
 	Blue();
 
-	printf("\nTaskAddingHSchedulerRunTest with task that add other tasks "); 
+	printf("\nTaskAddingHeapSchedulerRunTest with task that add other tasks "); 
 	printf("and after 2 times remove herself \n\n"); 
-	printf("\nHSchedulerRun return: %d \n\n",HSchedulerRun(scheduler)); 
+	printf("\nHeapSchedulerRun return: %d \n\n",HeapSchedulerRun(scheduler)); 
 	
 	
 	
-	HSchedulerClear(scheduler);
+	HeapSchedulerClear(scheduler);
 	
-	if (0 != HSchedulerSize(scheduler))
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("TaskAddingHSchedulerRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("TaskAddingHeapSchedulerRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 	Reset();
 	
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
 	return ;
@@ -618,7 +618,7 @@ static void TaskAddingHSchedulerRunTest()
 }
 
 /*task that returns error*/
-static void TaskErrorHSchedulerRunTest()
+static void TaskErrorHeapSchedulerRunTest()
 {	
 
 	int arr[] = {1, 2, 5, 3, 1, 2};
@@ -627,12 +627,12 @@ static void TaskErrorHSchedulerRunTest()
 	size_t interval = 5;
 	size_t i = 0;
 	
-	scheduler_t *scheduler = HSchedulerCreate();
+	scheduler_t *scheduler = HeapSchedulerCreate();
 
 	
 	if (NULL == scheduler)
 	{
-		printf("TaskErrorHSchedulerRunTest->HSchedulerCreate error at line: %d\n", __LINE__);
+		printf("TaskErrorHeapSchedulerRunTest->HeapSchedulerCreate error at line: %d\n", __LINE__);
 
 		
 		return ; 
@@ -640,37 +640,37 @@ static void TaskErrorHSchedulerRunTest()
 
 	for (i = 0; i < size; ++i)
 	{
-		HSchedulerAdd(scheduler, ActionFuncRepit4, *(arr_interval + i), (void *)(arr + i));
+		HeapSchedulerAdd(scheduler, ActionFuncRepit4, *(arr_interval + i), (void *)(arr + i));
 
 	}
 	
-	if (size != HSchedulerSize(scheduler))
+	if (size != HeapSchedulerSize(scheduler))
 	{
-		printf("TaskErrorHSchedulerRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("TaskErrorHeapSchedulerRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 	
-	HSchedulerAdd(scheduler, ActionFuncError, *(arr_interval), NULL);
+	HeapSchedulerAdd(scheduler, ActionFuncError, *(arr_interval), NULL);
 	
 	++i;
 	
-	HSchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
+	HeapSchedulerAdd(scheduler, StopFunc, interval * 2, scheduler);
 
 	Green();
 
-	printf("\nTaskErrorHSchedulerRunTest with task that returns error \n\n"); 
-	printf("\nHSchedulerRun return: %d \n\n",HSchedulerRun(scheduler)); 
+	printf("\nTaskErrorHeapSchedulerRunTest with task that returns error \n\n"); 
+	printf("\nHeapSchedulerRun return: %d \n\n",HeapSchedulerRun(scheduler)); 
 	
 	
 	
-	HSchedulerClear(scheduler);
+	HeapSchedulerClear(scheduler);
 	
-	if (0 != HSchedulerSize(scheduler))
+	if (0 != HeapSchedulerSize(scheduler))
 	{
-		printf("TaskErrorHSchedulerRunTest->HSchedulerAdd error at line: %d\n", __LINE__);
+		printf("TaskErrorHeapSchedulerRunTest->HeapSchedulerAdd error at line: %d\n", __LINE__);
 	}
 	Reset();
 	
-	HSchedulerDestroy(scheduler);
+	HeapSchedulerDestroy(scheduler);
 	scheduler = NULL;
 	
 	return ;
@@ -693,12 +693,12 @@ static int TaskAddingActionFunc(void *param)
 			printf(" TaskAddingActionFunc ");
 			printf("self remove now \n");
 			
-			return (HSchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid));
+			return (HeapSchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid));
 		}
 		else
 		{
 
-			HSchedulerAdd(((param_t *)param)->scheduler, ActionFuncChar, interval / 2 , (void *)str);
+			HeapSchedulerAdd(((param_t *)param)->scheduler, ActionFuncChar, interval / 2 , (void *)str);
 			printf(" TaskAddingActionFunc \n");
 
 		}
@@ -798,7 +798,7 @@ static int SelfRemoveFuncWithInterval(void *param)
 		{
 			printf("SelfRemoveFunc interval: 2");
 			printf("self remove now \n");
-			(HSchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid));
+			(HeapSchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid));
 		}
 		else
 		{
@@ -825,7 +825,7 @@ static int RemoveFuncWithInterval(void *param)
 		{
 			printf("RemoveFunc interval: 2 param counter is : %d \t", ((param_t *)param)->counter);
 			printf("removes shelly now\n");
-			HSchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid);
+			HeapSchedulerRemove(((param_t *)param)->scheduler, ((param_t *)param)->uid);
 		}
 		else
 		{
@@ -843,7 +843,7 @@ static int RemoveFuncWithInterval(void *param)
 static int StopFunc(void *param)
 {
 		
-		HSchedulerStop(param);
+		HeapSchedulerStop(param);
 		
 		return (SUCCESS); 		
 }

@@ -11,6 +11,8 @@
 
 #define UNUSED(x) (void)(x)
 #define SIZE 10
+
+
 typedef struct test
 {
     long int i;
@@ -56,17 +58,17 @@ static void TestAVL()
     avl_t *tree = AVLCreate(Compare);
     if (NULL == tree)
     {
-        printf("TestAVL AVLCreate failed %d", __LINE__);
+        printf("TestAVL AVLCreate failed %d\n", __LINE__);
     }
 
-    if (1 != AVLIsEmpty(tree))
+    if (1 !=  AVLIsEmpty(tree))
     {
-        printf("TestAVL AVLIsEmpty failed at line: %d", __LINE__);
+        printf("TestAVL AVLIsEmpty failed at line: %d\n", __LINE__);
     }
 
     if (0 != AVLSize(tree))
     {
-        printf("TestAVL AVLSize failed at line: %d", __LINE__);
+        printf("TestAVL AVLSize failed at line: %d\n", __LINE__);
     }
 
     AVLDestroy(tree);
@@ -83,12 +85,12 @@ static void TestInsertAVL()
 
     if (NULL == tree)
     {
-        printf("TestAVL AVLCreate failed %d", __LINE__);
+        printf("TestAVL AVLCreate failed %d\n", __LINE__);
     }
 
     if (1 != AVLIsEmpty(tree))
     {
-        printf("TestAVL AVLIsEmpty failed at line: %d", __LINE__);
+        printf("TestAVL AVLIsEmpty failed at line: %d\n", __LINE__);
     }
 
     for (i = 0; i < size && !arr[i]; ++i)
@@ -171,12 +173,12 @@ static void TestForEachAndFindAVL()
 
     if (NULL == tree)
     {
-        printf("TestAVL AVLCreate failed %d", __LINE__);
+        printf("TestAVL AVLCreate failed %d\n", __LINE__);
     }
 
     if (1 != AVLIsEmpty(tree))
     {
-        printf("TestAVL AVLIsEmpty failed at line: %d", __LINE__);
+        printf("TestAVL AVLIsEmpty failed at line: %d\n", __LINE__);
     }
 
     for (i = 0; i < size; ++i)
@@ -248,12 +250,12 @@ static void TestAVLHeight()
 
     if (NULL == tree)
     {
-        printf("TestAVL AVLCreate failed %d", __LINE__);
+        printf("TestAVL AVLCreate failed %d\n", __LINE__);
     }
 
     if (1 != AVLIsEmpty(tree))
     {
-        printf("TestAVL AVLIsEmpty failed at line: %d", __LINE__);
+        printf("TestAVL AVLIsEmpty failed at line: %d\n", __LINE__);
     }
 
     for (i = 0; i < size - scond_height && !arr[i]; ++i)
