@@ -49,7 +49,7 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 $(BIN)/$(TARGET_SINGLE): $(TEST_SOURCE) $(LIB)/$(SHAREDLIB)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ 
 
-$(BIN)/$(TARGET): $(TEST_SOURCE) 
+$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libds.so -lm
 
 
@@ -72,8 +72,8 @@ $(BIN)/$(TARGET)_r: $(TEST_SOURCE)
 		update_debug update_release clean 
 
 build:
-	$(shell cd ../../ make libds) 
 	@mkdir -p $(OBJ)/$(TARGET)  
+	@make shared_obj
 	@make $(BIN)/$(TARGET)
 
 build_single:
@@ -92,6 +92,7 @@ release_so:
 
 release:
 	@mkdir -p $(OBJ)/$(TARGET)
+	@make release_so
 	@make $(BIN)/$(TARGET)_r
 
 shared_obj:
@@ -115,13 +116,6 @@ update_release:
 clean :
 	@rm -f -r $(OBJECTS) $(BIN)/$(TARGET) $(BIN)/$(TARGET)_r $(BIN)/$(TARGET_SINGLE)
 	@rm -f -r $(LIB)/$(SHAREDLIB) $(LIB)/$(SHAREDLIB_REL).so  $(OBJ)/$(TARGET)  
-
-
-
-
-
-
-
 
 #$(TEST_OBJECTS).o: $(TEST_SOURCE) $(INC)/$(TARGET).h
 #		$(CC) $(CFLAGS) $< -c -o $(OBJ)/$(TARGET)/$@

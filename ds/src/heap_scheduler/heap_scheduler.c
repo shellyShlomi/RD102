@@ -14,7 +14,7 @@
 #include <unistd.h> /* sleep */
 
 #include "heap_scheduler.h"
-#include "Heap_PQ.h"
+#include "heap_pq.h"
 #include "task.h"
 #include "uid.h"
 
@@ -40,7 +40,7 @@ struct scheduler
 };
 
 
-scheduler_t *HSchedulerCreate()
+scheduler_t *HeapSchedulerCreate()
 {
 	scheduler_t *scheduler = (scheduler_t *)malloc(sizeof(scheduler_t));
 	
@@ -49,7 +49,7 @@ scheduler_t *HSchedulerCreate()
 		return (NULL);
 	}
 	
-	scheduler->pq = HPQueueCreate(CmpFunc);
+	scheduler->pq = HeapPQueueCreate(CmpFunc);
 	scheduler->is_running = 0;
 	scheduler->task_cur = NULL;
 	
@@ -66,14 +66,14 @@ scheduler_t *HSchedulerCreate()
 
 }
 
-void HSchedulerDestroy(scheduler_t *scheduler)
+void HeapSchedulerDestroy(scheduler_t *scheduler)
 {
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);	
 
-	HSchedulerClear(scheduler);
+	HeapSchedulerClear(scheduler);
 	
-	HPQueueDestroy(scheduler->pq);
+	HeapPQueueDestroy(scheduler->pq);
 	
 	scheduler->pq = NULL;
 	scheduler->task_cur = NULL;
@@ -85,7 +85,7 @@ void HSchedulerDestroy(scheduler_t *scheduler)
 
 
 
-int HSchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
+int HeapSchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 {
 	int status = 1;
 	task_t *task_to_remove = NULL;
@@ -103,7 +103,7 @@ int HSchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 		return (!status);
 	}
 	
-	task_to_remove = (task_t *)(HPQueueErase(scheduler->pq, IsMatch, (void *)&uid));
+	task_to_remove = (task_t *)(HeapPQueueErase(scheduler->pq, IsMatch, (void *)&uid));
 	
 	if (NULL != task_to_remove)
 	{
@@ -116,26 +116,26 @@ int HSchedulerRemove(scheduler_t *scheduler, ilrd_uid_t uid)
 }	
 
 
-size_t HSchedulerSize(const scheduler_t *scheduler)
+size_t HeapSchedulerSize(const scheduler_t *scheduler)
 {
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 
-	return (HPQueueSize(scheduler->pq) + (!!scheduler->task_cur));
+	return (HeapPQueueSize(scheduler->pq) + (!!scheduler->task_cur));
 }
 
 
-int HSchedulerIsEmpty(const scheduler_t *scheduler)
+int HeapSchedulerIsEmpty(const scheduler_t *scheduler)
 {
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
 
-	return (HPQueueIsEmpty(scheduler->pq) - (!!scheduler->task_cur));
+	return (HeapPQueueIsEmpty(scheduler->pq) - (!!scheduler->task_cur));
 }
 
 
-ilrd_uid_t HSchedulerAdd(scheduler_t *scheduler, int (*action_func)(void *param), 
+ilrd_uid_t HeapSchedulerAdd(scheduler_t *scheduler, int (*action_func)(void *param), 
 											size_t interval_in_sec, void *param)
 {
 	task_t *task = NULL;
@@ -151,7 +151,7 @@ ilrd_uid_t HSchedulerAdd(scheduler_t *scheduler, int (*action_func)(void *param)
 		return (GetBadUid());
 	}
 	
-	if (HPQueueEnqueue(scheduler->pq, (void *)task))
+	if (HeapPQueueEnqueue(scheduler->pq, (void *)task))
 	{
 		TaskDestroy(task);
 		task = NULL;
@@ -165,7 +165,7 @@ ilrd_uid_t HSchedulerAdd(scheduler_t *scheduler, int (*action_func)(void *param)
 
 
 
-int HSchedulerRun(scheduler_t *scheduler)
+int HeapSchedulerRun(scheduler_t *scheduler)
 {
 	time_t time_now = 0;
 	int remainder = 0;
@@ -175,11 +175,11 @@ int HSchedulerRun(scheduler_t *scheduler)
 	
 	scheduler->is_running = 1;
 
-	while (!HPQueueIsEmpty(scheduler->pq) && scheduler->is_running)
+	while (!HeapPQueueIsEmpty(scheduler->pq) && scheduler->is_running)
 	{
 		time_now = time(NULL);
 	
-		scheduler->task_cur = HPQueueDequeue(scheduler->pq);
+		scheduler->task_cur = HeapPQueueDequeue(scheduler->pq);
 		
 		remainder = (int)TaskGetExecutionTime(scheduler->task_cur) - time_now;
 		
@@ -232,12 +232,12 @@ int HSchedulerRun(scheduler_t *scheduler)
 				{
 					break;
 				}
-				/* TaskUpdateExecutionTime or HPQueueEnqueue - 
+				/* TaskUpdateExecutionTime or HeapPQueueEnqueue - 
 				 * run status of system faile (1)
 				 */
 				TaskUpdateExecutionTime(scheduler->task_cur); 
 		
-				if (HPQueueEnqueue(scheduler->pq, scheduler->task_cur))
+				if (HeapPQueueEnqueue(scheduler->pq, scheduler->task_cur))
 				{
 					TaskDestroy(scheduler->task_cur);
 					scheduler->task_cur = NULL;
@@ -267,7 +267,7 @@ int HSchedulerRun(scheduler_t *scheduler)
 	return (SUCCESS);
 
 }
-void HSchedulerStop(scheduler_t *scheduler)
+void HeapSchedulerStop(scheduler_t *scheduler)
 {
 	assert(NULL != scheduler);
 	
@@ -277,14 +277,14 @@ void HSchedulerStop(scheduler_t *scheduler)
 }
 
 
-void HSchedulerClear(scheduler_t *scheduler)
+void HeapSchedulerClear(scheduler_t *scheduler)
 {
 	assert(NULL != scheduler);
 	assert(NULL != scheduler->pq);
 	
-	while (!HPQueueIsEmpty(scheduler->pq))
+	while (!HeapPQueueIsEmpty(scheduler->pq))
 	{
-		TaskDestroy(HPQueueDequeue(scheduler->pq));
+		TaskDestroy(HeapPQueueDequeue(scheduler->pq));
 	}
 	
 	return ; 

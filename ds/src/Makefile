@@ -21,6 +21,8 @@ LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lds
 
 .PHONY: libds build_single build test shared_obj_debug release release_single
 		change clean 
+test: 
+	@make -f ./.make/run
 
 libds:
 	
@@ -31,11 +33,10 @@ build_single:
 	@make -f ./.make/build_single
 
 build:
+	@make shared_obj_debug
 	@make libds
 	@make -f ./.make/build
 
-test:
-	@make -f ./.make/run
 
 test_release:
 
@@ -47,6 +48,8 @@ shared_obj_debug:
 	@make -f ./.make/shared_obj
 
 release:
+	@mkdir -p $(OBJ)/tests_for_sorts
+	$(CC) $(RELEASE_FLAGS) ./tests_for_sorts.c -c -fpic -o $(OBJ)/tests_for_sorts/tests_for_sorts.o 
 	@make -f ./.make/releass1
 	@make libds
 	@make -f ./.make/releass2_build
@@ -60,7 +63,8 @@ change:
 clean:
 	@make -f ./.make/clean
 	@rm -r -f $(LIB)/libds.so
-	
+	@rm -r -f $(OBJ)/tests_for_sorts
+	@rm -r -f ./*.o
 
 
 
