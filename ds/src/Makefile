@@ -43,13 +43,17 @@ test_release:
 	@make -f ./.make/run_rel
 
 shared_obj_debug:
-	@mkdir -p $(OBJ)/tests_for_sorts
+	@mkdir -p $(OBJ)/tests_for_sorts 
+#	@mkdir -p $(OBJ)/extra_avl 
 	$(CC) $(CFLAGS) ./tests_for_sorts.c -c -fpic -o $(OBJ)/tests_for_sorts/tests_for_sorts.o 
+#	$(CC) $(CFLAGS) ./avl/extra_func.c -c -fpic -o $(OBJ)/extra_avl/extra_avl.o 
 	@make -f ./.make/shared_obj
 
 release:
 	@mkdir -p $(OBJ)/tests_for_sorts
+#	@mkdir -p $(OBJ)/extra_avl 
 	$(CC) $(RELEASE_FLAGS) ./tests_for_sorts.c -c -fpic -o $(OBJ)/tests_for_sorts/tests_for_sorts.o 
+#	$(CC) $(RELEASE_FLAGS)  ./avl/extra_func.c -c -fpic -o $(OBJ)/extra_avl/extra_avl.o 
 	@make -f ./.make/releass1
 	@make libds
 	@make -f ./.make/releass2_build

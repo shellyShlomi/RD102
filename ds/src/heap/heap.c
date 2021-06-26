@@ -3,7 +3,7 @@
  *  Date Of Creation:24.06.21;									*
  *  Date Of Approval:--.06.21;									*
  *  Approved By: ;	            								*
- *  Description:Heap data structure implament with              *     
+ *  Description:Heap data structure implement with              *     
  *              dynamic vector                                  * 
  *                                                              */
 
@@ -16,8 +16,9 @@
 
 #define LAST_IDX(X) ((size_t)(HeapSize((X)) - 1))
 #define GET_ELEM(X, I) (VectorGetElem((X)->vector, (I)))
-#define GET_LEFT_CHILD_IDX(I) (((I) * 2) + 1)
-#define GET_RIGTH_CHILD_IDX(I) (((I) * 2) + 2)
+#define GET_LEFT_CHILD_IDX(I) (((I)*2) + 1)
+#define GET_RIGHT_CHILD_IDX(I) (((I)*2) + 2)
+#define GET_PARENT_IDX(I) (((I) - 1) / 2)
 
 #define CAPACITY (50)
 #define START (0)
@@ -49,9 +50,9 @@ static void InerHeapPop(heap_t *heap, size_t idx);
 
 /*----------------Helper func-------------------*/
 static void SwapHeapElem(heap_t *heap, size_t idx_1, size_t idx_2);
-static size_t FindBigerChild(heap_t *heap, size_t rigth_c_idx, size_t left_c_idx);
+static size_t FindBigerChild(heap_t *heap, size_t right_c_idx, size_t left_c_idx);
 
-/*---------------------------------Implementetion---------------------------------*/
+/*---------------------------------Implementation---------------------------------*/
 heap_t *HeapCreate(cmp_func_t cmp_func)
 {
     heap_t *heap = (heap_t *)malloc(sizeof(heap_t));
@@ -80,6 +81,7 @@ void HeapDestroy(heap_t *heap)
 {
     assert(heap);
     assert(heap->vector);
+    assert(heap->func);
 
     VectorDestroy(heap->vector);
 
@@ -174,8 +176,8 @@ static size_t HeapFindIdx(heap_t *heap, is_match_func_t is_match, void *data, in
     assert(is_found);
     assert(heap->vector);
 
-    while ( i < HeapSize(heap) && 
-            !(*is_found = is_match(VectorGetElem(heap->vector, i), data)))
+    while (i < HeapSize(heap) &&
+           !(*is_found = is_match(GET_ELEM(heap, i), data)))
     {
         ++i;
     }
@@ -185,6 +187,8 @@ static size_t HeapFindIdx(heap_t *heap, is_match_func_t is_match, void *data, in
 
 static void InerHeapPop(heap_t *heap, size_t idx)
 {
+    size_t size = 0;
+
     assert(heap);
     assert(heap->vector);
     assert(idx < HeapSize(heap));
@@ -192,8 +196,9 @@ static void InerHeapPop(heap_t *heap, size_t idx)
     VectorSetElem(heap->vector, idx, GET_ELEM(heap, LAST_IDX(heap)));
 
     VectorPopBack(heap->vector);
+    size = HeapSize(heap);
 
-    if (1 < HeapSize(heap) && idx < HeapSize(heap))
+    if ((1 < size) && (idx < size))
     {
         Heapify(heap, idx, POP);
     }
@@ -228,7 +233,7 @@ static void HeapifyUp(heap_t *heap, size_t unused)
 
     last_elem = LAST_IDX(heap);
     elem = GET_ELEM(heap, last_elem);
-    parent = (last_elem - 1) / 2;
+    parent = GET_PARENT_IDX(last_elem);
 
     while (last_elem > 0)
     {
@@ -238,7 +243,7 @@ static void HeapifyUp(heap_t *heap, size_t unused)
         {
             SwapHeapElem(heap, last_elem, parent);
             last_elem = parent;
-            parent = (parent - 1) / 2;
+            parent = GET_PARENT_IDX(parent);
             continue;
         }
 
@@ -254,7 +259,7 @@ static void HeapifyDown(heap_t *heap, size_t idx)
     size_t swap_idx = 0;
 
     size_t left_child_idx = GET_LEFT_CHILD_IDX(idx);
-    size_t rigth_child_idx = GET_RIGTH_CHILD_IDX(idx);
+    size_t right_child_idx = GET_RIGHT_CHILD_IDX(idx);
 
     void *elem = NULL;
     void *swap_elem = NULL;
@@ -269,12 +274,12 @@ static void HeapifyDown(heap_t *heap, size_t idx)
         swap_idx = left_child_idx;
         swap_elem = GET_ELEM(heap, swap_idx);
 
-        /* checks if rigth child is exsist
-         * if so - test which one is the biger between both childs 
+        /* checks if right child is exist 
+         * if so - test which one is the biger between both childs
          */
-        if (rigth_child_idx <= last_elem)
+        if (right_child_idx <= last_elem)
         {
-            swap_idx = FindBigerChild(heap, rigth_child_idx, left_child_idx);
+            swap_idx = FindBigerChild(heap, right_child_idx, left_child_idx);
             swap_elem = GET_ELEM(heap, swap_idx);
         }
         /* check is there is need to swap - if not end the function */
@@ -288,7 +293,7 @@ static void HeapifyDown(heap_t *heap, size_t idx)
 
         /* update children of new idx */
         left_child_idx = GET_LEFT_CHILD_IDX(idx);
-        rigth_child_idx = GET_RIGTH_CHILD_IDX(idx);
+        right_child_idx = GET_RIGHT_CHILD_IDX(idx);
     }
 
     return;
@@ -310,14 +315,14 @@ static void SwapHeapElem(heap_t *heap, size_t idx_1, size_t idx_2)
     return;
 }
 
-static size_t FindBigerChild(heap_t *heap, size_t rigth_c_idx, size_t left_c_idx)
+static size_t FindBigerChild(heap_t *heap, size_t right_c_idx, size_t left_c_idx)
 {
-    size_t idx = rigth_c_idx;
+    size_t idx = right_c_idx;
 
     assert(heap);
     assert(heap->vector);
 
-    if (0 < heap->func(GET_ELEM(heap, left_c_idx), GET_ELEM(heap, rigth_c_idx)))
+    if (0 < heap->func(GET_ELEM(heap, left_c_idx), GET_ELEM(heap, right_c_idx)))
     {
         idx = left_c_idx;
     }

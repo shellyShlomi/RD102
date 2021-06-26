@@ -2,13 +2,12 @@
  *  Status:Approved;                                            *
  *  Date Of Creation:15.06.21;									*
  *  Date Of Approval:--.06.21;									*
- *  Approved By: Eden.w. ;	            						*
+ *  Approved By: Maor ;	        	    						*
  *  Description: slef balancing tree with based on the height   * 
  *             with a limit of abs 2 diff beetwin child nodes   */
 
 #include <stdlib.h> /* malloc */
 #include <stddef.h> /* size_t */
-#include <string.h> /* memmove */
 #include <assert.h>
 
 #include "avl.h"
@@ -56,9 +55,7 @@ static int AVLPostOrder(avl_node_t *node, act_func_t func, void *param);
 
 static avl_node_t *AVLRecRemove(avl_node_t *node, void *data, cmp_func_t func);
 
-static avl_node_t *HandleNodeRemoval(avl_node_t *node, cmp_func_t func);
-
-static avl_node_t *GetMinNode(avl_node_t *node);
+static void *GetMinNodeData(avl_node_t *node);
 
 static int AVLBalancedDiff(avl_node_t *node);
 
@@ -407,6 +404,7 @@ static avl_node_t *AVLRecRemove(avl_node_t *node, void *data,
                                 cmp_func_t func)
 {
     int cmp_val = 0;
+    avl_node_t *child_node = NULL;
 
     assert(func);
 
@@ -419,7 +417,22 @@ static avl_node_t *AVLRecRemove(avl_node_t *node, void *data,
 
     if (0 == cmp_val)
     {
-        return (HandleNodeRemoval(node, func));
+        if (HAS_RIGHT_CHILD(node))
+        {
+            node->data = GetMinNodeData(node->children[RIGHT]);
+            node->children[RIGHT] =
+                AVLRecRemove(node->children[RIGHT], node->data, func);
+        }
+        else
+        {
+            child_node = node->children[LEFT];
+            UpdateHeight(child_node);
+            SetNode(node, NULL, NULL, 0, NULL);
+            free(node);
+
+            return (child_node);
+        }
+
     }
 
     if (0 < cmp_val)
@@ -437,46 +450,18 @@ static avl_node_t *AVLRecRemove(avl_node_t *node, void *data,
     return (BalanceTree(node));
 }
 
-/* Handles the case where the node to remove was founed  */
-static avl_node_t *HandleNodeRemoval(avl_node_t *node, cmp_func_t func)
-{
-    avl_node_t *child_node = NULL;
-    avl_node_t *node_min = NULL;
-
-    assert(node);
-    if (HAS_RIGHT_CHILD(node))
-    {
-        node_min = GetMinNode(node->children[RIGHT]);
-        node->data = node_min->data;
-        
-        node->children[RIGHT] =
-            AVLRecRemove(node->children[RIGHT], node->data, func);
-        UpdateHeight(node);
-
-        return (node);
-    }
-    else
-    {
-        child_node = node->children[LEFT];
-        SetNode(node, NULL, NULL, 0, NULL);
-        free(node);
-        UpdateHeight(child_node);
-
-        return (child_node);
-    }
-}
 
 /* gat the min val node of the cur node */
-static avl_node_t *GetMinNode(avl_node_t *node)
+static void *GetMinNodeData(avl_node_t *node)
 {
     assert(node);
 
     if (HAS_LEFT_CHILD(node))
     {
-        return (GetMinNode(node->children[LEFT]));
+        return (GetMinNodeData(node->children[LEFT]));
     }
 
-    return (node);
+    return (node->data);
 }
 
 /* find helper */
@@ -503,8 +488,6 @@ static avl_node_t *AVLRecFind(avl_node_t *node, void *data,
     return (AVLRecFind(node->children[RIGHT], (void *)data, func));
 }
 
-
-/* stub */
 static avl_node_t *BalanceTree(avl_node_t *node)
 {
     int balanced_diff = 0;
@@ -534,6 +517,7 @@ static avl_node_t *BalanceTree(avl_node_t *node)
         return (RRRotation(node));
     }
 
+    UpdateHeight(node);
     return (node);
 }
 
