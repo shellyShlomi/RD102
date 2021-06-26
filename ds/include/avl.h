@@ -14,7 +14,8 @@ typedef enum order
 {
     PRE_ORDER,
     IN_ORDER,
-    POST_ORDER
+    POST_ORDER, 
+    HEIGHT
 }order_t;
 
 /* O(1) */
