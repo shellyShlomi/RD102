@@ -1,8 +1,8 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:done;                                      *
+ *  Status:Approved;                                            *
  *  Date Of Creation:20.06.21;									*
  *  Date Of Approval:--.06.21;									*
- *  Approved By:  ;	            								*
+ *  Approved By:  Eden Wittenberg;	            				*
  *  Description: hash table- a data structur of key value pairs */
 
 #include <stdlib.h> /* malloc */
@@ -79,10 +79,6 @@ void HashDestroy(hash_t *hash)
         DLLDestroy(hash->hash_table[i]);
     }
     SetHash(hash, 0, 0, NULL, NULL);
-    /*     hash->size = 0;
-    hash->capacity = 0;
-    hash->func = NULL;
-    hash->match = NULL; */
 
     free(hash);
     hash = NULL;
