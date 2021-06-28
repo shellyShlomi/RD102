@@ -16,7 +16,6 @@
 struct hash
 {
     size_t capacity;
-    size_t size;
     hash_func_t func;
     match_func_t match;
     d_list_t *hash_table[1];
@@ -29,7 +28,7 @@ typedef struct hash_counter
 
 } hash_counter_t;
 
-static void SetHash(hash_t *hash, size_t capacity, size_t size, hash_func_t func, match_func_t match);
+static void SetHash(hash_t *hash, size_t capacity, hash_func_t func, match_func_t match);
 
 hash_t *HashCreate(size_t size, hash_func_t func, match_func_t match)
 {
@@ -47,10 +46,7 @@ hash_t *HashCreate(size_t size, hash_func_t func, match_func_t match)
         return (NULL);
     }
 
-    table->size = 0;
-    table->capacity = size;
-    table->func = func;
-    table->match = match;
+    SetHash(table, size, func, match);
 
     for (i = 0; i < size; ++i)
     {
@@ -78,7 +74,7 @@ void HashDestroy(hash_t *hash)
     {
         DLLDestroy(hash->hash_table[i]);
     }
-    SetHash(hash, 0, 0, NULL, NULL);
+    SetHash(hash, 0, NULL, NULL);
 
     free(hash);
     hash = NULL;
@@ -185,9 +181,8 @@ size_t HashSize(const hash_t *hash)
 
 /*------------------------------helper_function---------------------------------*/
 
-static void SetHash(hash_t *hash, size_t capacity, size_t size, hash_func_t func, match_func_t match)
+static void SetHash(hash_t *hash, size_t capacity, hash_func_t func, match_func_t match)
 {
-    hash->size = size;
     hash->capacity = capacity;
     hash->func = func;
     hash->match = match;
