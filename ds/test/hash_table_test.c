@@ -220,7 +220,7 @@ size_t InerHashFunc(char *key)
 {
     size_t index = 0;
 
-    while ('\0' < *key)
+    while ('\0' != *key)
     {
         index += (size_t)(*key);
         ++key;
