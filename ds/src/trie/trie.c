@@ -1,8 +1,8 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:in development;                                      *
+ *  Status:Approved;                                            *
  *  Date Of Creation:27.06.21;									*
- *  Date Of Approval:--.06.21;									*
- *  Approved By:  ;	            								*
+ *  Date Of Approval:-02.07.21;									*
+ *  Approved By:  Yakov Matatov;                                *
  *  Description: trie DS                                        */
 
 #include <stdlib.h> /* malloc */

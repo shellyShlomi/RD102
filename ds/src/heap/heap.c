@@ -1,8 +1,8 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:in development;                                      *
+ *  Status:Approved;                                            *
  *  Date Of Creation:24.06.21;									*
- *  Date Of Approval:--.06.21;									*
- *  Approved By: ;	            								*
+ *  Date Of Approval:26.06.21;									*
+ *  Approved By: Roman Irinarkhov;	            				*
  *  Description:Heap data structure implement with              *     
  *              dynamic vector                                  * 
  *                                                              */
@@ -196,6 +196,7 @@ static void InerHeapPop(heap_t *heap, size_t idx)
     VectorSetElem(heap->vector, idx, GET_ELEM(heap, LAST_IDX(heap)));
 
     VectorPopBack(heap->vector);
+    
     size = HeapSize(heap);
 
     if ((1 < size) && (idx < size))

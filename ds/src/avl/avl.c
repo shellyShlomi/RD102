@@ -1,10 +1,24 @@
 /*  Developer: Shelly Shlomi;									*
  *  Status:Approved;                                            *
  *  Date Of Creation:15.06.21;									*
- *  Date Of Approval:--.06.21;									*
- *  Approved By: Maor ;	        	    						*
- *  Description: slef balancing tree with based on the height   * 
+ *  Date Of Approval:22.06.21;									*
+ *  Approved By: Maor ;                                         *	 
+ *                                 	    						*
+ *  Description: PHAS 1                                         *
+ *               slef balancing tree with based on the height   * 
  *             with a limit of abs 2 diff beetwin child nodes   */
+
+
+/*  Developer: Shelly Shlomi;									*
+ *  Status:done;                                                *
+ *  Date Of Creation:22.06.21;									*
+ *  Date Of Approval:--.07.21;									*
+ *  Approved By:  ;                                             *	 
+ *                            	    						    *
+ *  Description: PHAS 2                                         *       
+ *               slef balancing tree with based on the height   * 
+ *             with a limit of abs 2 diff beetwin child nodes   */
+
 
 #include <stdlib.h> /* malloc */
 #include <stddef.h> /* size_t */

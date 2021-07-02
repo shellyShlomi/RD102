@@ -1,8 +1,8 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:in development;                                      *
+ *  Status:Approved;                                            *
  *  Date Of Creation:27.06.21;									*
- *  Date Of Approval:--.06.21;									*
- *  Approved By:  ;	        	    						    *
+ *  Date Of Approval:02.07.21;									*
+ *  Approved By:  Yakov Matatov;                                *
  *  Description: DHCP a network management protocol used on     *
  *               Internet Protocol (IP) networks for            * 
  *               automatically assigning IP addresses           */
@@ -18,7 +18,6 @@
 #define BITS_IN_4BYTES (32)
 #define IPV4 (4)
 #define BITS_IN_BYTE (8)
-#define LEST_BYTE (3)
 #define FAULT (0)
 #define TRUE (1)
 
