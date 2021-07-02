@@ -7,7 +7,6 @@
 #include "dhcp.h"
 
 typedef struct trie trie_t;
-typedef struct trie_node trie_node_t;
 typedef enum family
 {
     LEFT,

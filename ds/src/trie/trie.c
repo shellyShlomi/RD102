@@ -15,18 +15,11 @@
 #include "trie.h"
 
 #define BITS_IN_4BYTES (32)
-#define BINARIY_BASE (2)
-
-#define MAX(hight_l, hight_r) ((hight_l) > (hight_r) ? (hight_l) : (hight_r))
 
 #define NEXT_NODE_BIT(bits, ip) ((ip >> ((bits)-1) & 0x1))
-#define SIBLING_BIT(x, i) (((~i) >> ((x)-1)) & 0x1)
 
 #define HAS_RIGHT_CHILD(node) ((node)->node_family[RIGHT])
 #define HAS_LEFT_CHILD(node) ((node)->node_family[LEFT])
-
-#define IS_NEXT_NODE_FULL(node, ip, bit) ((node)->node_family[(bit)]->is_full)
-#define IS_NEXT_NODE_SIBLING_FULL(node, ip, bit) ((node)->node_family[SIBLING_BIT((bit), (ip))]->is_full)
 
 #define NEXT_NODE(node, bit) ((node)->node_family[(bit)])
 
@@ -34,6 +27,8 @@
 #define IS_LEFT_CHILD_FULL(node) ((node)->node_family[LEFT]->is_full)
 
 #define PARENT_NODE(node) ((node)->node_family[PARENT])
+
+typedef struct trie_node trie_node_t;
 
 struct trie_node
 {
