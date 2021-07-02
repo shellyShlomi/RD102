@@ -4,6 +4,7 @@
 #include <unistd.h> /* sleep */
 
 #include "heap_scheduler.h"
+#include "heap_pq.h"
 #include "task.h"
 #include "uid.h"
 

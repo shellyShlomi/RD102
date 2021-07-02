@@ -300,6 +300,7 @@ static int IsMatch(const void *data, const void *param)
 
 static int CmpFunc(const void *data1, const void *data2)
 {
-	return (TaskGetExecutionTime((task_t *)data2) - TaskGetExecutionTime((task_t *)data1)); 		
+	return ((TaskGetExecutionTime((task_t *)data1) - TaskGetExecutionTime((task_t *)data2))); 		
 }
+
 
