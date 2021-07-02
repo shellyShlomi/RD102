@@ -9,14 +9,11 @@
 
 #include <stddef.h> /* size_t */
 #include <assert.h>
-#include <stdlib.h>  /* malloc */
-#include <stdio.h>   /* printf */
-#include <endian.h>  /* LITTLE_ENDIAN */
+#include <stdlib.h> /* malloc */
+#include <stdio.h>  /* printf */
 
 #include "dhcp.h"
 #include "trie.h"
-
-#define RESERVED_IPS (3)
 
 #define BITS_IN_4BYTES (32)
 #define IPV4 (4)
@@ -25,12 +22,12 @@
 #define FAULT (0)
 #define TRUE (1)
 
-
 enum reserved_ips
 {
     NETWORK_ADDRESS,
     SERVER_ADDRESS,
-    BROADCAST_ADDRESS
+    BROADCAST_ADDRESS,
+    RESERVED_IPS
 };
 
 typedef enum func
@@ -51,14 +48,14 @@ struct dhcp
 static void CovertToArr(unsigned long ip, unsigned char new_ip[4]);
 static unsigned long CovertToLong(unsigned char ip[]);
 
+static int InitReservedIp(dhcp_t *dhcp);
+
 static int IsInSubnetRange(dhcp_t *dhcp, unsigned long ip);
 /*------------------------------ implementetion --------------------------------*/
 
 dhcp_t *DhcpCreate(const unsigned char subnet_id_bytes[4], size_t occupied_bits)
 {
     unsigned long mask = ~0 << ((unsigned long)BITS_IN_4BYTES - (unsigned long)occupied_bits);
-    unsigned long returnd_ip = 0;
-    unsigned char new_ip[4] = {0};
 
     dhcp_t *dhcp = NULL;
 
@@ -85,25 +82,7 @@ dhcp_t *DhcpCreate(const unsigned char subnet_id_bytes[4], size_t occupied_bits)
         dhcp = NULL;
     }
 
-    /*the reserved addres X .11111110 */
-    if (TrieInsert(dhcp->trie, ((~mask) ^ 0x1), &returnd_ip))
-    {
-        DhcpDestroy(dhcp);
-    }
-    /*the reserved addres X.11111111*/
-    if (TrieInsert(dhcp->trie, (~mask), &returnd_ip))
-    {
-        DhcpDestroy(dhcp);
-    }
-    /*the reserved addres X.000000000*/
-    if (TrieInsert(dhcp->trie, 0, &returnd_ip))
-    {
-        DhcpDestroy(dhcp);
-    }
-
-    dhcp->reserved_ip[NETWORK_ADDRESS] = 0;
-    dhcp->reserved_ip[SERVER_ADDRESS] = ((~mask) ^ 0x1);
-    dhcp->reserved_ip[BROADCAST_ADDRESS] = (~mask);
+    InitReservedIp(dhcp);
 
     return (dhcp);
 }
@@ -221,7 +200,7 @@ static int IsInSubnetRange(dhcp_t *dhcp, unsigned long ip)
 {
     unsigned long mask = ~(~0 << dhcp->bit_of_claint);
     unsigned long mask1 = ~0 << dhcp->bit_of_claint;
-    
+
     assert(dhcp);
 
     mask = mask & ip;
@@ -229,10 +208,36 @@ static int IsInSubnetRange(dhcp_t *dhcp, unsigned long ip)
 
     if ((mask1 ^ dhcp->subnet_id) ||
         (mask >= (dhcp->reserved_ip[SERVER_ADDRESS]) ||
-        (mask <= (dhcp->reserved_ip[NETWORK_ADDRESS]))))
+         (mask <= (dhcp->reserved_ip[NETWORK_ADDRESS]))))
     {
         return (FAULT);
     }
+
+    return (TRUE);
+}
+
+static int InitReservedIp(dhcp_t *dhcp)
+{
+    unsigned long mask = ~0 << dhcp->bit_of_claint;
+    unsigned long returnd_ip = 0;
+
+    assert(dhcp);
+
+        /*the reserved addres X .11111110 */
+    if (TrieInsert(dhcp->trie, ((~mask) ^ 0x1), &returnd_ip) ||
+        /*the reserved addres X.11111111*/
+        TrieInsert(dhcp->trie, (~mask), &returnd_ip) ||
+        /*the reserved addres X.000000000*/
+        TrieInsert(dhcp->trie, 0, &returnd_ip))
+    {
+        DhcpDestroy(dhcp);
+        dhcp = NULL;
+        return (FAULT);
+    }
+
+    dhcp->reserved_ip[NETWORK_ADDRESS] = 0;
+    dhcp->reserved_ip[SERVER_ADDRESS] = ((~mask) ^ 0x1);
+    dhcp->reserved_ip[BROADCAST_ADDRESS] = (~mask);
 
     return (TRUE);
 }

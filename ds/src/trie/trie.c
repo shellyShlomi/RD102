@@ -1,6 +1,6 @@
 /*  Developer: Shelly Shlomi;									*
  *  Status:in development;                                      *
- *  Date Of Creation:15.06.21;									*
+ *  Date Of Creation:27.06.21;									*
  *  Date Of Approval:--.06.21;									*
  *  Approved By:  ;	            								*
  *  Description: trie DS                                        */
@@ -24,7 +24,6 @@
 
 #define HAS_RIGHT_CHILD(node) ((node)->node_family[RIGHT])
 #define HAS_LEFT_CHILD(node) ((node)->node_family[LEFT])
-#define HAS_PARENT(node) ((node)->node_family[PARENT])
 
 #define IS_NEXT_NODE_FULL(node, ip, bit) ((node)->node_family[(bit)]->is_full)
 #define IS_NEXT_NODE_SIBLING_FULL(node, ip, bit) ((node)->node_family[SIBLING_BIT((bit), (ip))]->is_full)
@@ -49,8 +48,6 @@ struct trie
 };
 
 /*------------- helper funcs ------------*/
-static long Count(void *unuesed, void *param);
-
 static void SetNode(trie_node_t *node, trie_node_t *left_child,
                     trie_node_t *right_child, trie_node_t *parent, long is_full);
 
@@ -63,14 +60,13 @@ static size_t RecTrieSize(trie_node_t *node, size_t hight);
 /*------------- Insert ------------*/
 
 static dhcp_status_t InerInsert(trie_t *tree, unsigned long *wanted_ip, unsigned long *returned_ip);
-static trie_node_t *WraperGetIpNode(trie_t *tree, unsigned long wanted_ip, family_t *ip_child_side);
 static trie_node_t *GetIpNode(trie_node_t *node, unsigned long wanted_ip, unsigned long *bits, family_t *ip_child_side);
 static dhcp_status_t RecInsert(trie_node_t *node, unsigned long bits, unsigned long *wanted_ip, unsigned long *returned_ip);
 
 static dhcp_status_t CreatBranch(trie_node_t *node,
                                  unsigned long *wanted_ip,
-                                 unsigned long bits,
-                                 unsigned long *returned_ip);
+                                 unsigned long bits);
+
 static void DestroyBranch(trie_node_t *node, unsigned long wanted_ip, unsigned long bits);
 static void UpDateIsFull(trie_node_t *node);
 /*------------------------------ implementetion --------------------------------*/
@@ -226,7 +222,7 @@ static dhcp_status_t RecInsert(trie_node_t *node,
     node = GetIpNode(node, *wanted_ip, &bits, &ip_child_side);
     if (!node->node_family[ip_child_side])
     {
-        status = CreatBranch(node, wanted_ip, bits, returned_ip);
+        status = CreatBranch(node, wanted_ip, bits);
         return (status);
     }
 
@@ -236,16 +232,6 @@ static dhcp_status_t RecInsert(trie_node_t *node,
 
     *returned_ip = *wanted_ip;
 
-    if (node->node_family[PARENT] && node->node_family[ip_child_side]->is_full && (RIGHT == ip_child_side))
-    {
-        node = node->node_family[PARENT];
-    }
-    if (node->node_family[RIGHT])
-    {
-        node = node->node_family[RIGHT];
-        --bits;
-    }
-
     return (RecInsert(node, bits, wanted_ip, returned_ip));
 }
 
@@ -254,7 +240,6 @@ static trie_node_t *GetIpNode(trie_node_t *node,
                               unsigned long *bits,
                               family_t *ip_child_side)
 {
-    trie_node_t *curr_node = NULL;
     assert(node);
     assert(ip_child_side);
     assert(bits);
@@ -271,53 +256,30 @@ static trie_node_t *GetIpNode(trie_node_t *node,
     return (node);
 }
 
-static trie_node_t *WraperGetIpNode(trie_t *tree, unsigned long wanted_ip, family_t *ip_child_side)
-{
-    trie_node_t *node = NULL;
-    unsigned long bits = 0;
-
-    assert(tree);
-
-    node = tree->root;
-    bits = tree->num_of_bits;
-
-    return (GetIpNode(node, wanted_ip, &bits, ip_child_side));
-}
 
 static dhcp_status_t CreatBranch(trie_node_t *node,
                                  unsigned long *wanted_ip,
-                                 unsigned long bits,
-                                 unsigned long *returned_ip)
+                                 unsigned long bits)
 {
     trie_node_t *malloced_node = NULL;
-    unsigned long ip = 0;
 
     assert(wanted_ip);
 
-    ip = *wanted_ip;
-
-    if (!NEXT_NODE(node, NEXT_NODE_BIT(bits, *wanted_ip)))
+    while (bits > 0)
     {
-        while (bits > 0)
+        malloced_node = (trie_node_t *)malloc(sizeof(trie_node_t));
+        if (!malloced_node)
         {
-            malloced_node = (trie_node_t *)malloc(sizeof(trie_node_t));
-            if (!malloced_node)
-            {
-                return (MALLOC_FAILED);
-            }
-
-            node->node_family[NEXT_NODE_BIT(bits, *wanted_ip)] = malloced_node;
-            SetNode(malloced_node, NULL, NULL, node, 0);
-            node = NEXT_NODE(node, NEXT_NODE_BIT(bits, *wanted_ip));
-            --bits;
+            return (MALLOC_FAILED);
         }
-    }
-    else if (NEXT_NODE(node, NEXT_NODE_BIT(bits, *wanted_ip))->is_full)
-    {
-        return (RecInsert(node, bits, wanted_ip, returned_ip));
+
+        node->node_family[NEXT_NODE_BIT(bits, *wanted_ip)] = malloced_node;
+        SetNode(malloced_node, NULL, NULL, node, 0);
+        node = NEXT_NODE(node, NEXT_NODE_BIT(bits, *wanted_ip));
+        --bits;
     }
 
-    if (node == malloced_node && bits == 0)
+    if (bits == 0)
     {
         node->is_full = 1;
     }
@@ -409,6 +371,6 @@ int IsIpFree(trie_t *tree, unsigned long wanted_ip)
     {
         bits = 0;
     }
-    
+
     return (bits);
 }
