@@ -16,18 +16,13 @@ typedef enum family
 }family_t;
 
 
-/* O(1) */
 trie_t *TrieCreate(size_t num_of_bits);
 
-/* O(n) - n numbert of nodes in tree */
 void TrieDestroy(trie_t *tree);
 
-/* O(log n) */
 dhcp_status_t TrieInsert(trie_t *tree, unsigned long wanted_ip, unsigned long *returned_ip);
 
-/* O(log n) */
 void TrieRemove(trie_t *tree, unsigned long ip);
-
 
 size_t TrieSize(trie_t *tree);
 
