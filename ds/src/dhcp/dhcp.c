@@ -163,6 +163,9 @@ dhcp_status_t DhcpFreeIp(dhcp_t *dhcp, const unsigned char ip_address[4])
     return (SUCCESS);
 }
 
+/*-------------------------helper Covertion funcs-----------------------------*/
+
+
 static unsigned long CovertToLong(unsigned char ip[])
 {
     unsigned long mask = 0;
@@ -193,6 +196,7 @@ static void CovertToArr(unsigned long ip, unsigned char new_ip[4])
 
     return;
 }
+/*-------------------helper func for DhcpAlloc & DhcpFreeIp-------------------*/
 
 static int IsInSubnetRange(dhcp_t *dhcp, unsigned long ip)
 {
@@ -213,6 +217,7 @@ static int IsInSubnetRange(dhcp_t *dhcp, unsigned long ip)
 
     return (TRUE);
 }
+/*-------------------------helper for DhcpAllocteIp & --------------------------*/
 
 static int InitReservedIp(dhcp_t *dhcp)
 {
