@@ -142,6 +142,28 @@ void TrieRemove(trie_t *tree, unsigned long ip)
     return;
 }
 
+/*-----------------------------API func for DHCP--------------------------------*/
+
+int IsIpFree(trie_t *tree, unsigned long wanted_ip)
+{
+    unsigned long bits = 0;
+    family_t ip_child_side = 0;
+    trie_node_t *node = NULL;
+
+    assert(tree);
+
+    node = tree->root;
+    bits = tree->num_of_bits;
+    node = GetIpNode(node, wanted_ip, &bits, &ip_child_side);
+
+    if (node->node_family[ip_child_side] && node->node_family[ip_child_side]->is_full)
+    {
+        bits = 0;
+    }
+
+    return (bits);
+}
+
 /*-----------------------------helper_function--------------------------------*/
 
 /* generic set node */
@@ -347,24 +369,4 @@ static void DestroyBranch(trie_node_t *node, unsigned long wanted_ip, unsigned l
     }
 
     return;
-}
-
-int IsIpFree(trie_t *tree, unsigned long wanted_ip)
-{
-    unsigned long bits = 0;
-    family_t ip_child_side = 0;
-    trie_node_t *node = NULL;
-
-    assert(tree);
-
-    node = tree->root;
-    bits = tree->num_of_bits;
-    node = GetIpNode(node, wanted_ip, &bits, &ip_child_side);
-
-    if (node->node_family[ip_child_side] && node->node_family[ip_child_side]->is_full)
-    {
-        bits = 0;
-    }
-
-    return (bits);
 }
