@@ -7,7 +7,6 @@
 
 #include <stdlib.h> /* malloc */
 #include <stddef.h> /* size_t */
-#include <math.h>   /* pow */
 #include <assert.h>
 
 #include "dhcp.h"
