@@ -7,7 +7,6 @@
 
 #include <stdlib.h> /* malloc */
 #include <stddef.h> /* size_t */
-#include <string.h> /* memmove */
 #include <math.h>   /* pow */
 #include <assert.h>
 
