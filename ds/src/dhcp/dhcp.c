@@ -7,10 +7,9 @@
  *               Internet Protocol (IP) networks for            * 
  *               automatically assigning IP addresses           */
 
+#include <stdlib.h> /* malloc */
 #include <stddef.h> /* size_t */
 #include <assert.h>
-#include <stdlib.h> /* malloc */
-#include <stdio.h>  /* printf */
 
 #include "dhcp.h"
 #include "trie.h"
