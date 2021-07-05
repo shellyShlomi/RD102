@@ -10,14 +10,11 @@
 
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:done;                                                *
+ *  Status:Approved;                                            *
  *  Date Of Creation:22.06.21;									*
- *  Date Of Approval:--.07.21;									*
- *  Approved By:  ;                                             *	 
- *                            	    						    *
- *  Description: PHAS 2                                         *       
- *               slef balancing tree with based on the height   * 
- *             with a limit of abs 2 diff beetwin child nodes   */
+ *  Date Of Approval:05.07.21;									*
+ *  Approved By: Nir;                                           *	 
+ *  Description: PHAS 2 - the balancing part of the tree        */       
 
 
 #include <stdlib.h> /* malloc */
@@ -84,8 +81,8 @@ static avl_node_t *BalanceTree(avl_node_t *node);
 static void AVLRecDestroy(avl_node_t *node);
 
 /*------------- Rotation ------------*/
-static avl_node_t *LLRotation(avl_node_t *node);
-static avl_node_t *RRRotation(avl_node_t *node);
+static avl_node_t *LeftRotation(avl_node_t *node);
+static avl_node_t *Rightotation(avl_node_t *node);
 
 /*------------------------------ implementetion --------------------------------*/
 
@@ -221,10 +218,10 @@ int AVLForEach(avl_t *tree, act_func_t func, void *param, order_t order)
 {
     avl_node_t *node = NULL;
     static for_each_t order_for_for_each[] =
-        {
-            AVLPreOrder,
-            AVLInOrder,
-            AVLPostOrder};
+                                              {
+                                                  AVLPreOrder,
+                                                  AVLInOrder,
+                                                  AVLPostOrder};
     assert(tree);
     assert(func);
 
@@ -506,6 +503,8 @@ static avl_node_t *BalanceTree(avl_node_t *node)
 {
     int balanced_diff = 0;
 
+    assert(node);
+
     balanced_diff = AVLBalancedDiff(node);
 
     if (1 < balanced_diff)
@@ -514,10 +513,10 @@ static avl_node_t *BalanceTree(avl_node_t *node)
 
         if (0 > balanced_diff)
         {
-            node->children[RIGHT] = RRRotation(node->children[RIGHT]);
+            node->children[RIGHT] = Rightotation(node->children[RIGHT]);
         }
 
-        return (LLRotation(node));
+        return (LeftRotation(node));
     }
     else if (-1 > balanced_diff)
     {
@@ -525,10 +524,10 @@ static avl_node_t *BalanceTree(avl_node_t *node)
 
         if (0 < balanced_diff)
         {
-            node->children[LEFT] = LLRotation(node->children[LEFT]);
+            node->children[LEFT] = LeftRotation(node->children[LEFT]);
         }
 
-        return (RRRotation(node));
+        return (Rightotation(node));
     }
 
     UpdateHeight(node);
@@ -556,10 +555,12 @@ static int AVLBalancedDiff(avl_node_t *node)
 }
 
 /* left rotation */
-static avl_node_t *LLRotation(avl_node_t *node)
+static avl_node_t *LeftRotation(avl_node_t *node)
 {
     avl_node_t *right_child = node->children[RIGHT];
     avl_node_t *temp = right_child->children[LEFT];
+
+    assert(node);
 
     right_child->children[LEFT] = node;
     node->children[RIGHT] = temp;
@@ -571,10 +572,12 @@ static avl_node_t *LLRotation(avl_node_t *node)
 }
 
 /* right rotation */
-static avl_node_t *RRRotation(avl_node_t *node)
+static avl_node_t *Rightotation(avl_node_t *node)
 {
     avl_node_t *left_child = node->children[LEFT];
     avl_node_t *temp = left_child->children[RIGHT];
+
+    assert(node);
 
     left_child->children[RIGHT] = node;
     node->children[LEFT] = temp;
