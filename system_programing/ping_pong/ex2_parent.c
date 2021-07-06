@@ -4,41 +4,72 @@
  *  Date Of Approval:--.07.21;									*
  *  Approved By:  ;                                             *	 
  *  Description: signals Ping Pong                              */
+#define _XOPEN_SOURCE
+#include <stdlib.h>    /* EXIT_FAILURE */
+#include <sys/types.h> /* pid_t */
+#include <unistd.h>    /* pause */
+#include <signal.h>    /* struct sigaction  */
+#include <stdio.h>     /* printf */
+/*------------------------------ exercise func --------------------------------*/
 
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <signal.h>
-#include <assert.h>
+static void PingPongParent();
+void Handler(int);
+/*------------------------------ implementetion --------------------------------*/
 
+volatile int flag = 0;
 
-static void ForkPhas1(char *const argv[])
+int main()
+{
+    PingPongParent();
+
+    return (EXIT_SUCCESS);
+}
+
+static void PingPongParent()
 {
     pid_t child_pid = {0};
+    struct sigaction handler = {0};
     int status = 1;
+    handler.sa_handler = Handler;
 
-    assert(argv);
-
-    while (status)
+    status = sigaction(SIGUSR1, &handler, NULL);
+    if (status)
     {
-        child_pid = fork();
-        if (child_pid == -1)
-        {
-            exit(EXIT_SUCCESS);
-        }
-        else if (child_pid > 0)
-        {
-            wait(&status);
-        }
-        else
-        {
-            execv("/home/shelly/git/system_programing/simple_watchdog/dummy", argv);
-            exit(EXIT_SUCCESS);
-        }
-        printf("PHAS 1 : returnd status :%d\n", WEXITSTATUS(status));
+        return;
     }
-    printf("\nend of PHAS 1\n");
+    status = sigaction(SIGUSR2, &handler, NULL);
+    if (status)
+    {
+        return;
+    }
 
+    child_pid = fork();
+
+    if (child_pid == -1)
+    {
+        exit(EXIT_FAILURE);
+    }
+    else if (child_pid > 0)
+    {
+        flag = 1;
+        while (flag)
+        {
+            printf("PING\n");
+/*             pause();
+            sleep(1); */
+            kill(child_pid, SIGUSR1);
+        }
+    }
+    else
+    {
+        execl("/home/shelly/git/system_programing/ping_pong/ex2_child", "shelly");
+    }
+
+    return;
+}
+
+void Handler(int num)
+{
+    (void)num;
     return;
 }
