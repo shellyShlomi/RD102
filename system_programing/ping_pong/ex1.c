@@ -1,9 +1,9 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:in development;                                      *
+ *  Status:Approved;                                            *
  *  Date Of Creation:06.07.21;									*
- *  Date Of Approval:--.07.21;									*
- *  Approved By:  ;                                             *	 
- *  Description: signals Ping Pong                              */
+ *  Date Of Approval:06.07.21;									*
+ *  Approved By: sagi ;                                         *	 
+ *  Description: signals Ping Pong - ex 1                       */
 #define _XOPEN_SOURCE
 #include <stdlib.h>    /* EXIT_FAILURE */
 #include <sys/types.h> /* pid_t */
