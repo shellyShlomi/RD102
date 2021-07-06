@@ -3,19 +3,13 @@
 
 int main()
 {
-	
-	printf("Insert a single character: ");
-	system("stty -icanon -echo");
+	int num = 0;
+	scanf("%d", &num);
 
-	if (0 == getchar() % 2)
+	if (0 <= num)
 	{
-		printf("\neven!\n");
-		system("stty icanon echo");
-
-		return (0);
+		return (1);
 	}
-	printf("\nodd!\n");
-	system("stty icanon echo");
 
-	return (1);	
+	return (0);	
 }

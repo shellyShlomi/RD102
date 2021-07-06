@@ -52,7 +52,7 @@ static void ForkPhas1(char *const argv[])
         }
         else
         {
-            execv("/home/shelly/git/system_programing/simple_watchdog/dummy_p", argv);
+            execv("/home/shelly/git/system_programing/simple_watchdog/dummy", argv);
             exit(EXIT_SUCCESS);
         }
         printf("PHAS 1 : returnd status :%d\n", WEXITSTATUS(status));
