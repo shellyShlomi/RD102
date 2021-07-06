@@ -32,11 +32,6 @@ static void PingPongParent()
     int status = 1;
     handler.sa_handler = Handler;
 
-    status = sigaction(SIGUSR1, &handler, NULL);
-    if (status)
-    {
-        return;
-    }
     status = sigaction(SIGUSR2, &handler, NULL);
     if (status)
     {
@@ -44,25 +39,26 @@ static void PingPongParent()
     }
 
     child_pid = fork();
-
     if (child_pid == -1)
     {
         exit(EXIT_FAILURE);
     }
-    else if (child_pid > 0)
-    {
-        flag = 1;
-        while (flag)
-        {
-            printf("PING\n");
-/*             pause();
-            sleep(1); */
-            kill(child_pid, SIGUSR1);
-        }
-    }
-    else
+    else if (child_pid == 0)
     {
         execl("/home/shelly/git/system_programing/ping_pong/ex2_child", "shelly");
+    }
+
+    while (0 == status)
+    {
+
+        if (flag)
+        {
+            printf("\033[0;33m");
+            printf("PING\n");
+            printf("\033[0m");
+            flag = 0;
+            status = kill(child_pid, SIGUSR1);
+        }
     }
 
     return;
@@ -70,6 +66,10 @@ static void PingPongParent()
 
 void Handler(int num)
 {
-    (void)num;
+    if (num == SIGUSR2)
+    {
+        flag = 1;
+    }
+
     return;
 }

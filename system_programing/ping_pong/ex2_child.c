@@ -15,7 +15,7 @@
 static void PingPongChild();
 void Handler(int);
 /*------------------------------ implementetion --------------------------------*/
-volatile int flag = 0;
+volatile int flag = 1;
 
 int main()
 {
@@ -36,18 +36,17 @@ static void PingPongChild()
     {
         return;
     }
-    status = sigaction(SIGUSR2, &handler, NULL);
-    if (status)
-    {
-        return;
-    }
-    
     while (0 == status)
     {
-        printf("PONG\n");
-        status = kill(getppid(), SIGUSR2);
-        pause();
-        sleep(1);
+        if (flag)
+        {
+            printf("\033[0;35m");
+            printf("PONG\n");
+            printf("\033[0m");
+
+            flag = 0;
+            status = kill(getppid(), SIGUSR2);
+        }
     }
 
     return;
@@ -55,6 +54,10 @@ static void PingPongChild()
 
 void Handler(int num)
 {
-    (void)num;
+    if (num == SIGUSR1)
+    {
+        flag = 1;
+    }
+
     return;
 }
