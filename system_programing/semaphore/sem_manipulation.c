@@ -10,8 +10,7 @@
 #include <semaphore.h> /* semaphore */
 #include <fcntl.h>	   /* For O_* constants */
 #include <assert.h>	   /* assert */
-#include <string.h>	   /* strlen */
-#include <ctype.h>	   /* isspace */
+#include <string.h>	   /* strtok */
 
 #define UNUSED(x) (void)(x)
 #define BUFF (100)
