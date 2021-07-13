@@ -113,69 +113,6 @@ static void RunOperation(sem_elem_t *sem)
 
 	return;
 }
-/* 
-static int OperationAnalyzer(sem_elem_t *sem, char *op)
-{
-
-	static operation_recored_t sys_op[] =
-		{
-			{"D", Decrements},
-			{"I", Increments},
-			{"V", GetVal},
-			{"X", ExitPorg}};
-
-	size_t i = 0;
-	size_t size = sizeof(sys_op) / sizeof(sys_op[0]);
-	int num = 0;
-	char *end_of_op = NULL;
-	char *undo = NULL;
-	char *operation = op;
-
-	assert(sem);
-	assert(op);
-
-	SkipSpace(&operation);
-
-	while (i < size && *operation != *sys_op[i].op)
-	{
-		++i;
-	}
-
-	if (isalnum(*(operation + 1)))
-	{
-		return (EXIT_SUCCESS);
-	}
-
-	if (i != size && i < ARITMETIC_OP)
-	{
-		++operation;
-		num = strtod(operation, &end_of_op);
-
-		SkipSpace(&end_of_op);
-
-		operation = end_of_op;
-
-		if ('\0' != *operation && (0 == strncmp(operation, "undo", CHARS_IN_UNDO)) &&
-			(!isalnum(*(operation + CHARS_IN_UNDO + 1))))
-		{
-			if (i)
-			{
-				sem->count += -num;
-			}
-			else
-			{
-				sem->count += num;
-			}
-		}
-	}
-	else if (i == size)
-	{
-		i = 0;
-	}
-
-	return (sys_op[i].RunOperation(sem, num));
-}
- */
 
 static int OperationAnalyzer(sem_elem_t *sem, char *op)
 {
