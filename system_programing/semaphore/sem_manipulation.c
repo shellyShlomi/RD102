@@ -10,11 +10,12 @@
 #include <semaphore.h> /* semaphore */
 #include <fcntl.h>	   /* For O_* constants */
 #include <assert.h>	   /* assert */
-#include <string.h>	   /* strtok */
+#include <string.h>	   /* strncmp */
+#include <ctype.h>	   /* isalnum */
 
 #define UNUSED(x) (void)(x)
 #define BUFF (100)
-#define CHARS_IN_UNDO (4)
+#define CHARS_IN_UNDO (5)
 #define ARITMETIC_OP (2)
 #define EXIT (1)
 
@@ -32,7 +33,6 @@ typedef struct operation_recored
 
 /*------------------------------ exercise func --------------------------------*/
 
-
 /* Semaphore init */
 static sem_t *CreatSemaphore(char *sem_name);
 
@@ -46,6 +46,8 @@ static int Decrements(sem_elem_t *sem, int num);
 static int Increments(sem_elem_t *sem, int num);
 static int GetVal(sem_elem_t *sem, int num);
 static int ExitPorg(sem_elem_t *sem, int num);
+
+static void SkipSpace(char **str);
 
 /*------------------------------ implementetion --------------------------------*/
 int main(int argc, char **argv)
@@ -112,7 +114,7 @@ static void RunOperation(sem_elem_t *sem)
 
 	return;
 }
-
+/* 
 static int OperationAnalyzer(sem_elem_t *sem, char *op)
 {
 
@@ -139,11 +141,11 @@ static int OperationAnalyzer(sem_elem_t *sem, char *op)
 	{
 		++i;
 	}
-
 	if (i != size && i < ARITMETIC_OP)
 	{
 		num_str = strtok(NULL, " ");
-		if (num_str)
+
+		if (num_str && '\0' == *(num_str + strlen(num_str) - 1))
 		{
 			num = atoi(num_str);
 			undo = strtok(NULL, " \n");
@@ -161,6 +163,74 @@ static int OperationAnalyzer(sem_elem_t *sem, char *op)
 			}
 		}
 
+	}
+	else if (i == size)
+	{
+		i = 0;
+	}
+
+	return (sys_op[i].RunOperation(sem, num));
+}
+ */
+
+static int OperationAnalyzer(sem_elem_t *sem, char *op)
+{
+
+	static operation_recored_t sys_op[] =
+		{
+			{"D", Decrements},
+			{"I", Increments},
+			{"V", GetVal},
+			{"X", ExitPorg}};
+
+	size_t i = 0;
+	size_t size = sizeof(sys_op) / sizeof(sys_op[0]);
+	int num = 0;
+	char *end_of_op = NULL;
+	char *operation = op;
+
+	assert(sem);
+	assert(op);
+
+	SkipSpace(&operation);
+
+	while (i < size && *operation != *sys_op[i].op)
+	{
+		++i;
+	}
+
+	if (isalnum(*(operation + 1)))
+	{
+		return (EXIT_SUCCESS);
+	}
+
+	if (i != size && i < ARITMETIC_OP)
+	{
+		++operation;
+		num = strtod(operation, &end_of_op);
+
+		if (' ' != *end_of_op && '\n' != *end_of_op && '\0' != *end_of_op)
+		{
+			num = 0;
+		}
+
+		SkipSpace(&end_of_op);
+
+		operation = end_of_op;
+
+		if ('\0' != *operation &&
+			((0 == strncmp(operation, "undo ", CHARS_IN_UNDO)) ||
+			 (0 == strncmp(operation, "undo\n", CHARS_IN_UNDO))))
+		{
+			if (i)
+			{
+				sem->count += -num;
+			}
+			else
+			{
+				sem->count += num;
+			}
+		}
 	}
 	else if (i == size)
 	{
@@ -230,4 +300,16 @@ static int ExitPorg(sem_elem_t *sem, int num)
 	UNUSED(num);
 
 	return (EXIT);
+}
+
+static void SkipSpace(char **str)
+{
+	assert(str);
+
+	while (isspace(**str))
+	{
+		++(*str);
+	}
+
+	return;
 }
