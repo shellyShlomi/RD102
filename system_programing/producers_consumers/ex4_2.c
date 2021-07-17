@@ -16,8 +16,8 @@
 #include <assert.h>
 #include <string.h>
 
-#define THREADS_SIZE (6)
-#define Q_SIZE (100)
+#define THREADS_SIZE (100)
+#define Q_SIZE (1000)
 
 typedef enum return_val
 {
@@ -149,16 +149,16 @@ static void *Producers()
     while (insert < Q_SIZE)
     {
         /*-------------------critical section---------------------*/
-         pthread_mutex_lock(lock_w);
-        if (Q_SIZE == write - read)
+        pthread_mutex_lock(lock_w);
+        if (Q_SIZE == atomic_load(&write) - atomic_load(&read))
         {
             pthread_mutex_unlock(lock_w);
             sched_yield();
         }
         else
         {
-             atomic_exchange(queue + (write % (Q_SIZE)), insert);
-             atomic_fetch_add(&write, 1);
+            atomic_exchange(queue + (atomic_load(&write) % (Q_SIZE)), insert);
+            atomic_fetch_add(&write, 1);
 
             atomic_fetch_add(&insert, 1);
             pthread_mutex_unlock(lock_w);
@@ -179,9 +179,9 @@ static void *Consumers()
 
         /*-------------------critical section---------------------*/
 
- pthread_mutex_lock(lock_r);
+        pthread_mutex_lock(lock_r);
 
-        if (0 == write - read)
+        if (0 == atomic_load(&write) - atomic_load(&read))
         {
             pthread_mutex_unlock(lock_r);
             sched_yield();
@@ -189,12 +189,12 @@ static void *Consumers()
         else
         {
 
-            buf[j] = queue[read % (Q_SIZE)];
-            atomic_fetch_add(queue + (read % (Q_SIZE)), 0);
+            buf[atomic_load(&j)] = queue[atomic_load(&read) % (Q_SIZE)];
+            atomic_fetch_add(queue + (atomic_load(&read) % (Q_SIZE)), 0);
 
             atomic_fetch_add(&(read), 1);
+            atomic_fetch_add(&(j), 1);
 
-            ++j;
             pthread_mutex_unlock(lock_r);
         }
 
@@ -239,7 +239,7 @@ static int IsBufferCoreect()
 
     for (j = 0; j < Q_SIZE; ++j)
     {
-        if (3 < count_arr[j])
+        if (50 < count_arr[j])
         {
             for (i = 0; i < Q_SIZE; ++i)
             {
