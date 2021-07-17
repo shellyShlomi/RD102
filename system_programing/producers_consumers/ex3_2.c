@@ -29,7 +29,7 @@ typedef enum return_val
 
 typedef struct que
 {
-    atomic_int write; /*the num of elem in the queue*/
+    atomic_int write; /* index to write to */
     atomic_int read;  /*index to read from*/
     atomic_int queue[Q_SIZE];
 
@@ -90,6 +90,7 @@ int main()
         }
         }
     }
+
     Test();
 
     return (0);
