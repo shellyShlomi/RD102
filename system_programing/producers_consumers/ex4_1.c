@@ -25,35 +25,22 @@ typedef enum return_val
     CIRCULAR_QUEUE_CREATE_FAILDE
 } return_val_t;
 
-typedef struct que
-{
-    atomic_size_t write; /* index to write to */
-    atomic_size_t read;  /* index to read from */
-    atomic_int queue[Q_SIZE];
+static void *Producers();
+static void *Consumers();
 
-} cq_t;
-
-typedef struct pc_fsq
-{
-    cq_t *que;
-    pthread_mutex_t *lock;
-} pc_fsq_t;
-
-static cq_t *CQueueCreate();
-static void CQueueDestroy(cq_t *que);
-
-static void *Producers(void *mutex_fsq);
-static void *Consumers(void *mutex_fsq);
-
-static int CreatThreads(pthread_t arr_threads[], pc_fsq_t *struct_fsq);
+static int CreatThreads(pthread_t arr_threads[]);
 static return_val_t Manager();
-static void MutexDestroy(pc_fsq_t *mutex_fsq);
+static void MutexDestroy();
 
 static void Test();
 static int Compare(const void *data1, const void *data2);
 static int IsBufferCoreect();
 
-int buf[Q_SIZE] = {0};
+pthread_mutex_t *lock = NULL;
+int buf[Q_SIZE];
+atomic_size_t write = 0; /* index to write to */
+atomic_size_t read = 0;  /* index to read from */
+atomic_int queue[Q_SIZE];
 
 int main()
 {
@@ -91,23 +78,15 @@ static return_val_t Manager()
     size_t i = 0;
     pthread_t arr_threads[THREADS_SIZE] = {0};
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    pc_fsq_t mutex_fsq = {0};
 
-    mutex_fsq.lock = &mutex;
+    lock = &mutex;
 
-    mutex_fsq.que = CQueueCreate();
-    if (!mutex_fsq.que)
-    {
-        return (CIRCULAR_QUEUE_CREATE_FAILDE);
-    }
-
-    if (CreatThreads(arr_threads, &mutex_fsq))
+    if (CreatThreads(arr_threads))
     {
         return (THREAD_CREATE_FAILDE);
     }
 
-    MutexDestroy(&mutex_fsq);
-    CQueueDestroy(mutex_fsq.que);
+    MutexDestroy();
 
     for (i = 0; i < Q_SIZE; ++i)
     {
@@ -118,25 +97,22 @@ static return_val_t Manager()
     return (0);
 }
 
-static void MutexDestroy(pc_fsq_t *pc_fsq)
+static void MutexDestroy()
 {
-    assert(pc_fsq);
-
-    pthread_mutex_destroy((pc_fsq->lock));
+    pthread_mutex_destroy((lock));
 
     return;
 }
 
-static int CreatThreads(pthread_t arr_threads[], pc_fsq_t *pc_fsq)
+static int CreatThreads(pthread_t arr_threads[])
 {
     size_t k = 0;
 
     assert(arr_threads);
-    assert(pc_fsq);
 
     for (k = 0; k < THREADS_SIZE / 2; ++k)
     {
-        if (pthread_create(arr_threads + k, NULL, Producers, (void *)(pc_fsq)))
+        if (pthread_create(arr_threads + k, NULL, Producers, NULL))
         {
             return (1);
         }
@@ -144,7 +120,7 @@ static int CreatThreads(pthread_t arr_threads[], pc_fsq_t *pc_fsq)
 
     for (k = THREADS_SIZE / 2; k < THREADS_SIZE; ++k)
     {
-        if (pthread_create(arr_threads + k, NULL, Consumers, (void *)(pc_fsq)))
+        if (pthread_create(arr_threads + k, NULL, Consumers, NULL))
         {
             return (1);
         }
@@ -158,28 +134,27 @@ static int CreatThreads(pthread_t arr_threads[], pc_fsq_t *pc_fsq)
     return (0);
 }
 
-static void *Producers(void *pc_fsq)
+static void *Producers()
 {
     int insert = 0;
-    pc_fsq_t *fsq = (pc_fsq_t *)pc_fsq;
 
     while (insert < Q_SIZE)
     {
         /*-------------------critical section---------------------*/
-        pthread_mutex_lock(fsq->lock);
-        if (Q_SIZE == fsq->que->write - fsq->que->read)
+        pthread_mutex_lock(lock);
+        if (Q_SIZE == write - read)
         {
-            pthread_mutex_unlock(fsq->lock);
+            pthread_mutex_unlock(lock);
             sched_yield();
         }
         else
         {
-            __sync_fetch_and_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
-            __sync_fetch_and_add(&fsq->que->write, 1);
+            atomic_store(queue + (write % (Q_SIZE)), insert);
+            atomic_fetch_add(&write, 1);
 
-            __sync_fetch_and_add(&insert, 1);
+            atomic_fetch_add(&insert, 1);
 
-            pthread_mutex_unlock(fsq->lock);
+            pthread_mutex_unlock(lock);
         }
         /*-------------------critical section---------------------*/
     }
@@ -187,68 +162,38 @@ static void *Producers(void *pc_fsq)
     return (NULL);
 }
 
-static void *Consumers(void *pc_fsq)
+static void *Consumers()
 {
     size_t j = 0;
-    pc_fsq_t *fsq = (pc_fsq_t *)pc_fsq;
 
     while (j < Q_SIZE)
     {
 
         /*-------------------critical section---------------------*/
-        pthread_mutex_lock(fsq->lock);
+        pthread_mutex_lock(lock);
 
-        if (0 == fsq->que->read - fsq->que->write)
+        if (0 == read - write)
         {
-            pthread_mutex_unlock(fsq->lock);
+            pthread_mutex_unlock(lock);
             sched_yield();
         }
         else
         {
-            __sync_fetch_and_and((buf + j), 0);
-            __sync_fetch_and_add((buf + j), fsq->que->queue[fsq->que->read % Q_SIZE]);
-            
-            __sync_fetch_and_and(fsq->que->queue + (fsq->que->read % Q_SIZE), 0);
-            __sync_fetch_and_add(&(fsq->que->read), 1);
+            atomic_exchange((buf + j), queue[read % Q_SIZE]);
 
-            __sync_fetch_and_add(&j, 1);
-            
-            pthread_mutex_unlock(fsq->lock);
+            atomic_exchange(queue + (read % Q_SIZE), 0);
+            atomic_fetch_add(&(read), 1);
+
+            atomic_fetch_add(&j, 1);
+            pthread_mutex_unlock(lock);
         }
+
         /*-------------------critical section---------------------*/
     }
 
     return (NULL);
 }
 
-/*--------------------------Circular Queue impl------------------------------*/
-
-static cq_t *CQueueCreate()
-{
-    cq_t *que = (cq_t *)malloc(sizeof(cq_t));
-
-    if (NULL == que)
-    {
-        return NULL;
-    }
-
-    que->read = 0;
-    que->write = 0;
-
-    return que;
-}
-
-static void CQueueDestroy(cq_t *que)
-{
-    assert(NULL != que);
-
-    que->write = 0xFFFFFFFFFFFFFFFF;
-    que->read = 0xFFFFFFFFFFFFFFFF;
-
-    free(que);
-
-    return;
-}
 
 /*---------------------------------Test funcs---------------------------------*/
 
