@@ -189,16 +189,12 @@ static int CreatThreads(pthread_t arr_threads[], mutex_fsq_t *struct_fsq)
         }
     }
 
-    if (pthread_create(arr_threads + k, NULL, Consumers, (void *)(struct_fsq)))
+    for (k = THREADS_SIZE / 2; k < THREADS_SIZE; ++k)
     {
-        return (1);
-    }
-
-    ++k;
-    struct_fsq->i = Q_SIZE / 2;
-    if (pthread_create(arr_threads + k, NULL, Consumers, (void *)(struct_fsq)))
-    {
-        return (1);
+        if (pthread_create(arr_threads + k, NULL, Consumers, (void *)(struct_fsq)))
+        {
+            return (1);
+        }
     }
 
     for (k = 0; k < THREADS_SIZE; ++k)
@@ -221,18 +217,15 @@ static void *Producers(void *mutex_fsq)
             return (NULL);
         }
 
+        /*-------------------critical section---------------------*/
         pthread_mutex_lock(fsq->lock_r);
-        /*-------------------critical section---------------------*/
-        __sync_add_and_fetch(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
-__sync_fetch_and_add(&fsq->que->write, 1);
 
-
-/*         __atomic_store_n(fsq->que->queue + (fsq->que->write), insert, __ATOMIC_SEQ_CST);
- */
-/*         fsq->que->write = (fsq->que->write + 1) % (Q_SIZE);
- */        ++insert;
-        /*-------------------critical section---------------------*/
+        __sync_fetch_and_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
+        
+        ++(fsq->que->write);
+        ++insert;
         pthread_mutex_unlock(fsq->lock_r);
+        /*-------------------critical section---------------------*/
 
         if (sem_post(fsq->sem_r))
         {
@@ -251,25 +244,22 @@ static void *Consumers(void *mutex_fsq)
     while (j < Q_SIZE)
     {
 
-        if (sem_wait(fsq->sem_r))
+        if (0 != sem_wait(fsq->sem_r))
         {
             return (NULL);
         }
+
+        /*-------------------critical section---------------------*/
         pthread_mutex_lock(fsq->lock_w);
-
-        /*-------------------critical section---------------------*/
-
-        __sync_add_and_fetch((buf + j), 0);
-        __sync_add_and_fetch((buf + j), fsq->que->queue[fsq->que->read % (Q_SIZE)]);
-        __sync_add_and_fetch(fsq->que->queue + (fsq->que->read % Q_SIZE), 0);
-__sync_fetch_and_add(&fsq->que->read, 1);
+        atomic_exchange(buf + j, fsq->que->queue[fsq->que->read % Q_SIZE]);
+        atomic_fetch_and(fsq->que->queue + (fsq->que->read % Q_SIZE), 0);
+        atomic_fetch_add(&(fsq->que->read), 1);
         ++j;
-        /*-------------------critical section---------------------*/
         pthread_mutex_unlock(fsq->lock_w);
+        /*-------------------critical section---------------------*/
 
         if (sem_post(fsq->sem_w))
         {
-
             return (NULL);
         }
     }
@@ -281,7 +271,7 @@ __sync_fetch_and_add(&fsq->que->read, 1);
 
 static cq_t *CQueueCreate()
 {
-    cq_t *que = (cq_t *)calloc(1 ,sizeof(cq_t));
+    cq_t *que = (cq_t *)malloc(sizeof(cq_t));
 
     if (NULL == que)
     {
@@ -339,7 +329,7 @@ static int IsBufferCoreect()
 
     for (j = 0; j < Q_SIZE; ++j)
     {
-        if (2 < count_arr[j])
+        if (5 < count_arr[j])
         {
             for (i = 0; i < Q_SIZE; ++i)
             {
@@ -357,3 +347,7 @@ static int Compare(const void *data1, const void *data2)
 {
     return (*(int *)data1 - *(int *)data2);
 }
+
+
+
+

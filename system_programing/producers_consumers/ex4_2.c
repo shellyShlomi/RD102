@@ -16,7 +16,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define THREADS_SIZE (4)
+#define THREADS_SIZE (10)
 #define Q_SIZE (100)
 
 typedef enum return_val
@@ -288,7 +288,7 @@ static int IsBufferCoreect()
 
     for (j = 0; j < Q_SIZE; ++j)
     {
-        if (2 < count_arr[j])
+        if (5 < count_arr[j])
         {
             for (i = 0; i < Q_SIZE; ++i)
             {

@@ -14,8 +14,9 @@
 #include <stdatomic.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
-#define THREADS_SIZE (4)
+#define THREADS_SIZE (10)
 #define SIZE (100)
 #define Q_SIZE (100)
 
@@ -53,6 +54,10 @@ static void *Consumers(void *mutex_fsq);
 static return_val_t CreatThreads(pthread_t arr_threads[], mutex_fsq_t *struct_fsq);
 static return_val_t Manager();
 
+static void Test();
+static int Compare(const void *data1, const void *data2);
+static int IsBufferCoreect();
+
 int buf[SIZE];
 
 int main()
@@ -82,6 +87,7 @@ int main()
         }
     }
 
+    Test();
     return (0);
 }
 
@@ -219,7 +225,6 @@ static void PushNum(cq_t *que, int num)
 {
 
     assert(que);
-    assert(que->size < Q_SIZE);
 
     que->queue[(que->read + que->size) % (Q_SIZE)] = num;
 
@@ -233,7 +238,6 @@ static int PopNum(cq_t *que)
     int num = 0;
 
     assert(que);
-    assert(que->size > 0);
 
     num = que->queue[que->read];
 
@@ -268,4 +272,56 @@ static void CQueueDestroy(cq_t *que)
     free(que);
 
     return;
+}
+
+/*---------------------------------Test funcs---------------------------------*/
+
+static void Test()
+{
+    size_t i = 0;
+    int copy[Q_SIZE] = {0};
+
+    memcpy(copy, buf, Q_SIZE);
+
+    qsort(copy, Q_SIZE, sizeof(int), Compare);
+
+    if (IsBufferCoreect(copy))
+    {
+        for (i = 0; i < Q_SIZE; ++i)
+        {
+            printf("sorted buf[i] is: %d \n", copy[i]);
+        }
+    }
+}
+
+static int IsBufferCoreect()
+{
+    size_t i = 0;
+    size_t j = 0;
+    size_t count_arr[Q_SIZE] = {0};
+
+    for (i = 0; i < Q_SIZE; ++i)
+    {
+        ++(count_arr[buf[i]]);
+    }
+
+    for (j = 0; j < Q_SIZE; ++j)
+    {
+        if (5 < count_arr[j])
+        {
+            for (i = 0; i < Q_SIZE; ++i)
+            {
+                printf("count_arr[i] is: %lu and i is: %lu\n", count_arr[i], i);
+            }
+
+            return (1);
+        }
+    }
+
+    return (0);
+}
+
+static int Compare(const void *data1, const void *data2)
+{
+    return (*(int *)data1 - *(int *)data2);
 }

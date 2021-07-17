@@ -16,7 +16,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define THREADS_SIZE (10)
+#define THREADS_SIZE (100)
 #define Q_SIZE (100)
 
 typedef enum return_val
@@ -53,7 +53,7 @@ static void Test();
 static int Compare(const void *data1, const void *data2);
 static int IsBufferCoreect();
 
-int buf[Q_SIZE];
+int buf[Q_SIZE] = {0};
 
 int main()
 {
@@ -174,8 +174,9 @@ static void *Producers(void *pc_fsq)
         }
         else
         {
-            __atomic_store_n(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert, __ATOMIC_SEQ_CST);
+            __sync_fetch_and_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
             __sync_fetch_and_add(&fsq->que->write, 1);
+
             __sync_fetch_and_add(&insert, 1);
 
             pthread_mutex_unlock(fsq->lock);
@@ -204,11 +205,14 @@ static void *Consumers(void *pc_fsq)
         }
         else
         {
-            __atomic_store_n((buf + j), fsq->que->queue[fsq->que->read % (Q_SIZE)], __ATOMIC_SEQ_CST);
-            __atomic_store_n(fsq->que->queue + (fsq->que->read % (Q_SIZE)), 0, __ATOMIC_SEQ_CST);
-
+            __sync_fetch_and_and((buf + j), 0);
+            __sync_fetch_and_add((buf + j), fsq->que->queue[fsq->que->read % Q_SIZE]);
+            
+            __sync_fetch_and_and(fsq->que->queue + (fsq->que->read % Q_SIZE), 0);
             __sync_fetch_and_add(&(fsq->que->read), 1);
+
             __sync_fetch_and_add(&j, 1);
+            
             pthread_mutex_unlock(fsq->lock);
         }
         /*-------------------critical section---------------------*/
@@ -279,7 +283,7 @@ static int IsBufferCoreect()
 
     for (j = 0; j < Q_SIZE; ++j)
     {
-        if (5 < count_arr[j])
+        if (50 < count_arr[j])
         {
             for (i = 0; i < Q_SIZE; ++i)
             {

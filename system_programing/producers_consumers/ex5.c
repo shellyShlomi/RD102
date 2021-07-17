@@ -16,7 +16,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define THREADS_SIZE (4)
+#define THREADS_SIZE (10)
 #define Q_SIZE (100)
 
 typedef enum return_val
@@ -27,9 +27,9 @@ typedef enum return_val
 
 typedef struct que
 {
-    atomic_size_t write; /* index to write to */
-    atomic_size_t read;  /* index to read from */
-    atomic_int queue[Q_SIZE];
+    size_t write; /* index to write to */
+    size_t read;  /* index to read from */
+    int queue[Q_SIZE];
 
 } cq_t;
 
@@ -54,7 +54,7 @@ static void Test();
 static int Compare(const void *data1, const void *data2);
 static int IsBufferCoreect();
 
-int buf[Q_SIZE];
+int buf[Q_SIZE] = {0};
 
 int main()
 {
@@ -82,7 +82,7 @@ int main()
         }
     }
 
-    Test();
+    Test(); 
     return (0);
 }
 
@@ -163,35 +163,25 @@ static int CreatThreads(pthread_t arr_threads[], pc_fsq_t *pc_fsq)
 
 static void *Producers(void *pc_fsq)
 {
-    size_t j = 0;
     int insert = 0;
     pc_fsq_t *fsq = (pc_fsq_t *)pc_fsq;
-    atomic_size_t write = 0;
 
-    while (j < Q_SIZE)
+    while (insert < Q_SIZE)
     {
         /*-------------------critical section---------------------*/
-        pthread_mutex_lock(fsq->lock_r);
+        pthread_mutex_lock(fsq->lock_w);
         if (Q_SIZE == fsq->que->write - fsq->que->read)
         {
-            pthread_mutex_unlock(fsq->lock_r);
-
+            pthread_mutex_unlock(fsq->lock_w);
             sched_yield();
         }
         else
         {
-            write = fsq->que->write;
-            pthread_mutex_unlock(fsq->lock_r);
-
-            pthread_mutex_lock(fsq->lock_w);
-            fsq->que->queue[write % (Q_SIZE)] = insert;
-
-            pthread_mutex_lock(fsq->lock_r);
-            __sync_fetch_and_add(&fsq->que->write, 1);
-            pthread_mutex_unlock(fsq->lock_r);
+             __sync_fetch_and_and(fsq->que->queue + (fsq->que->write % (Q_SIZE)), 0);
+             atomic_fetch_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
+             atomic_fetch_add(&fsq->que->write, 1);
 
             __sync_fetch_and_add(&insert, 1);
-            __sync_fetch_and_add(&j, 1);
             pthread_mutex_unlock(fsq->lock_w);
         }
         /*-------------------critical section---------------------*/
@@ -204,8 +194,7 @@ static void *Consumers(void *pc_fsq)
 {
     size_t j = 0;
     pc_fsq_t *fsq = (pc_fsq_t *)pc_fsq;
-    atomic_size_t read = 0;
-    
+
     while (j < Q_SIZE)
     {
 
@@ -220,19 +209,14 @@ static void *Consumers(void *pc_fsq)
         }
         else
         {
-            read = fsq->que->read;
-            pthread_mutex_unlock(fsq->lock_r);
-            pthread_mutex_lock(fsq->lock_w);
 
-            buf[j] = fsq->que->queue[read % (Q_SIZE)];
-            __sync_fetch_and_add(fsq->que->queue + (read % (Q_SIZE)), 0);
+            buf[j] = fsq->que->queue[fsq->que->read % (Q_SIZE)];
+            __sync_fetch_and_add(fsq->que->queue + (fsq->que->read % (Q_SIZE)), 0);
 
-            pthread_mutex_lock(fsq->lock_r);
             __sync_fetch_and_add(&(fsq->que->read), 1);
-            pthread_mutex_unlock(fsq->lock_r);
 
             ++j;
-            pthread_mutex_unlock(fsq->lock_w);
+            pthread_mutex_unlock(fsq->lock_r);
         }
         /*-------------------critical section---------------------*/
     }
@@ -304,7 +288,7 @@ static int IsBufferCoreect()
 
     for (j = 0; j < Q_SIZE; ++j)
     {
-        if (2 < count_arr[j])
+        if (5 < count_arr[j])
         {
             for (i = 0; i < Q_SIZE; ++i)
             {
