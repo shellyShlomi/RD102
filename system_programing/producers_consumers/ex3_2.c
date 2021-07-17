@@ -220,9 +220,9 @@ static void *Producers(void *mutex_fsq)
         /*-------------------critical section---------------------*/
         pthread_mutex_lock(fsq->lock_r);
 
-        __sync_fetch_and_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
-        
-        ++(fsq->que->write);
+        atomic_fetch_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
+        atomic_fetch_add(&fsq->que->write, 1);
+
         ++insert;
         pthread_mutex_unlock(fsq->lock_r);
         /*-------------------critical section---------------------*/
@@ -271,7 +271,7 @@ static void *Consumers(void *mutex_fsq)
 
 static cq_t *CQueueCreate()
 {
-    cq_t *que = (cq_t *)malloc(sizeof(cq_t));
+    cq_t *que = (cq_t *)calloc(1, sizeof(cq_t));
 
     if (NULL == que)
     {
