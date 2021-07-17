@@ -27,9 +27,9 @@ typedef enum return_val
 
 typedef struct que
 {
-    atomic_int size; /*the num of elem in the queue*/
-    atomic_int read; /*index to read from*/
-    atomic_int queue[Q_SIZE];
+    size_t size; /*the num of elem in the queue*/
+    size_t read; /*index to read from*/
+    int queue[Q_SIZE];
 
 } cq_t;
 
@@ -170,7 +170,6 @@ static void *Producers(void *mutex_fsq)
 
         if (sem_wait(((mutex_fsq_t *)mutex_fsq)->sem_w))
         {
-            pthread_mutex_unlock(((mutex_fsq_t *)mutex_fsq)->lock);
 
             return (NULL);
         }
@@ -182,8 +181,6 @@ static void *Producers(void *mutex_fsq)
 
         if (sem_post(((mutex_fsq_t *)mutex_fsq)->sem_r))
         {
-            pthread_mutex_unlock(((mutex_fsq_t *)mutex_fsq)->lock);
-
             return (NULL);
         }
     }
@@ -199,7 +196,6 @@ static void *Consumers(void *mutex_fsq)
     {
         if (sem_wait(((mutex_fsq_t *)mutex_fsq)->sem_r))
         {
-            pthread_mutex_unlock(((mutex_fsq_t *)mutex_fsq)->lock);
             return (NULL);
         }
 
@@ -210,7 +206,6 @@ static void *Consumers(void *mutex_fsq)
 
         if (sem_post(((mutex_fsq_t *)mutex_fsq)->sem_w))
         {
-            pthread_mutex_unlock(((mutex_fsq_t *)mutex_fsq)->lock);
             return (NULL);
         }
     }
@@ -242,13 +237,11 @@ static int PopNum(cq_t *que)
 
     num = que->queue[que->read];
 
-    que->read = (que->read + 1)  % (Q_SIZE);
+    que->read = (que->read + 1) % (Q_SIZE);
     --que->size;
 
     return num;
 }
-
-
 
 static cq_t *CQueueCreate()
 {

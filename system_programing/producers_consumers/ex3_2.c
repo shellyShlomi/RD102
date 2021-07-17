@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define THREADS_SIZE (4)
+#define THREADS_SIZE (10)
 #define Q_SIZE (100)
 
 typedef enum return_val
@@ -29,9 +29,9 @@ typedef enum return_val
 
 typedef struct que
 {
-    atomic_int write; /* index to write to */
-    atomic_int read;  /*index to read from*/
-    atomic_int queue[Q_SIZE];
+    size_t write; /* index to write to */
+    size_t read;  /*index to read from*/
+    int queue[Q_SIZE];
 
 } cq_t;
 
@@ -45,7 +45,6 @@ typedef struct mutex_fsq
     sem_t *sem_r;
 
 } mutex_fsq_t;
-
 
 static cq_t *CQueueCreate();
 static void CQueueDestroy(cq_t *que);
@@ -95,7 +94,6 @@ int main()
 
     return (0);
 }
-
 
 static return_val_t Manager()
 {
@@ -223,15 +221,18 @@ static void *Producers(void *mutex_fsq)
             return (NULL);
         }
 
-        /*-------------------critical section---------------------*/
         pthread_mutex_lock(fsq->lock_r);
-
-        __atomic_store_n(fsq->que->queue + (fsq->que->write), insert, __ATOMIC_SEQ_CST);
-
-        fsq->que->write = (fsq->que->write + 1) % (Q_SIZE);
-        ++insert;
-        pthread_mutex_unlock(fsq->lock_r);
         /*-------------------critical section---------------------*/
+        __sync_add_and_fetch(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
+__sync_fetch_and_add(&fsq->que->write, 1);
+
+
+/*         __atomic_store_n(fsq->que->queue + (fsq->que->write), insert, __ATOMIC_SEQ_CST);
+ */
+/*         fsq->que->write = (fsq->que->write + 1) % (Q_SIZE);
+ */        ++insert;
+        /*-------------------critical section---------------------*/
+        pthread_mutex_unlock(fsq->lock_r);
 
         if (sem_post(fsq->sem_r))
         {
@@ -250,24 +251,25 @@ static void *Consumers(void *mutex_fsq)
     while (j < Q_SIZE)
     {
 
-        if (0 != sem_wait(fsq->sem_r))
+        if (sem_wait(fsq->sem_r))
         {
             return (NULL);
         }
-
-        /*-------------------critical section---------------------*/
         pthread_mutex_lock(fsq->lock_w);
 
-        __atomic_store_n((buf + j), fsq->que->queue[fsq->que->read], __ATOMIC_SEQ_CST);
-        __atomic_store_n(fsq->que->queue + fsq->que->read, 0, __ATOMIC_SEQ_CST);
-
-        fsq->que->read = (fsq->que->read + 1) % (Q_SIZE);
-        ++j;
-        pthread_mutex_unlock(fsq->lock_w);
         /*-------------------critical section---------------------*/
+
+        __sync_add_and_fetch((buf + j), 0);
+        __sync_add_and_fetch((buf + j), fsq->que->queue[fsq->que->read % (Q_SIZE)]);
+        __sync_add_and_fetch(fsq->que->queue + (fsq->que->read % Q_SIZE), 0);
+__sync_fetch_and_add(&fsq->que->read, 1);
+        ++j;
+        /*-------------------critical section---------------------*/
+        pthread_mutex_unlock(fsq->lock_w);
 
         if (sem_post(fsq->sem_w))
         {
+
             return (NULL);
         }
     }
@@ -279,7 +281,7 @@ static void *Consumers(void *mutex_fsq)
 
 static cq_t *CQueueCreate()
 {
-    cq_t *que = (cq_t *)malloc(sizeof(cq_t));
+    cq_t *que = (cq_t *)calloc(1 ,sizeof(cq_t));
 
     if (NULL == que)
     {

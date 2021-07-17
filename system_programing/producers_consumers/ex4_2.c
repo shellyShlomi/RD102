@@ -177,9 +177,9 @@ static void *Producers(void *pc_fsq)
         }
         else
         {
-
-            __sync_fetch_and_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert / 2);
-            __sync_fetch_and_add(&fsq->que->write, 1);
+             __sync_fetch_and_and(fsq->que->queue + (fsq->que->write % (Q_SIZE)), 0);
+             __sync_fetch_and_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
+             __sync_fetch_and_add(&fsq->que->write, 1);
 
             __sync_fetch_and_add(&insert, 1);
             pthread_mutex_unlock(fsq->lock_w);
