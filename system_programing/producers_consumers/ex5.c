@@ -22,26 +22,9 @@
 typedef enum return_val
 {
     THREAD_CREATE_FAILDE = 1,
-    CIRCULAR_QUEUE_CREATE_FAILDE
+    CIRCULAR_QUEUE_CREATE_FAILDE,
+    SEM_CREATE_FAILDE
 } return_val_t;
-
-typedef struct que
-{
-    size_t write; /* index to write to */
-    size_t read;  /* index to read from */
-    int queue[Q_SIZE];
-
-} cq_t;
-
-typedef struct pc_fsq
-{
-    cq_t *que;
-    pthread_mutex_t *lock;
-    pthread_cond_t *cond;
-} pc_fsq_t;
-
-static cq_t *CQueueCreate();
-static void CQueueDestroy(cq_t *que);
 
 static void *Producers(void *mutex_fsq);
 static void *Consumers(void *mutex_fsq);
@@ -54,7 +37,15 @@ static void Test();
 static int Compare(const void *data1, const void *data2);
 static int IsBufferCoreect();
 
-int buf[Q_SIZE] = {0};
+pthread_mutex_t *lock = NULL;
+pthread_cond_t *cond = NULL;
+sem_t *sem = NULL;
+
+atomic_int queue[Q_SIZE];
+atomic_size_t write = 0; /* index to write to */
+atomic_size_t read = 0;  /* index to read from */
+
+int buf[Q_SIZE];
 
 int main()
 {
@@ -75,6 +66,12 @@ int main()
             printf("circular queue create failde\n");
             break;
         }
+        case SEM_CREATE_FAILDE:
+        {
+            printf("semophore create failde\n");
+            break;
+        }
+
         default:
         {
             break;
@@ -91,26 +88,30 @@ static return_val_t Manager()
     size_t i = 0;
     pthread_t arr_threads[THREADS_SIZE] = {0};
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-    pc_fsq_t pc_fsq = {0};
 
-    pc_fsq.lock = &mutex;
-    pc_fsq.cond = &cond;
+    lock = &mutex;
 
-    pc_fsq.que = CQueueCreate();
-    if (!pc_fsq.que)
+    for (i = 0; i < Q_SIZE; ++i)
     {
-        return (CIRCULAR_QUEUE_CREATE_FAILDE);
+        printf("%d ", buf[i]);
+    }
+    printf("\n");
+
+    sem = sem_open("sem", O_CREAT, 0660, 0);
+    if (SEM_FAILED == sem)
+    {
+        return (SEM_CREATE_FAILDE);
     }
 
-    if (CreatThreads(arr_threads, &pc_fsq))
+    if (CreatThreads(arr_threads))
     {
         return (THREAD_CREATE_FAILDE);
     }
 
-    MutexDestroy(&pc_fsq);
-    CQueueDestroy(pc_fsq.que);
-pthread_cond_destroy(&cond);
+    MutexDestroy();
+    sem_close(sem);
+    sem_unlink("sem");
+
     for (i = 0; i < Q_SIZE; ++i)
     {
         printf("%d ", buf[i]);
@@ -124,7 +125,7 @@ static void MutexDestroy(pc_fsq_t *pc_fsq)
 {
     assert(pc_fsq);
 
-    pthread_mutex_destroy((pc_fsq->lock));
+    pthread_mutex_destroy((lock));
 
     return;
 }
@@ -221,35 +222,6 @@ static void *Consumers(void *pc_fsq)
     }
 
     return (NULL);
-}
-
-/*--------------------------Circular Queue impl------------------------------*/
-
-static cq_t *CQueueCreate()
-{
-    cq_t *que = (cq_t *)malloc(sizeof(cq_t));
-
-    if (NULL == que)
-    {
-        return NULL;
-    }
-
-    que->read = 0;
-    que->write = 0;
-
-    return que;
-}
-
-static void CQueueDestroy(cq_t *que)
-{
-    assert(NULL != que);
-
-    que->write = 0xFFFFFFFFFFFFFFFF;
-    que->read = 0xFFFFFFFFFFFFFFFF;
-
-    free(que);
-
-    return;
 }
 
 /*---------------------------------Test funcs---------------------------------*/

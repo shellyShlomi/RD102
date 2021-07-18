@@ -16,7 +16,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define THREADS_SIZE (100)
+#define THREADS_SIZE (10)
 #define Q_SIZE (100)
 
 typedef enum return_val
@@ -37,7 +37,7 @@ static int Compare(const void *data1, const void *data2);
 static int IsBufferCoreect();
 
 pthread_mutex_t *lock = NULL;
-int buf[Q_SIZE];
+int test_buf[Q_SIZE];
 atomic_size_t write = 0; /* index to write to */
 atomic_size_t read = 0;  /* index to read from */
 atomic_int queue[Q_SIZE];
@@ -90,7 +90,7 @@ static return_val_t Manager()
 
     for (i = 0; i < Q_SIZE; ++i)
     {
-        printf("%d ", buf[i]);
+        printf("%d ", test_buf[i]);
     }
     printf("\n");
 
@@ -149,11 +149,11 @@ static void *Producers()
         }
         else
         {
-            atomic_store(queue + (write % (Q_SIZE)), insert);
-            atomic_fetch_add(&write, 1);
+            queue[write % (Q_SIZE)] = insert;
 
-            atomic_fetch_add(&insert, 1);
-
+            ++write;
+            ++insert;
+            
             pthread_mutex_unlock(lock);
         }
         /*-------------------critical section---------------------*/
@@ -179,12 +179,12 @@ static void *Consumers()
         }
         else
         {
-            atomic_exchange((buf + j), queue[read % Q_SIZE]);
+            test_buf[j] = queue[read % Q_SIZE];
 
-            atomic_exchange(queue + (read % Q_SIZE), 0);
-            atomic_fetch_add(&(read), 1);
+            queue[read % Q_SIZE] = 0;
+            ++read;
 
-            atomic_fetch_add(&j, 1);
+            ++j;
             pthread_mutex_unlock(lock);
         }
 
@@ -202,7 +202,7 @@ static void Test()
     size_t i = 0;
     int copy[Q_SIZE] = {0};
 
-    memcpy(copy, buf, Q_SIZE);
+    memcpy(copy, test_buf, Q_SIZE);
 
     qsort(copy, Q_SIZE, sizeof(int), Compare);
 
@@ -210,7 +210,7 @@ static void Test()
     {
         for (i = 0; i < Q_SIZE; ++i)
         {
-            printf("sorted buf[i] is: %d \n", copy[i]);
+            printf("sorted test_buf[i] is: %d \n", copy[i]);
         }
     }
 }
@@ -223,7 +223,7 @@ static int IsBufferCoreect()
 
     for (i = 0; i < Q_SIZE; ++i)
     {
-        ++(count_arr[buf[i]]);
+        ++(count_arr[test_buf[i]]);
     }
 
     for (j = 0; j < Q_SIZE; ++j)
