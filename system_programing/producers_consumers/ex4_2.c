@@ -1,11 +1,11 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:;                                                    *
+ *  Status:Approved;                                            *
  *  Date Of Creation:14.07.21;									*
- *  Date Of Approval:00.07.21;									*
- *  Approved By:  ;                                             *	 
+ *  Date Of Approval:18.07.21;									*
+ *  Approved By:Sagi;                                           *	 
  *  Description: Producers Consumers problem multiple Consumers *
- *               and Producers 1 mutex 2 semaphores -FSQ        *
- *                                                              */
+ *               and Producers 2 mutex, and 2 indexses          *
+ *                                   -FSQ                       */
 
 #include <stdio.h>     /*           printf             */
 #include <pthread.h>   /*           thread             */
@@ -149,15 +149,19 @@ static void *Producers()
     while (insert < Q_SIZE)
     {
         /*-------------------critical section---------------------*/
+        pthread_mutex_lock(lock_r);
         pthread_mutex_lock(lock_w);
         if (Q_SIZE == write - read)
         {
+            pthread_mutex_unlock(lock_r);
             pthread_mutex_unlock(lock_w);
             sched_yield();
         }
         else
         {
-            atomic_exchange(queue + (write % (Q_SIZE)), insert);
+            pthread_mutex_unlock(lock_r);
+
+            queue[write % (Q_SIZE)] =  insert;
             ++write;
 
             ++insert;
@@ -180,17 +184,19 @@ static void *Consumers()
         /*-------------------critical section---------------------*/
 
         pthread_mutex_lock(lock_r);
-
+        pthread_mutex_lock(lock_w);
         if (0 == write - read)
         {
             pthread_mutex_unlock(lock_r);
+            pthread_mutex_unlock(lock_w);
             sched_yield();
         }
         else
         {
+            pthread_mutex_unlock(lock_w);
 
             buf[j] = queue[read % (Q_SIZE)];
-            atomic_fetch_add(queue + (read % (Q_SIZE)), 0);
+            queue[read % (Q_SIZE)] =  0;
 
             ++read;
             ++j;

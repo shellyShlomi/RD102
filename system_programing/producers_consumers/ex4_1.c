@@ -1,11 +1,11 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:;                                                    *
+ *  Status:Approved;                                            *
  *  Date Of Creation:14.07.21;									*
- *  Date Of Approval:00.07.21;									*
- *  Approved By:  ;                                             *	 
+ *  Date Of Approval:18.07.21;									*
+ *  Approved By:Sagi;                                           * 
  *  Description: Producers Consumers problem multiple Consumers *
- *               and Producers 1 mutex 2 semaphores -FSQ        *
- *                                                              */
+ *               and Producers 1 mutex, and 2 atomic counters   *
+ *                                   -FSQ                       */
 
 #include <stdio.h>     /*           printf             */
 #include <pthread.h>   /*           thread             */
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <signal.h>
 
 #define THREADS_SIZE (10)
 #define Q_SIZE (100)
@@ -38,9 +39,9 @@ static int IsBufferCoreect();
 
 pthread_mutex_t *lock = NULL;
 int test_buf[Q_SIZE];
-atomic_size_t write = 0; /* index to write to */
-atomic_size_t read = 0;  /* index to read from */
-atomic_int queue[Q_SIZE];
+sig_atomic_t write = 0; /* index to write to */
+sig_atomic_t read = 0;  /* index to read from */
+int queue[Q_SIZE];
 
 int main()
 {

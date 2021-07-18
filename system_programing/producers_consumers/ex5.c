@@ -1,11 +1,11 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:;                                                    *
+ *  Status:Approved;                                            *
  *  Date Of Creation:14.07.21;									*
- *  Date Of Approval:00.07.21;									*
- *  Approved By:  ;                                             *	 
+ *  Date Of Approval:18.07.21;									*
+ *  Approved By:ohad;                                           *	 
  *  Description: Producers Consumers problem multiple Consumers *
- *               and Producers 1 mutex 2 semaphores -FSQ        *
- *                                                              */
+ *               and Producers 1 mutex, 1 semaphore ,           *
+ *               1 conditional variable -FSQ                    */
 
 #include <stdio.h>     /*           printf             */
 #include <pthread.h>   /*           thread             */
@@ -15,9 +15,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <signal.h>
 
-#define THREADS_SIZE (10)
-#define Q_SIZE (100)
+#define THREADS_SIZE (11)
+#define Q_SIZE (7)
+#define SIZE (700)
+#define STRING_SIZE (4)
 
 typedef enum return_val
 {
@@ -26,26 +29,23 @@ typedef enum return_val
     SEM_CREATE_FAILDE
 } return_val_t;
 
-static void *Producers(void *mutex_fsq);
-static void *Consumers(void *mutex_fsq);
+static void *Producers();
+static void *Consumers(void *data);
 
-static int CreatThreads(pthread_t arr_threads[], pc_fsq_t *struct_fsq);
+static int CreatThreads(pthread_t arr_threads[]);
 static return_val_t Manager();
-static void MutexDestroy(pc_fsq_t *mutex_fsq);
-
-static void Test();
-static int Compare(const void *data1, const void *data2);
-static int IsBufferCoreect();
+static void MutexDestroy();
 
 pthread_mutex_t *lock = NULL;
-pthread_cond_t *cond = NULL;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 sem_t *sem = NULL;
+sig_atomic_t count = 0;
 
-atomic_int queue[Q_SIZE];
-atomic_size_t write = 0; /* index to write to */
-atomic_size_t read = 0;  /* index to read from */
+char queue[Q_SIZE];
+sig_atomic_t write = 0; /* index to write to */
+sig_atomic_t read = 0;  /* index to read from */
 
-int buf[Q_SIZE];
+char buf[SIZE];
 
 int main()
 {
@@ -79,22 +79,20 @@ int main()
         }
     }
 
-    Test();
     return (0);
 }
 
 static return_val_t Manager()
 {
-    size_t i = 0;
     pthread_t arr_threads[THREADS_SIZE] = {0};
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
+    size_t k = 0;
     lock = &mutex;
 
-    for (i = 0; i < Q_SIZE; ++i)
+    for (k = 0; k < SIZE; ++k)
     {
-        printf("%d ", buf[i]);
-    }
+        printf("%c", buf[k]);
+    }    
     printf("\n");
 
     sem = sem_open("sem", O_CREAT, 0660, 0);
@@ -111,43 +109,39 @@ static return_val_t Manager()
     MutexDestroy();
     sem_close(sem);
     sem_unlink("sem");
+    pthread_cond_destroy(&cond);
 
-    for (i = 0; i < Q_SIZE; ++i)
+    for (k = 0; k < SIZE; ++k)
     {
-        printf("%d ", buf[i]);
+        printf("%c", buf[k]);
     }
     printf("\n");
 
     return (0);
 }
 
-static void MutexDestroy(pc_fsq_t *pc_fsq)
+static void MutexDestroy()
 {
-    assert(pc_fsq);
-
-    pthread_mutex_destroy((lock));
+    pthread_mutex_destroy(lock);
 
     return;
 }
 
-static int CreatThreads(pthread_t arr_threads[], pc_fsq_t *pc_fsq)
+static int CreatThreads(pthread_t arr_threads[])
 {
     size_t k = 0;
 
     assert(arr_threads);
-    assert(pc_fsq);
 
-    for (k = 0; k < THREADS_SIZE / 2; ++k)
+    if (pthread_create(arr_threads + k, NULL, Producers, NULL))
     {
-        if (pthread_create(arr_threads + k, NULL, Producers, (void *)(pc_fsq)))
-        {
-            return (1);
-        }
+        return (1);
     }
 
-    for (k = THREADS_SIZE / 2; k < THREADS_SIZE; ++k)
+    for (k = 1; k < THREADS_SIZE; ++k)
     {
-        if (pthread_create(arr_threads + k, NULL, Consumers, (void *)(pc_fsq)))
+        if (pthread_create(arr_threads + k, NULL, Consumers, 
+                                        (void *)(k * STRING_SIZE * Q_SIZE)))
         {
             return (1);
         }
@@ -161,71 +155,68 @@ static int CreatThreads(pthread_t arr_threads[], pc_fsq_t *pc_fsq)
     return (0);
 }
 
-static void *Producers(void *pc_fsq)
+static void *Producers()
 {
-    int insert = 0;
-    pc_fsq_t *fsq = (pc_fsq_t *)pc_fsq;
+    size_t i = 0;
+    size_t j = 0;
+    char *strs[] = {"shelly ", "shlomi ", "IvyIvy ", "RonRon "};
 
-    while (insert < Q_SIZE)
+    while (j < STRING_SIZE)
     {
         /*-------------------critical section---------------------*/
-        pthread_mutex_lock(fsq->lock);
-        if (Q_SIZE == fsq->que->write - fsq->que->read)
-        {
-            pthread_mutex_unlock(fsq->lock);
-            sched_yield();
-        }
-        else
-        {
-            __sync_fetch_and_and(fsq->que->queue + (fsq->que->write % (Q_SIZE)), 0);
-            atomic_fetch_add(fsq->que->queue + (fsq->que->write % (Q_SIZE)), insert);
-            atomic_fetch_add(&fsq->que->write, 1);
+        pthread_mutex_lock(lock);
 
-            __sync_fetch_and_add(&insert, 1);
-            pthread_mutex_unlock(fsq->lock);
+        memcpy(queue, strs[j], Q_SIZE);
+
+        for (i = 0; i < THREADS_SIZE - 1; i++)
+        {
+            sem_post(sem);
         }
+
+        pthread_cond_wait(&cond, lock);
+        pthread_mutex_unlock(lock);
+
+        ++j;
         /*-------------------critical section---------------------*/
     }
 
     return (NULL);
 }
 
-static void *Consumers(void *pc_fsq)
+static void *Consumers(void *data)
 {
     size_t j = 0;
-    pc_fsq_t *fsq = (pc_fsq_t *)pc_fsq;
 
-    while (j < Q_SIZE)
+    while (j < STRING_SIZE)
     {
 
+        sem_wait(sem);
+
         /*-------------------critical section---------------------*/
+        pthread_mutex_lock(lock);
 
-        pthread_mutex_lock(fsq->lock);
+        memcpy(buf + (size_t)data + (j * Q_SIZE), queue, Q_SIZE);
+        ++count;
 
-        if (0 == fsq->que->write - fsq->que->read)
+        if (THREADS_SIZE - 1 == count)
         {
-            pthread_mutex_unlock(fsq->lock);
-            sched_yield();
+            count = 0;
+            pthread_cond_broadcast(&cond);
         }
         else
         {
-
-            buf[j] = fsq->que->queue[fsq->que->read % (Q_SIZE)];
-            __sync_fetch_and_add(fsq->que->queue + (fsq->que->read % (Q_SIZE)), 0);
-
-            __sync_fetch_and_add(&(fsq->que->read), 1);
-
-            ++j;
-            pthread_mutex_unlock(fsq->lock);
+            pthread_cond_wait(&cond, lock);
         }
+        pthread_mutex_unlock(lock);
+        ++j;
         /*-------------------critical section---------------------*/
     }
 
     return (NULL);
 }
-
 /*---------------------------------Test funcs---------------------------------*/
 
+/* 
 static void Test()
 {
     size_t i = 0;
@@ -259,7 +250,7 @@ static int IsBufferCoreect()
 
     for (j = 0; j < Q_SIZE; ++j)
     {
-        if (5 < count_arr[j])
+        if (50 < count_arr[j])
         {
             for (i = 0; i < Q_SIZE; ++i)
             {
@@ -277,3 +268,4 @@ static int Compare(const void *data1, const void *data2)
 {
     return (*(int *)data1 - *(int *)data2);
 }
+ */

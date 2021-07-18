@@ -1,8 +1,8 @@
 /*  Developer: Shelly Shlomi;									*
- *  Status:;                                            *
+ *  Status:Approved;                                            *
  *  Date Of Creation:14.07.21;									*
- *  Date Of Approval:14.07.21;									*
- *  Approved By:  ;                                             *	 
+ *  Date Of Approval:18.07.21;									*
+ *  Approved By:Sagi;                                           * 
  *  Description: Producers Consumers problem multiple Consumers *
  *               and Producers 1 mutex 2 semaphores -FSQ        *
  *                                                              */
