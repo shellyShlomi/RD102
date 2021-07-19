@@ -19,7 +19,8 @@
 
 #define THREADS_SIZE (10)
 #define Q_SIZE (100)
-#define TEST_SIZE (500)
+#define CONSUMER_WRITE_SIZE (20)
+#define TEST_SIZE (100)
 
 typedef enum return_val
 {
@@ -29,7 +30,7 @@ typedef enum return_val
 } return_val_t;
 
 static void *Producers();
-static void *Consumers();
+static void *Consumers(void *i);
 
 static int CreatThreads(pthread_t arr_threads[]);
 static return_val_t Manager();
@@ -46,9 +47,10 @@ static int FindMax();
 pthread_mutex_t *lock_w = NULL;
 pthread_mutex_t *lock_r = NULL;
 int buf[Q_SIZE];
-sig_atomic_t write = 1; /* index to write to */
-sig_atomic_t read = 0;  /* index to read from */
+size_t write = 1; /* index to write to */
+size_t read = 0;  /* index to read from */
 int queue[Q_SIZE];
+size_t i = 0;
 
 int main()
 {
@@ -88,6 +90,7 @@ static return_val_t Manager()
     pthread_t arr_threads[THREADS_SIZE] = {0};
     pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
+    return_val_t status = 0;
 
     lock_r = &mutex1;
     lock_w = &mutex2;
@@ -96,16 +99,13 @@ static return_val_t Manager()
 
     PrintArrays("befor");
 
-    if (CreatThreads(arr_threads))
-    {
-        return (THREAD_CREATE_FAILDE);
-    }
+    status = CreatThreads(arr_threads);
 
     MutexDestroy();
 
     PrintArrays("after");
 
-    return (0);
+    return (status);
 }
 
 static void MutexDestroy()
@@ -118,9 +118,11 @@ static void MutexDestroy()
 
 static int CreatThreads(pthread_t arr_threads[])
 {
+    size_t i = 0;
     size_t k = 0;
-    int ret = 0;
-    void *out_put_param = &ret;
+
+    return_val_t status[THREADS_SIZE] = {0};
+    void *output_param = NULL;
 
     assert(arr_threads);
 
@@ -128,25 +130,30 @@ static int CreatThreads(pthread_t arr_threads[])
     {
         if (pthread_create(arr_threads + k, NULL, Producers, NULL))
         {
-            return (1);
+            return (THREAD_CREATE_FAILDE);
         }
     }
 
     for (k = THREADS_SIZE / 2; k < THREADS_SIZE; ++k)
     {
-        if (pthread_create(arr_threads + k, NULL, Consumers, NULL))
+        if (pthread_create(arr_threads + k, NULL, Consumers, (void *)(i * CONSUMER_WRITE_SIZE)))
         {
-            return (1);
+            return (THREAD_CREATE_FAILDE);
         }
+        ++i;
     }
 
     for (k = 0; k < THREADS_SIZE; ++k)
     {
-        pthread_join(arr_threads[k], &out_put_param);
+        pthread_join(arr_threads[k], &output_param);
+        status[k] = (return_val_t)output_param;
+    }
 
-        if (BUFFER_IS_EMPTY == ret)
+    for (k = 0; k < THREADS_SIZE; ++k)
+    {
+        if (status[k])
         {
-            return (BUFFER_IS_EMPTY);
+            return (status[k]);
         }
     }
 
@@ -155,8 +162,7 @@ static int CreatThreads(pthread_t arr_threads[])
 
 static void *Producers()
 {
-    int insert = 1;
-    sig_atomic_t local_val = 1;
+    int local_val = 0;
 
     while (local_val < Q_SIZE)
     {
@@ -165,41 +171,34 @@ static void *Producers()
         pthread_mutex_lock(lock_w);
         if (Q_SIZE == write - read)
         {
-            insert = insert % Q_SIZE;
-            local_val = write - read;
-
-            pthread_mutex_unlock(lock_r);
+            local_val = write + 1 - read;
             pthread_mutex_unlock(lock_w);
+            pthread_mutex_unlock(lock_r);
             continue;
         }
-        else
-        {
-            insert = insert % Q_SIZE;
-            local_val = write - read;
-        }
+
+        local_val = write + 1 - read;
         pthread_mutex_unlock(lock_r);
-        queue[write % (Q_SIZE)] = insert;
+        queue[write % (Q_SIZE)] = write % (Q_SIZE);
         ++write;
-        ++insert;
         pthread_mutex_unlock(lock_w);
 
         /*-------------------critical section---------------------*/
     }
 
-    return (NULL);
+    return ((void *)EXIT_SUCCESS);
 }
 
-static void *Consumers()
+static void *Consumers(void *i)
 {
-    size_t j = 0;
-    int reset = -1;
+    size_t j = (size_t)i;
 
     while (1)
     {
         /*-------------------critical section---------------------*/
         pthread_mutex_lock(lock_r);
         pthread_mutex_lock(lock_w);
-        if (0 >= write - read)
+        if (0 == write - read)
         {
             pthread_mutex_unlock(lock_w);
             pthread_mutex_unlock(lock_r);
@@ -209,19 +208,15 @@ static void *Consumers()
         pthread_mutex_unlock(lock_w);
 
         buf[j] = queue[read % (Q_SIZE)];
-        queue[read % (Q_SIZE)] = reset;
+        queue[read % (Q_SIZE)] = -1;
         ++read;
-        if (read % (Q_SIZE) == 0)
-        {
-            --reset;
-        }
         ++j;
         pthread_mutex_unlock(lock_r);
 
         /*-------------------critical section---------------------*/
     }
 
-    return (NULL);
+    return ((void *)EXIT_SUCCESS);
 }
 
 /*---------------------------------Test funcs---------------------------------*/
@@ -294,11 +289,11 @@ static int IsBufferCoreect()
 
     for (j = 0; j < size; ++j)
     {
-        if (5 < count_arr[j] && 0 < buf[j])
+        if ((5 < count_arr[j] && 0 < buf[j]) || (-1 == buf[j]))
         {
             for (i = 0; i < size; ++i)
             {
-                printf("count_arr[i] is: %lu and i is: %lu\n", count_arr[i], i);
+                printf("count_arr[i] is: %d and i is: %lu\n", count_arr[i], i);
             }
 
             return (1);

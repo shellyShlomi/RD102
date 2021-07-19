@@ -23,7 +23,8 @@
 typedef enum return_val
 {
     THREAD_CREATE_FAILDE = 1,
-    CIRCULAR_QUEUE_CREATE_FAILDE
+    CIRCULAR_QUEUE_CREATE_FAILDE,
+    BUFFER_IS_EMPTY
 } return_val_t;
 
 static void *Producers();
@@ -33,13 +34,15 @@ static int CreatThreads(pthread_t arr_threads[]);
 static return_val_t Manager();
 static void MutexDestroy();
 
+static void PrintArrays(const char *messeg);
 static void Test();
 static int Compare(const void *data1, const void *data2);
 static int IsBufferCoreect();
+static void ResetBuffre();
 
 pthread_mutex_t *lock = NULL;
 int test_buf[Q_SIZE];
-sig_atomic_t write = 0; /* index to write to */
+sig_atomic_t write = 1; /* index to write to */
 sig_atomic_t read = 0;  /* index to read from */
 int queue[Q_SIZE];
 
@@ -76,24 +79,21 @@ int main()
 
 static return_val_t Manager()
 {
-    size_t i = 0;
     pthread_t arr_threads[THREADS_SIZE] = {0};
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
     lock = &mutex;
+    ResetBuffre();
+
+    PrintArrays("befor");
 
     if (CreatThreads(arr_threads))
     {
         return (THREAD_CREATE_FAILDE);
     }
+    PrintArrays("after");
 
     MutexDestroy();
-
-    for (i = 0; i < Q_SIZE; ++i)
-    {
-        printf("%d ", test_buf[i]);
-    }
-    printf("\n");
 
     return (0);
 }
@@ -145,16 +145,18 @@ static void *Producers()
         pthread_mutex_lock(lock);
         if (Q_SIZE == write - read)
         {
+            insert = write + 1;
+
             pthread_mutex_unlock(lock);
-            sched_yield();
+            continue;
         }
         else
         {
-            queue[write % (Q_SIZE)] = insert;
+            queue[write % (Q_SIZE)] = write % (Q_SIZE);
 
             ++write;
-            ++insert;
-            
+            insert = write;
+
             pthread_mutex_unlock(lock);
         }
         /*-------------------critical section---------------------*/
@@ -167,7 +169,7 @@ static void *Consumers()
 {
     size_t j = 0;
 
-    while (j < Q_SIZE)
+    while (1)
     {
 
         /*-------------------critical section---------------------*/
@@ -176,13 +178,13 @@ static void *Consumers()
         if (0 == read - write)
         {
             pthread_mutex_unlock(lock);
-            sched_yield();
+            return (NULL);
         }
         else
         {
             test_buf[j] = queue[read % Q_SIZE];
 
-            queue[read % Q_SIZE] = 0;
+            queue[read % Q_SIZE] = -1;
             ++read;
 
             ++j;
@@ -194,7 +196,6 @@ static void *Consumers()
 
     return (NULL);
 }
-
 
 /*---------------------------------Test funcs---------------------------------*/
 
@@ -220,7 +221,7 @@ static int IsBufferCoreect()
 {
     size_t i = 0;
     size_t j = 0;
-    size_t count_arr[Q_SIZE] = {0};
+    int count_arr[Q_SIZE] = {0};
 
     for (i = 0; i < Q_SIZE; ++i)
     {
@@ -229,11 +230,11 @@ static int IsBufferCoreect()
 
     for (j = 0; j < Q_SIZE; ++j)
     {
-        if (50 < count_arr[j])
+        if ((5 < count_arr[j] && 0 < test_buf[j]) || (-1 == test_buf[j]))
         {
             for (i = 0; i < Q_SIZE; ++i)
             {
-                printf("count_arr[i] is: %lu and i is: %lu\n", count_arr[i], i);
+                printf("count_arr[i] is: %d and i is: %lu\n", count_arr[i], i);
             }
 
             return (1);
@@ -246,4 +247,37 @@ static int IsBufferCoreect()
 static int Compare(const void *data1, const void *data2)
 {
     return (*(int *)data1 - *(int *)data2);
+}
+
+static void PrintArrays(const char *messeg)
+{
+    size_t i = 0;
+
+    printf("buf %s threds\n", messeg);
+
+    for (i = 0; i < Q_SIZE; ++i)
+    {
+        printf("%d ", test_buf[i]);
+    }
+    printf("\n\n");
+
+    printf("queue %s threds\n", messeg);
+    for (i = 0; i < Q_SIZE; ++i)
+    {
+        printf("%d ", queue[i]);
+    }
+    printf("\n\n");
+
+    return;
+}
+
+static void ResetBuffre()
+{
+    size_t i = 0;
+    for (i = 0; i < Q_SIZE; ++i)
+    {
+        test_buf[i] = -9;
+    }
+
+    return;
 }
