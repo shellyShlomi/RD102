@@ -21,11 +21,16 @@
 #define SIZE (5)
 #define BUF_SIZE (1000)
 
-atomic_size_t counter = 0;
-atomic_int to_stop = 0;
+static atomic_size_t counter = 0;
+static atomic_int to_stop = 0;
+watchdog_t *watchdog_g = NULL;
 sem_t *sem_signal;
 sem_t *sem_block;
-watchdog_t *watchdog_g = NULL;
+#ifdef NDEBUG
+
+#else
+
+#endif
 
 /*------------- start halper funcs ------------*/
 
@@ -34,7 +39,6 @@ static int SetEnvVar(char *argv[], int check_ratio, int beats_interval);
 int CreatSemaphors(sem_t **sem_signal, sem_t **sem_block);
 void ClenUp();
 int setenv(const char *name, const char *value, int overwrite);
-
 /*------------- Tasks funcs ------------*/
 int SetTasks(watchdog_t **watchdog, int beats_interval, int check_ratio);
 
@@ -54,7 +58,7 @@ void Handler2WD(int num);
 
 /*------------- user thread funcs ------------*/
 
-static void *UserThread(void *scheduler);
+static void *UserThread(void *param);
 
 /*------------------------------ implementetion --------------------------------*/
 
@@ -64,11 +68,9 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
 {
     pthread_t thread = {0};
     watchdog_t *watchdog_elem = NULL;
-
     pid_t pid_child = 0;
 
     int sem_val = 0;
-    int status = 0;
 
     InitHandler1(Handler1);
 
@@ -83,11 +85,11 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
     watchdog_elem->is_WD = !strncmp(argv[0], "WD_file_for_user", strlen("WD_file_for_user"));
     watchdog_elem->counter = counter;
 
+    printf("%d %s\n", watchdog_elem->is_WD, argv[0]);
     /*TODO: the func of setWD*/
     if (!watchdog_elem->is_WD) /*so im the user*/
     {
-        /*         printf("%d %s\n", watchdog_elem->is_WD, argv[0]);
- */
+
         /*init Scheduler*/
         watchdog_elem->scheduler = SchedulerCreate();
         if (!watchdog_elem->scheduler)
@@ -138,22 +140,22 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
             watchdog_elem->sem_block = sem_block;
             watchdog_elem->sem_signal = sem_signal;
 
-            status = sem_wait(sem_block);
-            if (!status)
+            if (!sem_wait(watchdog_elem->sem_block))
             {
                 sem_getvalue(sem_signal, &sem_val);
                 if (0 == sem_val)
                 {
-                    if (pthread_create(&thread, NULL, UserThread, watchdog_elem->scheduler))
+                    if (pthread_create(&thread, NULL, UserThread, watchdog_elem))
                     {
                         /*sem_distroy*/
                         return (1);
                     }
+                    pthread_detach(thread);
                 }
             }
             else
             {
-                printf("sem_wait fail %d\n", status);
+                printf("sem_wait fail \n");
                 return (1);
             }
         }
@@ -161,9 +163,7 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
     }
     else
     {
-        /*         printf("%d %s\n", watchdog_elem->is_WD, argv[0]);
- */
-        /*init Scheduler*/
+        /*printf("%d %s\n", watchdog_elem->is_WD, argv[0]);*/
         watchdog_elem->scheduler = SchedulerCreate();
         if (!watchdog_elem->scheduler)
         {
@@ -179,12 +179,12 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
             return (1);
         }
 
+        SetEnvVar(argv, check_ratio, beats_interval);
         watchdog_elem->check_ratio = atoi(getenv(CHECK_RATIO));
         watchdog_elem->beats_interval = atoi(getenv(BEATS_INTERVAL));
         watchdog_elem->signal_pid = atoi(getenv(USER_PID));
         watchdog_elem->user_app = getenv(USER_APP);
         watchdog_elem->argv = argv;
-        SetEnvVar(argv, check_ratio, beats_interval);
 
         if (CreatSemaphors(&sem_signal, &sem_block))
         {
@@ -196,6 +196,9 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
 
         SchedulerRun(watchdog_elem->scheduler);
         SchedulerDestroy(watchdog_elem->scheduler);
+
+        free(watchdog_elem);
+        return (0);
     }
     return (0);
 }
@@ -240,13 +243,13 @@ int CreatWD(watchdog_t **watchdog_elem)
 int CreatSemaphors(sem_t **sem_signal, sem_t **sem_block)
 {
 
-    *sem_block = sem_open("sem_block", O_CREAT, 0666, 0);
+    *sem_block = sem_open("sem_block", O_CREAT, 0660, 0);
     if (SEM_FAILED == *sem_block)
     {
         return (1);
     }
 
-    *sem_signal = sem_open("sem_signal", O_CREAT, 0666, 0);
+    *sem_signal = sem_open("sem_signal", O_CREAT, 0660, 0);
     if (SEM_FAILED == *sem_signal)
     {
         sem_close(*sem_block);
@@ -259,8 +262,7 @@ int CreatSemaphors(sem_t **sem_signal, sem_t **sem_block)
 
 int SetTasks(watchdog_t **watchdog, int beats_interval, int check_ratio)
 {
-    /*     printf("%d SetTasks (*watchdog)->is_WD\n", (*watchdog)->is_WD);
- */
+    /*printf("%d SetTasks (*watchdog)->is_WD\n", (*watchdog)->is_WD)*/
     if ((*watchdog)->is_WD)
     {
         if (UidIsSame(
@@ -315,9 +317,9 @@ void WDStop(void)
 {
     if (kill(watchdog_g->signal_pid, SIGUSR2))
     {
-/*         printf("usignal sending fail\n");
- */    }
-return;
+        /*printf("usignal sending fail\n");*/
+    }
+    return;
 }
 
 /*------------------------------ general --------------------------------*/
@@ -353,8 +355,7 @@ int Task1(void *param)
 {
     if (kill(((watchdog_t *)param)->signal_pid, SIGUSR1))
     {
-        /*         printf("signal sending fail to %d %s\n", ((watchdog_t *)param)->signal_pid, getenv(USER_APP));
- */
+        /*printf("signal sending fail to %d %s\n", ((watchdog_t *)param)->signal_pid, getenv(USER_APP));*/
         return (0);
     }
 
@@ -363,52 +364,44 @@ int Task1(void *param)
 
 int Task2(void *param)
 {
-
     static pid_t pid_child_T2 = 0;
     assert(param);
 
-    /*     printf("Task2 %d %d %d \n", to_stop, ((watchdog_t *)param)->is_WD, counter);
- */
-    if (to_stop)
+    /*printf("Task2 %d %d %d \n", to_stop, ((watchdog_t *)param)->is_WD, counter);*/
+    if (atomic_load(&to_stop))
     {
         return (0);
     }
     if (0 < atomic_load(&counter))
     {
         atomic_exchange(&counter, 0);
-        /* counter = 0;
-         printf("Task2: counter = 0 \n");
+        /* counter = 0;*/
+        /*printf("Task2: counter = 0 \n");*/
 
-        printf("pid is :%d, and ((watchdog_t *)param)->is_WD is :%d cunter is: %d\n", getpid(), ((watchdog_t *)param)->is_WD, counter); */
+        /*printf("pid is :%d, and ((watchdog_t *)param)->is_WD is :%d cunter is: %d\n", getpid(), ((watchdog_t *)param)->is_WD, counter); */
         return (2);
     }
-    if ((0 == counter))
+    if ((0 == atomic_load(&counter)))
     {
         if (((watchdog_t *)param)->is_WD) /*im WD*/
         {
-            atomic_exchange(&counter, 1);
-
-            /*             counter = 1;
- */
-            /*             printf("Task2: 1 == local_count WD %s \n", getenv(USER_APP));
- */
+            counter = 1;
+            kill(((watchdog_t *)param)->signal_pid, SIGTERM);
+            waitpid(((watchdog_t *)param)->signal_pid, NULL, 0);
             sem_close(((watchdog_t *)param)->sem_block);
             sem_close(((watchdog_t *)param)->sem_signal);
-            SchedulerDestroy(((watchdog_t *)param)->scheduler);
 
-            if (-1 == execv(getenv(USER_APP), ((watchdog_t *)param)->argv))
-            {
-                printf("execv fail 2\n");
-                return (0);
-            }
+            SchedulerDestroy(((watchdog_t *)param)->scheduler);
+            ((watchdog_t *)param)->argv[0] = getenv(USER_APP);
+            ((watchdog_t *)param)->is_WD = 0;
+
+            execv(getenv(USER_APP), ((watchdog_t *)param)->argv);
         }
         else
         {
-            /*             printf("Task2: 1 == local_count WD \n");
- */
             kill(((watchdog_t *)param)->signal_pid, SIGTERM);
             waitpid(((watchdog_t *)param)->signal_pid, NULL, 0);
-            atomic_exchange(&counter, 1);
+            counter = 1;
             pid_child_T2 = fork();
 
             if (0 == pid_child_T2)
@@ -416,9 +409,9 @@ int Task2(void *param)
                 execv("/home/shelly/git/ds/bin/WD_file_for_user", ((watchdog_t *)param)->argv);
             }
 
-            sem_wait(((watchdog_t *)param)->sem_block);
             ((watchdog_t *)param)->is_WD = 0;
             ((watchdog_t *)param)->signal_pid = pid_child_T2;
+            sem_wait(((watchdog_t *)param)->sem_block);
             return (0);
         }
     }
@@ -436,7 +429,6 @@ int StopTask(void *param)
         sem_unlink("sem_block");
         sem_unlink("sem_signal");
         SchedulerStop(((watchdog_t *)param)->scheduler);
-
         return (0);
     }
 
@@ -483,12 +475,13 @@ void Handler2WD(int num)
     return;
 }
 
-static void *UserThread(void *scheduler)
+static void *UserThread(void *param)
 {
-    assert(scheduler);
+    assert(param);
 
-    SchedulerRun(scheduler);
-    SchedulerDestroy(scheduler);
+    SchedulerRun(((watchdog_t *)param)->scheduler);
+    SchedulerDestroy(((watchdog_t *)param)->scheduler);
+    free(((watchdog_t *)param));
 
     return (NULL);
 }
