@@ -1,19 +1,20 @@
 
 #define _POSIX_SOURCE
-#define _POSIX_C_SOURCE 199309L
-#include <stdlib.h> /* malloc */
-#include <stdio.h>
-#include <stddef.h>    /* size_t */
-#include <unistd.h>    /* pid_t */
-#include <pthread.h>   /*           thread             */
-#include <semaphore.h> /*          semaphore           */
-#include <fcntl.h>     /*      For O_* constants       */
-#include <assert.h>
-#include <string.h>
-#include <signal.h> /* struct sigaction  */
+
+#include <stdio.h>    /*           printf           */
+#include <stddef.h>   /*           size_t           */
+#include <unistd.h>   /*            pid_t           */
+#include <pthread.h>  /*           thread           */
+#include <semaphore.h>/*          semaphore         */
+#include <fcntl.h>    /*      For O_* constants     */
+#include <assert.h>   /*            assert          */
+#include <signal.h>   /*       struct sigaction     */
+#include <string.h>   /*          memset            */
+#include <sys/wait.h> /*          waitpid           */
+#include <stdlib.h>   /*          setenv            */
 
 #include "watch_dog.h"
-#include "watchdog1.h"
+#include "watchdog_iner.h"
 #include "scheduler.h"
 #include "uid.h"
 
@@ -22,8 +23,8 @@
 
 atomic_size_t counter = 0;
 atomic_int to_stop = 0;
-static sem_t *sem_signal;
-static sem_t *sem_block;
+sem_t *sem_signal;
+sem_t *sem_block;
 watchdog_t *watchdog_g = NULL;
 
 /*------------- start halper funcs ------------*/
@@ -31,8 +32,8 @@ watchdog_t *watchdog_g = NULL;
 /*------------- helper funcs ------------*/
 static int SetEnvVar(char *argv[], int check_ratio, int beats_interval);
 int CreatSemaphors(sem_t **sem_signal, sem_t **sem_block);
-static char *SetUserApp(char user_app[]);
 void ClenUp();
+int setenv(const char *name, const char *value, int overwrite);
 
 /*------------- Tasks funcs ------------*/
 int SetTasks(watchdog_t **watchdog, int beats_interval, int check_ratio);
@@ -64,7 +65,6 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
     pthread_t thread = {0};
     watchdog_t *watchdog_elem = NULL;
 
-    pid_t pid = getpid();
     pid_t pid_child = 0;
 
     int sem_val = 0;
@@ -206,15 +206,15 @@ static int SetEnvVar(char *argv[], int check_ratio, int beats_interval)
 
     sprintf(arg, "%d", check_ratio);
     setenv(CHECK_RATIO, arg, 0);
-    memset(arg, BUF_SIZE, 0);
+    memset(arg, 0, BUF_SIZE);
 
     sprintf(arg, "%d", beats_interval);
     setenv(BEATS_INTERVAL, arg, 0);
-    memset(arg, BUF_SIZE, 0);
+    memset(arg, 0, BUF_SIZE);
 
     sprintf(arg, "%d", getpid());
     setenv(USER_PID, arg, 0);
-    memset(arg, BUF_SIZE, 0);
+    memset(arg, 0, BUF_SIZE);
 
     if (watchdog_g->is_WD)
     {
@@ -491,23 +491,4 @@ static void *UserThread(void *scheduler)
     SchedulerDestroy(scheduler);
 
     return (NULL);
-}
-
-static char *SetUserApp(char user_app[])
-{
-    char *next_file = NULL;
-    char *file_name = NULL;
-    char *path = user_app;
-
-    assert(user_app);
-
-    next_file = strtok(path, "/");
-
-    while (next_file)
-    {
-        file_name = next_file;
-        next_file = strtok(NULL, "/");
-    }
-
-    return (file_name);
 }

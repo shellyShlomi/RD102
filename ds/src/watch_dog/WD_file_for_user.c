@@ -14,24 +14,21 @@
 #include <signal.h> /* struct sigaction  */
 
 #include "watch_dog.h"
-#include "watchdog1.h"
+#include "watchdog_iner.h"
 
 /*------------- task funcs ------------*/
 
-static int Task(void *param);
-
-sem_t *sem_block = 0;
-
 int main(int argc, char **argv)
 {
-    pthread_t thread = {0};
-    watchdog_t *watchdog_elem = NULL;
     static char *app[1] = {'\0'};
-    sem_t *sem_signal = 0;
     app[0] = __FILE__;
-
+    
+    (void)argc;
+    
     printf("%d WD start \n", WDStart(app, atoi(getenv(CHECK_RATIO)), atoi(getenv(BEATS_INTERVAL))));
+    
     WDStop();
+    
     printf("end WD \n");
 
     return (0);
