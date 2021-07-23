@@ -6,16 +6,20 @@
 
 #include "watch_dog.h"
 
-int main()
+int main(int argc, char **argv)
 {
     size_t i = 0;
-    printf("WDStart %d\n", WDStart(5, 1));
+    printf("WDStart %d\n", WDStart(argv, 5, 1));
 
-    for (i = 0; i < 300; i++)
+    for (i = 0; i < 10; i++)
     {
         sleep(1);
-        printf("%lu\n", i);
-    }
+        printf(" %lu \n", i);
 
+        if (i == 3)
+        {
+            WDStop();
+        }
+    }
     return (0);
 }

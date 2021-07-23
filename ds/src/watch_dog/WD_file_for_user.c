@@ -14,7 +14,7 @@
 #include <signal.h> /* struct sigaction  */
 
 #include "watch_dog.h"
-#include "watchdog.h"
+#include "watchdog1.h"
 
 /*------------- task funcs ------------*/
 
@@ -28,36 +28,11 @@ int main(int argc, char **argv)
     watchdog_t *watchdog_elem = NULL;
     static char *app[1] = {'\0'};
     sem_t *sem_signal = 0;
+    app[0] = __FILE__;
 
-    app[0] = argv[PATH];
+    printf("%d WD start \n", WDStart(app, atoi(getenv(CHECK_RATIO)), atoi(getenv(BEATS_INTERVAL))));
+    WDStop();
+    printf("end WD \n");
 
-    if (InitAll(&watchdog_elem, atoi(argv[FORK_PID_TO_CHECK]), atoi(argv[SIGNAL_PID]), atoi(argv[CHECK_RATIO]), atoi(argv[BEATS_INTERVAL]), &sem_signal, &sem_block))
-    {
-        sem_post(sem_signal);
-    }
-
-    watchdog_elem->check_pid_fork = atoi(argv[FORK_PID_TO_CHECK]);
-    watchdog_elem->signal_pid = getppid();
-
-    if (UidIsSame(
-            SchedulerAdd(watchdog_elem->scheduler,
-                         Task,
-                         0,
-                         watchdog_elem),
-            GetBadUid()))
-    {
-        sem_post(sem_signal);
-        return (1);
-    }
-
-    printf("%s %s %s \n", watchdog_elem->check_pid_fork, argv[1], argv[2]);
-    SchedulerRun(watchdog_elem->scheduler);
-
-    return (0);
-}
-
-static int Task(void *param)
-{
-    sem_post(sem_block);
     return (0);
 }

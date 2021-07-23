@@ -13,7 +13,7 @@
     process (the watchdog or the original process) is forked and execed;*/
 
 
-    int WDStart(int check_ratio, int beats_interval);
+    int WDStart(char *argv[], int check_ratio, int beats_interval);
 
     /*Use WDStop to the stop watchdog protection, if WDStop is invoked before
     WDStart, behaviour is undefined*/

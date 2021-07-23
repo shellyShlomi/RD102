@@ -2,7 +2,7 @@
 
 
 
-TARGET = $(notdir $(shell pwd))
+TARGET = watch_dog
 SHAREDLIB = lib$(notdir $(shell pwd)).so
 SHAREDLIB_REL = lib$(TARGET)_r
 
@@ -52,7 +52,7 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 $(BIN)/$(TARGET_SINGLE): $(LIB)/$(SHAREDLIB) $(USER_SOURCE)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ -lpthread
 
-$(BIN)/WD_file_for_user: $(USER_SOURCE) $(OBJECTS)
+$(BIN)/WD_file_for_user: $(USER_SOURCE) 
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libds.so -lm -lpthread
 
 $(BIN)/user_app: $(TEST_SOURCE)  
