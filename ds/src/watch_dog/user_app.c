@@ -11,12 +11,12 @@ int main(int argc, char **argv)
     (void)argc;
     printf("WDStart %d\n", WDStart(argv, 5, 1));
 
-    for (i = 0; i < 50; i++)
+    for (i = 0; i < 10; i++)
     {
         sleep(1);
         printf(" %lu \n", i);
 
-        if (i == 25)
+        if (i == 5)
         {
             WDStop();
         }

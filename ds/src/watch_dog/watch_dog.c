@@ -50,7 +50,7 @@ typedef struct watchdog
 
 atomic_size_t counter = 0;
 static atomic_int to_stop = 0;
-watchdog_t *watchdog_g = NULL;
+static watchdog_t *watchdog_g = NULL;
 
 #ifdef NDEBUG
 
@@ -78,15 +78,15 @@ static void CleanUp(watchdog_t *watchdog,
 static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio);
 
 static int StopTask(void *param);
-static int Task1(void *param);
-static int Task2(void *param);
-static int Task(void *param);
+static int SignalTask(void *param);
+static int ViabilityTask(void *param);
+static int UnblockSemaphorTask(void *param);
 
 /*------------- signaling funcs ------------*/
 static int InitHandler(void (*handler_func)(int num), int signal_to_send);
 
-static void Handler1(int num);
-static void Handler2(int num);
+static void IncramentCounter(int num);
+static void TernOnToStop(int num);
 
 /*------------- user thread funcs ------------*/
 static void *UserThread(void *param);
@@ -102,18 +102,28 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
     pid_t pid_child = 0;
     int sem_val = 0;
 
+    InitHandler(IncramentCounter, SIGNAL1);
+    InitHandler(TernOnToStop, SIGNAL2);
+
     if (InitWD(&watchdog_elem, argv, check_ratio, beats_interval))
     {
         return (1);
     }
 
-    printf("%d %s\n", watchdog_elem->is_WD, argv[0]);
+    printf("%d %s %d\n", watchdog_elem->is_WD, argv[0], counter);
     if (!watchdog_elem->is_WD) /*so im the user*/
     {
+        if (getenv(WD_PID))
+        {
+            watchdog_elem->signal_pid = atoi(getenv(WD_PID));
+        }
+
         pid_child = fork();
+        printf("after fork user WDsatrt %d %s %d\n", watchdog_elem->is_WD, argv[0], counter);
 
         if (0 == pid_child)
         {
+            argv[0] = getenv(WD_APP);
             if (-1 == execv(getenv(WD_APP), argv))
             {
                 CleanUp(watchdog_elem, 1, 1, 1, 1, 0, 1, 1);
@@ -124,8 +134,10 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
         {
             return (1);
         }
-        else if (0 < pid_child)
+        else
         {
+            printf("after fork WD %d %s %d\n", watchdog_elem->is_WD, argv[0], counter);
+
             watchdog_elem->signal_pid = pid_child;
             if (!sem_wait(watchdog_elem->sem_block))
             {
@@ -134,11 +146,12 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
                 {
                     if (pthread_create(&thread, NULL, UserThread, watchdog_elem))
                     {
-                        CleanUp(watchdog_elem, 1, 1, 1, 1, 0, 1, 1);
+                        CleanUp(watchdog_elem, 1, 1, 1, 1, 1, 1, 1);
                         return (1);
                     }
                     pthread_detach(thread);
                 }
+                return (0);
             }
             else
             {
@@ -147,7 +160,7 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
                 return (1);
             }
         }
-        return (0);
+        return (1);
     }
     else
     {
@@ -165,10 +178,12 @@ void WDStop(void)
     {
         /*printf("usignal sending fail\n");*/
     }
-    if (watchdog_g->is_WD)
+    waitpid(watchdog_g->signal_pid, NULL, 0);
+    if (watchdog_g && watchdog_g->is_WD)
     {
-        CleanUp(watchdog_g, 0, 0, 0, 0, 0, 1, 1);
+        CleanUp(watchdog_g, 1, 1, 1, 1, 0, 1, 1);
     }
+
     return;
 }
 
@@ -176,9 +191,6 @@ void WDStop(void)
 
 static int InitWD(watchdog_t **watchdog_elem, char *argv[], int check_ratio, int beats_interval)
 {
-    InitHandler(Handler1, SIGNAL1);
-    InitHandler(Handler2, SIGNAL2);
-
     if (CreatWD(watchdog_elem))
     {
         return (1);
@@ -248,10 +260,23 @@ static int SetEnvVar(watchdog_t *watchdog, char *argv[], int check_ratio, int be
 
     if (-1 == setenv(SEM_BLOCK_NAME, sem_block_name, 0) ||
         -1 == setenv(SEM_SIGNAL_NAME, sem_signa_name, 0) ||
-        -1 == setenv(WD_APP, "/home/shelly/git/ds/bin/WD_file_for_user", 0) ||
-        -1 == setenv(USER_APP, (argv[0]), 0))
+        -1 == setenv(WD_APP, "/home/shelly/git/ds/bin/WD_file_for_user", 0))
     {
         return (1);
+    }
+    if (!watchdog->is_WD)
+    {
+        if (-1 == setenv(USER_APP, (argv[0]), 0))
+        {
+            return (1);
+        }
+    }
+    else
+    {
+        if (0 > sprintf(arg, "%d", getpid()) || -1 == setenv(WD_PID, arg, 0))
+        {
+            return (1);
+        }
     }
 
     return (0);
@@ -277,13 +302,13 @@ static int CreatSemaphors(watchdog_t *watchdog)
 
     assert(watchdog);
 
-    sem_block = sem_open(getenv(SEM_BLOCK_NAME), O_CREAT, 0660, 0);
+    sem_block = sem_open(getenv(SEM_BLOCK_NAME), O_CREAT, 0666, 0);
     if (SEM_FAILED == sem_block)
     {
         return (1);
     }
 
-    sem_signal = sem_open(getenv(SEM_SIGNAL_NAME), O_CREAT, 0660, 0);
+    sem_signal = sem_open(getenv(SEM_SIGNAL_NAME), O_CREAT, 0666, 0);
     if (SEM_FAILED == sem_signal)
     {
         sem_close(sem_block);
@@ -305,7 +330,7 @@ static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio)
     {
         if (UidIsSame(
                 SchedulerAdd(watchdog->scheduler,
-                             Task,
+                             UnblockSemaphorTask,
                              0,
                              watchdog),
                 GetBadUid()))
@@ -316,7 +341,7 @@ static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio)
     }
     if (UidIsSame(
             SchedulerAdd(watchdog->scheduler,
-                         Task1,
+                         SignalTask,
                          beats_interval,
                          watchdog),
             GetBadUid()))
@@ -327,7 +352,7 @@ static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio)
 
     if (UidIsSame(
             SchedulerAdd(watchdog->scheduler,
-                         Task2,
+                         ViabilityTask,
                          (check_ratio * beats_interval),
                          watchdog),
             GetBadUid()))
@@ -351,8 +376,9 @@ static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio)
     return (0);
 }
 
-static int Task1(void *param)
+static int SignalTask(void *param)
 {
+    printf("SignalTask %d %d\n", ((watchdog_t *)param)->is_WD, counter);
     if (kill(((watchdog_t *)param)->signal_pid, SIGUSR1))
     {
         /*printf("signal sending fail to %d %s\n", ((watchdog_t *)param)->signal_pid, getenv(USER_APP));*/
@@ -362,12 +388,13 @@ static int Task1(void *param)
     return (2);
 }
 
-static int Task2(void *param)
+static int ViabilityTask(void *param)
 {
     static pid_t pid_child_T2 = 0;
     assert(param);
+    printf("ViabilityTask %d  %d\n", ((watchdog_t *)param)->is_WD, counter);
 
-    /*printf("Task2 %d %d %d \n", to_stop, ((watchdog_t *)param)->is_WD, counter);*/
+    /*printf("ViabilityTask %d %d %d \n", to_stop, ((watchdog_t *)param)->is_WD, counter);*/
     if (atomic_load(&to_stop))
     {
         /* NOTE : meybe here try to debug the reopen of 
@@ -377,7 +404,7 @@ static int Task2(void *param)
     if (0 < atomic_load(&counter))
     {
         atomic_exchange(&counter, 0);
-        /*printf("Task2: counter = 0 \n");*/
+        /*printf("ViabilityTask: counter = 0 \n");*/
         /*printf("pid is :%d, and ((watchdog_t *)param)->is_WD is :%d cunter is: %d\n", getpid(), ((watchdog_t *)param)->is_WD, counter); */
         return (2);
     }
@@ -385,23 +412,30 @@ static int Task2(void *param)
     {
         if (((watchdog_t *)param)->is_WD) /*im WD*/
         {
+            printf("ViabilityTask user is dead %d %s %d\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter);
+
             atomic_exchange(&counter, 1);
             /*             kill(((watchdog_t *)param)->signal_pid, SIGTERM);
             waitpid(((watchdog_t *)param)->signal_pid, NULL, 0); */
 
-            CleanUp(((watchdog_t *)param), 1, 1, 0, 0, 1, 1, 0);
+            CleanUp(((watchdog_t *)param), 1, 1, 1, 1, 0, 0, 0);
             ((watchdog_t *)param)->argv[0] = getenv(USER_APP);
-            execv(getenv(USER_APP), ((watchdog_t *)param)->argv);
+            ((watchdog_t *)param)->is_WD = 0;
+
+            execve(getenv(USER_APP), ((watchdog_t *)param)->argv, NULL);
         }
         else
         {
+            printf("ViabilityTask wd is dead  %d %s %d\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter);
+
             kill(((watchdog_t *)param)->signal_pid, SIGTERM);
             waitpid(((watchdog_t *)param)->signal_pid, NULL, 0);
             atomic_exchange(&counter, 1);
             pid_child_T2 = fork();
-
             if (0 == pid_child_T2)
             {
+                ((watchdog_t *)param)->argv[0] = getenv(WD_APP);
+
                 execv(getenv(WD_APP), ((watchdog_t *)param)->argv);
             }
 
@@ -411,6 +445,7 @@ static int Task2(void *param)
             return (0);
         }
     }
+
     return (2);
 }
 
@@ -420,15 +455,14 @@ static int StopTask(void *param)
 
     if (atomic_load(&to_stop))
     {
-        CleanUp(((watchdog_t *)param), 1, 1, 1, 1, 1, 0, 0);
-
+        CleanUp(((watchdog_t *)param), 0, 0, 0, 0, 1, 0, 0);
         return (0);
     }
 
     return (2);
 }
 
-static int Task(void *param)
+static int UnblockSemaphorTask(void *param)
 {
     assert(param);
 
@@ -452,22 +486,21 @@ static int InitHandler(void (*handler_func)(int num), int signal_to_send)
     return (0);
 }
 
-
-static void Handler1(int num)
+static void IncramentCounter(int num)
 {
     (void)num;
 
-    /* printf("counter %lu is WD %d\n", counter, watchdog_g->is_WD); */
+    printf("counter %lu is WD %d\n", counter, watchdog_g->is_WD);
     atomic_fetch_add(&counter, 1);
 
     return;
 }
 
-static void Handler2(int num)
+static void TernOnToStop(int num)
 {
 
     (void)num;
-    /*printf("Handler2 %d %d \n", to_stop, watchdog_g->is_WD);*/
+    /*printf("TernOnToStop %d %d \n", to_stop, watchdog_g->is_WD);*/
     atomic_exchange(&to_stop, 1);
 
     return;
@@ -478,9 +511,10 @@ static void Handler2(int num)
 static void *UserThread(void *param)
 {
     assert(param);
+    printf("%d %d\n", ((watchdog_t *)param)->is_WD, counter);
 
     SchedulerRun(((watchdog_t *)param)->scheduler);
-    CleanUp(((watchdog_t *)param), 0, 0, 0, 0, 0, 1, 1);
+    CleanUp(((watchdog_t *)param), 1, 1, 1, 1, 0, 1, 1);
 
     return (NULL);
 }
