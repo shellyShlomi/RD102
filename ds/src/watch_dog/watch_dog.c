@@ -378,7 +378,7 @@ static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio)
 
 static int SignalTask(void *param)
 {
-    printf("SignalTask %d %d\n", ((watchdog_t *)param)->is_WD, counter);
+    /*printf("SignalTask %d %d\n", ((watchdog_t *)param)->is_WD, counter);*/
     if (kill(((watchdog_t *)param)->signal_pid, SIGUSR1))
     {
         /*printf("signal sending fail to %d %s\n", ((watchdog_t *)param)->signal_pid, getenv(USER_APP));*/
@@ -392,7 +392,7 @@ static int ViabilityTask(void *param)
 {
     static pid_t pid_child_T2 = 0;
     assert(param);
-    printf("ViabilityTask %d  %d\n", ((watchdog_t *)param)->is_WD, counter);
+   /*  printf("ViabilityTask %d  %d\n", ((watchdog_t *)param)->is_WD, counter); */
 
     /*printf("ViabilityTask %d %d %d \n", to_stop, ((watchdog_t *)param)->is_WD, counter);*/
     if (atomic_load(&to_stop))
@@ -412,7 +412,7 @@ static int ViabilityTask(void *param)
     {
         if (((watchdog_t *)param)->is_WD) /*im WD*/
         {
-            printf("ViabilityTask user is dead %d %s %d\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter);
+            /* printf("ViabilityTask user is dead %d %s %d\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter); */
 
             atomic_exchange(&counter, 1);
             /*             kill(((watchdog_t *)param)->signal_pid, SIGTERM);
@@ -426,7 +426,7 @@ static int ViabilityTask(void *param)
         }
         else
         {
-            printf("ViabilityTask wd is dead  %d %s %d\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter);
+            /* printf("ViabilityTask wd is dead  %d %s %d\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter); */
 
             kill(((watchdog_t *)param)->signal_pid, SIGTERM);
             waitpid(((watchdog_t *)param)->signal_pid, NULL, 0);
@@ -489,8 +489,7 @@ static int InitHandler(void (*handler_func)(int num), int signal_to_send)
 static void IncramentCounter(int num)
 {
     (void)num;
-
-    printf("counter %lu is WD %d\n", counter, watchdog_g->is_WD);
+/*printf("counter %lu is WD %d\n", counter, watchdog_g->is_WD); */
     atomic_fetch_add(&counter, 1);
 
     return;
@@ -511,7 +510,7 @@ static void TernOnToStop(int num)
 static void *UserThread(void *param)
 {
     assert(param);
-    printf("%d %d\n", ((watchdog_t *)param)->is_WD, counter);
+    /* printf("%d %d\n", ((watchdog_t *)param)->is_WD, counter); */
 
     SchedulerRun(((watchdog_t *)param)->scheduler);
     CleanUp(((watchdog_t *)param), 1, 1, 1, 1, 0, 1, 1);
