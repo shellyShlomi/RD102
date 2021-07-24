@@ -1,8 +1,7 @@
 
 
-#include <stdlib.h> /* malloc */
-#include <assert.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "watch_dog.h"
 
@@ -12,12 +11,12 @@ int main(int argc, char **argv)
     (void)argc;
     printf("WDStart %d\n", WDStart(argv, 5, 1));
 
-    for (i = 0; i < 100; i++)
+    for (i = 0; i < 50; i++)
     {
         sleep(1);
         printf(" %lu \n", i);
 
-        if (i == 30)
+        if (i == 25)
         {
             WDStop();
         }

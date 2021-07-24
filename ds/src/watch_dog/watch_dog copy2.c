@@ -33,8 +33,6 @@
 #define WD_APP ("WD_APP")
 #define SEM_SIGNAL_NAME ("WD_SEM_SIGNAL_NAME")
 #define SEM_BLOCK_NAME ("WD_SEM_BLOCK_NAME")
-#define SIGNAL1 (SIGUSR1)
-#define SIGNAL2 (SIGUSR2)
 
 /*------------- the watchdog struct ------------*/
 
@@ -46,6 +44,9 @@ typedef struct watchdog
     char **argv;
     pid_t signal_pid;
     int is_WD;
+    /*     int check_ratio;
+    int beats_interval; */
+
 } watchdog_t;
 
 atomic_size_t counter = 0;
@@ -60,10 +61,9 @@ watchdog_t *watchdog_g = NULL;
 
 int setenv(const char *name, const char *value, int overwrite); /* librery func nedded to be declerd */
 /*------------- start halper funcs ------------*/
-static int InitWD(watchdog_t **watchdog_elem, char *argv[], int check_ratio, int beats_interval);
 static int CreatWD(watchdog_t **watchdog_elem);
 static int SetEnvVar(watchdog_t *watchdog, char *argv[], int check_ratio, int beats_interval, char *sem_signa_name, char *sem_block_name);
-static int CreatSemaphors(watchdog_t *watchdog);
+static int CreatSemaphors(sem_t **sem_signal, sem_t **sem_block);
 
 /*------------- general funcs ------------*/
 static void CleanUp(watchdog_t *watchdog,
@@ -75,7 +75,7 @@ static void CleanUp(watchdog_t *watchdog,
                     int to_destroy_scheduler,
                     int to_free_watchdog);
 /*------------- Tasks funcs ------------*/
-static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio);
+static int SetTasks(watchdog_t **watchdog, int beats_interval, int check_ratio);
 
 static int StopTask(void *param);
 static int Task1(void *param);
@@ -83,7 +83,8 @@ static int Task2(void *param);
 static int Task(void *param);
 
 /*------------- signaling funcs ------------*/
-static int InitHandler(void (*handler_func)(int num), int signal_to_send);
+static int InitHandler1(void (*handler_func)(int num));
+static int InitHandler2(void (*handler_func)(int num));
 
 static void Handler1(int num);
 static void Handler2(int num);
@@ -100,14 +101,56 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
     pthread_t thread = {0};
     watchdog_t *watchdog_elem = NULL;
     pid_t pid_child = 0;
+    static sem_t *sem_signal = NULL;
+    static sem_t *sem_block = NULL;
     int sem_val = 0;
 
-    if (InitWD(&watchdog_elem, argv, check_ratio, beats_interval))
+    InitHandler1(Handler1);
+
+    InitHandler2(Handler2);
+
+    if (CreatWD(&watchdog_elem))
     {
         return (1);
     }
+    watchdog_g = watchdog_elem;
+
+    watchdog_elem->is_WD = !strncmp(argv[0], "WD_file_for_user", strlen("WD_file_for_user"));
+
+    watchdog_elem->scheduler = SchedulerCreate();
+    if (!watchdog_elem->scheduler)
+    {
+        CleanUp(watchdog_elem, 0, 0, 0, 0, 0, 0, 1);
+        return (1);
+    }
+
+    /*init Scheduler Tasks*/
+
+    if (SetTasks(&watchdog_elem, beats_interval, check_ratio))
+    {
+        CleanUp(watchdog_elem, 0, 0, 0, 0, 0, 1, 1);
+        printf("SetTasks fail\n");
+        return (1);
+    }
+
+    if (SetEnvVar(watchdog_elem, argv, check_ratio, beats_interval, SIGNAL, BLOCK))
+    {
+        CleanUp(watchdog_elem, 0, 0, 0, 0, 0, 1, 1);
+        printf("SetEnvVar fail\n");
+        return (1);
+    }
+
+    if (CreatSemaphors(&sem_signal, &sem_block))
+    {
+        CleanUp(watchdog_elem, 0, 0, 0, 0, 0, 1, 1);
+        return (1);
+    }
+    watchdog_elem->sem_block = sem_block;
+    watchdog_elem->sem_signal = sem_signal;
+    watchdog_elem->argv = argv;
 
     printf("%d %s\n", watchdog_elem->is_WD, argv[0]);
+    /*TODO: the func of setWD*/
     if (!watchdog_elem->is_WD) /*so im the user*/
     {
         pid_child = fork();
@@ -120,16 +163,19 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
                 return (1);
             }
         }
+
         else if (-1 == pid_child)
         {
+
             return (1);
         }
-        else if (0 < pid_child)
+        else
         {
             watchdog_elem->signal_pid = pid_child;
+
             if (!sem_wait(watchdog_elem->sem_block))
             {
-                sem_getvalue(watchdog_elem->sem_signal, &sem_val);
+                sem_getvalue(sem_signal, &sem_val);
                 if (0 == sem_val)
                 {
                     if (pthread_create(&thread, NULL, UserThread, watchdog_elem))
@@ -174,51 +220,6 @@ void WDStop(void)
 
 /*------------- start halper funcs ------------*/
 
-static int InitWD(watchdog_t **watchdog_elem, char *argv[], int check_ratio, int beats_interval)
-{
-    InitHandler(Handler1, SIGNAL1);
-    InitHandler(Handler2, SIGNAL2);
-
-    if (CreatWD(watchdog_elem))
-    {
-        return (1);
-    }
-    watchdog_g = *watchdog_elem;
-
-    (*watchdog_elem)->is_WD = !strncmp(argv[0], "WD_file_for_user", strlen("WD_file_for_user"));
-
-    if (SetEnvVar((*watchdog_elem), argv, check_ratio, beats_interval, SIGNAL, BLOCK))
-    {
-        CleanUp((*watchdog_elem), 0, 0, 0, 0, 0, 1, 1);
-        printf("SetEnvVar fail\n");
-        return (1);
-    }
-
-    if (CreatSemaphors((*watchdog_elem)))
-    {
-        CleanUp((*watchdog_elem), 0, 0, 0, 0, 0, 1, 1);
-        return (1);
-    }
-
-    (*watchdog_elem)->scheduler = SchedulerCreate();
-    if (!(*watchdog_elem)->scheduler)
-    {
-        CleanUp((*watchdog_elem), 1, 1, 1, 1, 0, 0, 1);
-        return (1);
-    }
-
-    if (SetTasks((*watchdog_elem), beats_interval, check_ratio))
-    {
-        CleanUp((*watchdog_elem), 1, 1, 1, 1, 0, 1, 1);
-        printf("SetTasks fail\n");
-        return (1);
-    }
-
-    (*watchdog_elem)->argv = argv;
-
-    return (0);
-}
-
 static int SetEnvVar(watchdog_t *watchdog, char *argv[], int check_ratio, int beats_interval, char *sem_signa_name, char *sem_block_name)
 {
     char arg[BUF_SIZE] = {"\0"};
@@ -246,9 +247,9 @@ static int SetEnvVar(watchdog_t *watchdog, char *argv[], int check_ratio, int be
     }
     memset(arg, 0, BUF_SIZE);
 
-    if (-1 == setenv(SEM_BLOCK_NAME, sem_block_name, 0) ||
+    if (-1 == setenv(SEM_BLOCK_NAME, sem_block_name, 0) || 
         -1 == setenv(SEM_SIGNAL_NAME, sem_signa_name, 0) ||
-        -1 == setenv(WD_APP, "/home/shelly/git/ds/bin/WD_file_for_user", 0) ||
+        -1 == setenv(WD_APP, "/home/shelly/git/ds/bin/WD_file_for_user", 0) || 
         -1 == setenv(USER_APP, (argv[0]), 0))
     {
         return (1);
@@ -270,81 +271,77 @@ static int CreatWD(watchdog_t **watchdog_elem)
     return (0);
 }
 
-static int CreatSemaphors(watchdog_t *watchdog)
+static int CreatSemaphors(sem_t **sem_signal, sem_t **sem_block)
 {
-    static sem_t *sem_signal = NULL;
-    static sem_t *sem_block = NULL;
+    assert(sem_signal);
+    assert(sem_block);
 
-    assert(watchdog);
-
-    sem_block = sem_open(getenv(SEM_BLOCK_NAME), O_CREAT, 0660, 0);
-    if (SEM_FAILED == sem_block)
+    *sem_block = sem_open(getenv(SEM_BLOCK_NAME), O_CREAT, 0660, 0);
+    if (SEM_FAILED == *sem_block)
     {
         return (1);
     }
 
-    sem_signal = sem_open(getenv(SEM_SIGNAL_NAME), O_CREAT, 0660, 0);
-    if (SEM_FAILED == sem_signal)
+    *sem_signal = sem_open(getenv(SEM_SIGNAL_NAME), O_CREAT, 0660, 0);
+    if (SEM_FAILED == *sem_signal)
     {
-        sem_close(sem_block);
+        sem_close(*sem_block);
         sem_unlink(getenv(SEM_BLOCK_NAME));
         return (1);
     }
-    watchdog->sem_block = sem_block;
-    watchdog->sem_signal = sem_signal;
 
     return (0);
 }
 
 /*------------- Tasks funcs ------------*/
 
-static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio)
+static int SetTasks(watchdog_t **watchdog, int beats_interval, int check_ratio)
 {
 
-    if (watchdog->is_WD)
+    if ((*watchdog)->is_WD)
     {
         if (UidIsSame(
-                SchedulerAdd(watchdog->scheduler,
+                SchedulerAdd((*watchdog)->scheduler,
                              Task,
                              0,
-                             watchdog),
+                             (*watchdog)),
                 GetBadUid()))
         {
-            sem_post(watchdog->sem_signal);
+            sem_post((*watchdog)->sem_signal);
             return (1);
         }
     }
     if (UidIsSame(
-            SchedulerAdd(watchdog->scheduler,
+            SchedulerAdd((*watchdog)->scheduler,
                          Task1,
                          beats_interval,
-                         watchdog),
+                         *watchdog),
             GetBadUid()))
     {
-        sem_post(watchdog->sem_signal);
+        sem_post((*watchdog)->sem_signal);
         return (1);
     }
 
     if (UidIsSame(
-            SchedulerAdd(watchdog->scheduler,
+            SchedulerAdd((*watchdog)->scheduler,
                          Task2,
                          (check_ratio * beats_interval),
-                         watchdog),
+                         *watchdog),
             GetBadUid()))
     {
-        sem_post(watchdog->sem_signal);
+        sem_post((*watchdog)->sem_signal);
         return (1);
     }
 
     if (UidIsSame(
             SchedulerAdd(
-                watchdog->scheduler,
+                (*watchdog)->scheduler,
                 StopTask,
                 beats_interval / 2,
-                watchdog),
+                *watchdog),
             GetBadUid()))
     {
-        sem_post(watchdog->sem_signal);
+        sem_post((*watchdog)->sem_signal);
         return (1);
     }
 
@@ -438,13 +435,14 @@ static int Task(void *param)
 }
 
 /*------------- signaling funcs ------------*/
-static int InitHandler(void (*handler_func)(int num), int signal_to_send)
+/* TODO:merge the inithendlers */
+static int InitHandler1(void (*handler_func)(int num))
 {
     struct sigaction handler = {0};
 
     /*set SIGUSER1 Handler */
     handler.sa_handler = handler_func;
-    if (sigaction(signal_to_send, &handler, NULL))
+    if (sigaction(SIGUSR1, &handler, NULL))
     {
         return (1);
     }
@@ -452,6 +450,19 @@ static int InitHandler(void (*handler_func)(int num), int signal_to_send)
     return (0);
 }
 
+static int InitHandler2(void (*handler_func)(int num))
+{
+    struct sigaction handler = {0};
+
+    /*set SIGUSER2 Handler*/
+    handler.sa_handler = handler_func;
+    if (sigaction(SIGUSR2, &handler, NULL))
+    {
+        return (1);
+    }
+
+    return (0);
+}
 
 static void Handler1(int num)
 {

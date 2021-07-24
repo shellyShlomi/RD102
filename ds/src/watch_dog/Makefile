@@ -86,16 +86,12 @@ $(BIN)/$(TARGET)_r: $(TEST_SOURCE)
 
 build:
 	@mkdir -p $(OBJ)/$(TARGET)  
-#	@mkdir -p $(OBJ)/WD_file_for_user/  
-#	@mkdir -p $(OBJ)/user_app/  
 	@make shared_obj
 	@make $(BIN)/user_app
 	@make $(BIN)/WD_file_for_user 
 
 build_single:
 	@mkdir -p $(OBJ)/$(TARGET)  
-#	@mkdir -p $(OBJ)/WD_file_for_user/  
-#	@mkdir -p $(OBJ)/usre_app/
 	@make $(BIN)/$(TARGET_SINGLE)
 
 test:
@@ -106,21 +102,15 @@ test_release:
 
 release_so:
 	@mkdir -p $(OBJ)/$(TARGET)  
-#	@mkdir -p $(OBJ)/WD_file_for_user/  
-#	@mkdir -p $(OBJ)/usre_app/
 	@make $(LIB)/$(SHAREDLIB_REL).so
 
 release:
 	@mkdir -p $(OBJ)/$(TARGET)  
-#	@mkdir -p $(OBJ)/WD_file_for_user/  
-#	@mkdir -p $(OBJ)/usre_app/
 	@make release_so
 	@make $(BIN)/$(TARGET)_r
 
 shared_obj:
 	@mkdir -p $(OBJ)/$(TARGET)  
-#	@mkdir -p $(OBJ)/WD_file_for_user/  
-#	@mkdir -p $(OBJ)/usre_app/
 	@cd ../../ @make libds 
 	@make $(LIB)/$(SHAREDLIB)
 
@@ -143,5 +133,3 @@ clean :
 	@rm -f -r $(OBJECTS) $(BIN)/$(TARGET) $(BIN)/$(TARGET)_r $(BIN)/$(TARGET_SINGLE)
 	@rm -f -r $(LIB)/$(SHAREDLIB) $(LIB)/$(SHAREDLIB_REL).so  $(OBJ)/$(TARGET)  
 
-#$(TEST_OBJECTS).o: $(TEST_SOURCE) $(INC)/$(TARGET).h
-#		$(CC) $(CFLAGS) $< -c -o $(OBJ)/$(TARGET)/$@
