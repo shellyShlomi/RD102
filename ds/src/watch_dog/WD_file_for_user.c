@@ -8,13 +8,11 @@
 
 /*------------- watch_dog funcs ------------*/
 
-int main()
+int main(int argc, char **argv)
 {
-    static char *app[1] = {'\0'};
     int status = 0;
-    app[0] = __FILE__;
-    puts(__FILE__);
-    status = WDStart(app, atoi(getenv(CHECK_RATIO)), atoi(getenv(BEATS_INTERVAL)));
+    argv[0] = __FILE__;
+    status = WDStart(argv, atoi(getenv(CHECK_RATIO)), atoi(getenv(BEATS_INTERVAL)));
 
     printf("%d WD start \n", status);
 

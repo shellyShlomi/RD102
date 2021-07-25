@@ -1,4 +1,16 @@
 
+/*  Developer: Shelly Shlomi;									*
+ *  Status:Approved by mentor;									*
+ *  Date Of Creation:25.04.21;									*
+ *  Date Of Approval:26.04.21;									*
+ *  Approved By: (tests)final approved by Anna;					*
+ *  Description: watchdog app :                                 *
+ *          +   Have helgring problems, data race, whene        *
+ *              WD/user killed;                                 *
+ *          +   The WD hes a critical section if the WD is      *
+ *              killed and the is realived but didnot run the   *
+ *              schedualer yet to activet the stop task         */
+
 #define _POSIX_SOURCE
 
 #include <stdio.h>    /*           printf           */
@@ -37,10 +49,10 @@
 #define SIGNAL2 (SIGUSR2)
 
 #ifndef NDEBUG
-#define DEBUG_PRINT(x) \
-    do                 \
-    {                  \
-        /* printf x; */      \
+#define DEBUG_PRINT(x)  \
+    do                  \
+    {                   \
+        /* printf x; */ \
     } while (0)
 #else
 #define DEBUG_PRINT(x) \
@@ -79,11 +91,18 @@ pthread_t *thread = NULL;
 
 /* librery func nedded to be declerd */
 int unsetenv(const char *name);
-int setenv(const char *name, const char *value, int overwrite); 
+int setenv(const char *name, const char *value, int overwrite);
 /*------------- start halper funcs ------------*/
-static int InitWD(watchdog_t **watchdog_elem, char *argv[], int check_ratio, int beats_interval);
-static int CreatWD(watchdog_t **watchdog_elem);
-static int SetEnvVar(watchdog_t *watchdog, char *argv[], int check_ratio, int beats_interval, char *sem_signa_name, char *sem_block_name);
+static int InitWD(watchdog_t *watchdog_elem,
+                  char *argv[],
+                  int check_ratio,
+                  int beats_interval);
+static watchdog_t *CreatWD();
+static int SetEnvVar(watchdog_t *watchdog, char *argv[],
+                     int check_ratio,
+                     int beats_interval,
+                     char *sem_signa_name,
+                     char *sem_block_name);
 static int CreatSemaphors(watchdog_t *watchdog);
 
 /*------------- general funcs ------------*/
@@ -94,7 +113,7 @@ static void CleanUp(watchdog_t *watchdog,
                     int to_unlink_sem_block,
                     int to_stop_scheduler,
                     int to_destroy_scheduler,
-                    int to_free_watchdog);/*TODO:   cheng to bit flag!*/
+                    int to_free_watchdog); /*TODO:   cheng to bit flag!*/
 /*------------- Tasks funcs ------------*/
 static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio);
 
@@ -112,11 +131,11 @@ static void TernOnToStopHandler(int num);
 /*------------- user thread funcs ------------*/
 static void *UserThread(void *param);
 
-/*------------------------------ implementetion --------------------------------*/
+/******************************* implementetion *******************************/
 
-/*--------------- WDStart ---------------*/
+/*********************************** WDStart ***********************************/
 
-int WDStart(char *argv[], int check_ratio, int beats_interval)
+int WDStart(char **argv, int check_ratio, int beats_interval)
 {
     static pthread_t thread_l = {0};
     watchdog_t *watchdog_elem = NULL;
@@ -125,14 +144,27 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
 
     atomic_exchange(&to_stop, 0);
 
-    InitHandler(IncramentCounterHandler, SIGNAL1);
-    InitHandler(TernOnToStopHandler, SIGNAL2);
-
-    if (InitWD(&watchdog_elem, argv, check_ratio, beats_interval))
+    if (InitHandler(TernOnToStopHandler, SIGNAL2))
     {
         return (1);
     }
-    DEBUG_PRINT(("WDsatrt, at the begining, is_WD: %d argv[0]: %s counter: %lu\n", watchdog_elem->is_WD, argv[0], counter));
+    if (InitHandler(IncramentCounterHandler, SIGNAL1))
+    {
+        return (1);
+    }
+    watchdog_elem = CreatWD();
+    if (!watchdog_elem)
+    {
+        return (1);
+    }
+    watchdog_elem->is_WD = !strncmp(argv[0], "WD_file_for_user", strlen("WD_file_for_user"));
+
+    if (InitWD(watchdog_elem, argv, check_ratio, beats_interval))
+    {
+        return (1);
+    }
+    /* DEBUG_PRINT */ printf("WDsatrt, at the begining, is_WD: %d argv[0]: ", watchdog_elem->is_WD);
+    /* DEBUG_PRINT */ printf("%s argv[1]: %s argv[2]: %s \n",argv[0], argv[1], argv[2]);
 
     if (!watchdog_elem->is_WD) /*so im the user*/
     {
@@ -165,7 +197,7 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
             if (!sem_wait(watchdog_elem->sem_block))
             {
                 sem_getvalue(watchdog_elem->sem_signal, &sem_val);
-                if (0 == sem_val)
+                /* if (0 == sem_val) */
                 {
                     if (pthread_create(&thread_l, NULL, UserThread, watchdog_elem))
                     {
@@ -197,7 +229,7 @@ int WDStart(char *argv[], int check_ratio, int beats_interval)
     return (0);
 }
 
-/*--------------- WDStop ---------------*/
+/*********************************** WDStop ***********************************/
 
 void WDStop(void)
 {
@@ -206,7 +238,8 @@ void WDStop(void)
 
     DEBUG_PRINT(("usignal sending fail\n"));
 
-    /************************hepends only on the user************************/
+    /*------------- hepends only on the user -------------*/
+
     waitpid(watchdog_g->signal_pid, NULL, 0);
 
     if (watchdog_g && !watchdog_g->is_WD)
@@ -218,49 +251,43 @@ void WDStop(void)
     return;
 }
 
-/*------------- start halper funcs ------------*/
+/***************************** start halper funcs *****************************/
 
-static int InitWD(watchdog_t **watchdog_elem, char *argv[], int check_ratio, int beats_interval)
+static int InitWD(watchdog_t *watchdog_elem, char *argv[], int check_ratio, int beats_interval)
 {
-    if (CreatWD(watchdog_elem))
-    {
-        return (1);
-    }
 
-    (*watchdog_elem)->is_WD = !strncmp(argv[0], "WD_file_for_user", strlen("WD_file_for_user"));
-
-    if (SetEnvVar((*watchdog_elem), argv, check_ratio, beats_interval, SIGNAL, BLOCK))
+    if (SetEnvVar((watchdog_elem), argv, check_ratio, beats_interval, SIGNAL, BLOCK))
     {
-        CleanUp((*watchdog_elem), 0, 0, 0, 0, 0, 1, 1);
+        CleanUp((watchdog_elem), 0, 0, 0, 0, 0, 1, 1);
 
         DEBUG_PRINT(("SetEnvVar fail\n"));
 
         return (1);
     }
 
-    if (CreatSemaphors((*watchdog_elem)))
+    if (CreatSemaphors((watchdog_elem)))
     {
-        CleanUp((*watchdog_elem), 0, 0, 0, 0, 0, 1, 1);
+        CleanUp((watchdog_elem), 0, 0, 0, 0, 0, 1, 1);
         return (1);
     }
 
-    (*watchdog_elem)->scheduler = SchedulerCreate();
-    if (!(*watchdog_elem)->scheduler)
+    (watchdog_elem)->scheduler = SchedulerCreate();
+    if (!(watchdog_elem)->scheduler)
     {
-        CleanUp((*watchdog_elem), 1, 1, 1, 1, 0, 0, 1);
+        CleanUp((watchdog_elem), 1, 1, 1, 1, 0, 0, 1);
         return (1);
     }
 
-    if (SetTasks((*watchdog_elem), beats_interval, check_ratio))
+    if (SetTasks((watchdog_elem), beats_interval, check_ratio))
     {
-        CleanUp((*watchdog_elem), 1, 1, 1, 1, 0, 1, 1);
+        CleanUp((watchdog_elem), 1, 1, 1, 1, 0, 1, 1);
 
         DEBUG_PRINT(("SetTasks fail\n"));
 
         return (1);
     }
 
-    (*watchdog_elem)->argv = argv;
+    (watchdog_elem)->argv = argv;
 
     return (0);
 }
@@ -316,17 +343,13 @@ static int SetEnvVar(watchdog_t *watchdog, char *argv[], int check_ratio, int be
     return (0);
 }
 
-static int CreatWD(watchdog_t **watchdog_elem)
+static watchdog_t *CreatWD()
 {
-    assert(watchdog_elem);
+    watchdog_t *watchdog_elem = NULL;
 
-    (*watchdog_elem) = (watchdog_t *)malloc(sizeof(watchdog_t));
-    if (!*watchdog_elem)
-    {
-        return (1);
-    }
+    watchdog_elem = (watchdog_t *)malloc(sizeof(watchdog_t));
 
-    return (0);
+    return (watchdog_elem);
 }
 
 static int CreatSemaphors(watchdog_t *watchdog)
@@ -562,7 +585,7 @@ static void *UserThread(void *param)
     return (NULL);
 }
 
-/*------------------------------ general --------------------------------*/
+/********************************* general *********************************/
 
 static void CleanUp(watchdog_t *watchdog,
                     int to_close_sem_signal,

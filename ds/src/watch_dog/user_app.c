@@ -11,9 +11,9 @@ int main(int argc, char **argv)
     (void)argc;
     printf("WDStart %d\n", WDStart(argv, 5, 1));
 
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < 30; i++)
     {
-        /* sleep(1); */
+        sleep(1);
         printf(" %lu \n", i);
     }
 
@@ -21,11 +21,11 @@ int main(int argc, char **argv)
 
     printf("WDStart %d\n", WDStart(argv, 5, 1));
 
-    for (i = 0; i < 6; i++)
+    for (i = 0; i < 60; i++)
     {
         printf(" %lu \n", i);
-        /* sleep(1); */
-        if (i == 2)
+        sleep(1);
+        if (i == 45)
         {
             WDStop();
             printf("WDStop\n");
