@@ -15,7 +15,7 @@ RELEASE_FLAGS =  -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)
 #----------------shared object flags------------------#
 
 SOFLAG_SECOND = -shared 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lds
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lds -lpthread
 #----------------------------------------------------#
 
 
@@ -44,9 +44,9 @@ test_release:
 
 shared_obj_debug:
 	@mkdir -p $(OBJ)/tests_for_sorts 
-#	@mkdir -p $(OBJ)/extra_avl 
+#	@mkdir -p $(OBJ)/trie 
 	$(CC) $(CFLAGS) ./tests_for_sorts.c -c -fpic -o $(OBJ)/tests_for_sorts/tests_for_sorts.o 
-#	$(CC) $(CFLAGS) ./avl/extra_func.c -c -fpic -o $(OBJ)/extra_avl/extra_avl.o 
+#	$(CC) $(CFLAGS) ./trie.c -c -fpic -o $(OBJ)/trie/trie.o 
 	@make -f ./.make/shared_obj
 
 release:

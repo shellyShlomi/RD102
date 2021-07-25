@@ -17,8 +17,6 @@ int main()
     status = WDStart(app, atoi(getenv(CHECK_RATIO)), atoi(getenv(BEATS_INTERVAL)));
 
     printf("%d WD start \n", status);
-
-    WDStop();
-
+    
     return (0);
 }

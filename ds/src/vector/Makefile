@@ -47,11 +47,10 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 $(BIN)/$(TARGET_SINGLE): $(TEST_SOURCE) $(LIB)/$(SHAREDLIB)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ 
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ -lpthread
 
 $(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libds.so -lm
-
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libds.so -lm -lpthread
 
 
 
@@ -115,7 +114,7 @@ update_release:
 
 clean :
 	@rm -f -r $(OBJECTS) $(BIN)/$(TARGET) $(BIN)/$(TARGET)_r $(BIN)/$(TARGET_SINGLE)
-	@rm -f -r $(LIB)/$(SHAREDLIB) $(LIB)/$(SHAREDLIB_REL).so  $(OBJ)/$(TARGET)  
+	@rm -f -r $(LIB)/$(SHAREDLIB) $(LIB)/$(SHAREDLIB_REL).so  $(OBJ)/$(TARGET)  $(OBJECTS_REL)
 
 #$(TEST_OBJECTS).o: $(TEST_SOURCE) $(INC)/$(TARGET).h
 #		$(CC) $(CFLAGS) $< -c -o $(OBJ)/$(TARGET)/$@

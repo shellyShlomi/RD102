@@ -222,7 +222,6 @@ d_list_iter_t DLLRemove(d_list_iter_t iter)
 void DLLDestroy(d_list_t *list)
 {
 	assert(NULL != list);
-
 	
 	while (!DLLIsEmpty(list))
 	{
