@@ -7,9 +7,12 @@
  *  Description: watchdog app :                                 *
  *          +   Have helgring problems, data race, whene        *
  *              WD/user killed;                                 *
- *                                                              */
+ *          +   The WD hes a critical section if the WD is      *
+ *              killed and the is realived but didnot run the   *
+ *              schedualer yet to activet the stop task         *
+ *              - sigmask for that section.                     */
 
-#define _POSIX_C_SOURCE 200112L
+#define _POSIX_SOURCE
 
 #include <stdio.h>    /*           printf           */
 #include <stddef.h>   /*           size_t           */
@@ -19,7 +22,6 @@
 #include <fcntl.h>    /*      For O_* constants     */
 #include <assert.h>   /*            assert          */
 #include <signal.h>   /*       struct sigaction     */
-#include <stddef.h>   /*       struct sigaction     */
 #include <string.h>   /*          memset            */
 #include <sys/wait.h> /*          waitpid           */
 #include <stdlib.h>   /*          setenv            */
@@ -33,17 +35,33 @@
 
 #define SIZE (5)
 #define BUF_SIZE (1000)
+#define SIGNAL ("signal")
+#define BLOCK ("block")
+
 /*------------- defines for setting environment variable ------------*/
+
+#define USER_PID ("WD_USER_PID") /*TODO: not to have 2 pid doubel informetion!!! problrmatics!!! fix the problem*/
+#define WD_PID ("WD_PID")        /*TODO: not to have 2 pid doubel informetion!!! problrmatics!!! fix the problem*/
+#define USER_APP ("WD_USER_APP")
+#define WD_APP ("WD_APP")
+#define SEM_SIGNAL_NAME ("WD_SEM_SIGNAL_NAME")
+#define SEM_BLOCK_NAME ("WD_SEM_BLOCK_NAME")
 
 #define SIGNAL1 (SIGUSR1)
 #define SIGNAL2 (SIGUSR2)
 
 #ifndef NDEBUG
-#define DEBUG if (0)
+#define DEBUG_PRINT(x)  \
+    do                  \
+    {                   \
+        /* printf x; */ \
+    } while (0)
 #else
-#define DEBUG if (0)
+#define DEBUG_PRINT(x) \
+    do                 \
+    {                  \
+    } while (0)
 #endif
-
 /*------------- the watchdog struct ------------*/
 
 typedef struct watchdog
@@ -61,6 +79,11 @@ static atomic_int to_stop = 1;
 watchdog_t *watchdog_g = NULL;
 pthread_t *thread = NULL;
 
+/* librery func nedded to be declerd */
+int unsetenv(const char *name);
+
+int setenv(const char *name, const char *value, int overwrite);
+
 /*------------- start halper funcs ------------*/
 static int InitWD(watchdog_t *watchdog_elem,
                   char *argv[],
@@ -76,13 +99,8 @@ static int SetEnvVar(watchdog_t *watchdog, char *argv[],
                      char *sem_block_name);
 static int CreatSemaphors(watchdog_t *watchdog);
 
-static int CheckStartParams(int check_ratio, int beats_interval);
 /*------------- general funcs ------------*/
 static void CleanUp(watchdog_t *watchdog, int clean_up_descriptor);
-
-static void SigMaskBlock(void);
-
-static void SigMaskWD(int how);
 
 /*------------- Tasks funcs ------------*/
 static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio);
@@ -116,10 +134,6 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
     pid_t pid_child = 0;
     int sem_val = 0;
 
-    if (CheckStartParams(check_ratio, beats_interval))
-    {
-        return (1);
-    }
     if (InitHandler(TernOnToStopHandler, SIGNAL2))
     {
         return (1);
@@ -128,7 +142,6 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
     {
         return (1);
     }
-
     watchdog_elem = CreatWD();
     if (!watchdog_elem)
     {
@@ -140,13 +153,11 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
     {
         return (1);
     }
-    DEBUG printf("WDsatrt, at the begining, is_WD: %d argv[0]: ", watchdog_elem->is_WD);
-    DEBUG printf("%s argv[1]: %s argv[2]: %s \n", argv[0], argv[1], argv[2]);
+    DEBUG_PRINT(("WDsatrt, at the begining, is_WD: %d argv[0]: ", watchdog_elem->is_WD));
+    DEBUG_PRINT(("%s argv[1]: %s argv[2]: %s \n", argv[0], argv[1], argv[2]));
 
     if (!watchdog_elem->is_WD) /*so im the user*/
     {
-        SigMaskBlock();
-
         watchdog_g = watchdog_elem;
         if (getenv(WD_PID))
         {
@@ -206,7 +217,7 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
                                            CF_UNLINK_SEM_BLOCK |
                                            CF_DESTROY_SCHEDULER |
                                            CF_FREE_WATCHDOG);
-                DEBUG printf("sem_wait fail \n");
+                DEBUG_PRINT(("sem_wait fail \n"));
 
                 return (1);
             }
@@ -218,6 +229,7 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
         watchdog_elem->signal_pid = atoi(getenv(USER_PID));
         atomic_exchange(&to_stop, 0);
         SchedulerRun(watchdog_elem->scheduler);
+        kill(watchdog_elem->signal_pid, SIGUSR2);
         CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
                                    CF_CLOSE_SEM_BLOCK |
                                    CF_UNLINK_SEM_SIGNAL |
@@ -234,40 +246,26 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
 
 void WDStop(void)
 {
-    /*------------- hepends only on the user -------------*/
 
-    if (kill(watchdog_g->signal_pid, SIGUSR2))
-    {
-        DEBUG printf("user signal sending (SIGUSR2) fail\n");
-    }
+    kill(watchdog_g->signal_pid, SIGUSR2);
+
+    DEBUG_PRINT(("usignal sending fail\n"));
+
+    /*------------- hepends only on the user -------------*/
 
     waitpid(watchdog_g->signal_pid, NULL, 0);
 
-    atomic_exchange(&to_stop, 1);
     if (watchdog_g && !watchdog_g->is_WD)
     {
-        if (kill(watchdog_g->signal_pid, SIGTERM))
-        {
-            DEBUG printf("user signal sending (SIGTERM) fail\n");
-        }
+        kill(watchdog_g->signal_pid, SIGTERM); /*new 17:20????*/
         pthread_join(*thread, NULL);
     }
-
-    SigMaskWD(SIG_UNBLOCK);
 
     return;
 }
 
 /***************************** start halper funcs *****************************/
-static int CheckStartParams(int check_ratio, int beats_interval)
-{
-    if (check_ratio < beats_interval || beats_interval == check_ratio ||
-        0 > check_ratio || 0 > beats_interval)
-    {
-        return (1);
-    }
-    return (0);
-}
+
 static int InitWD(watchdog_t *watchdog_elem, char *argv[], int check_ratio, int beats_interval)
 {
 
@@ -275,7 +273,7 @@ static int InitWD(watchdog_t *watchdog_elem, char *argv[], int check_ratio, int 
     {
         CleanUp(watchdog_elem, CF_DESTROY_SCHEDULER |
                                    CF_FREE_WATCHDOG);
-        DEBUG printf("SetEnvVar fail\n");
+        DEBUG_PRINT(("SetEnvVar fail\n"));
 
         return (1);
     }
@@ -307,7 +305,7 @@ static int InitWD(watchdog_t *watchdog_elem, char *argv[], int check_ratio, int 
                                    CF_DESTROY_SCHEDULER |
                                    CF_FREE_WATCHDOG);
 
-        DEBUG printf("SetTasks fail\n");
+        DEBUG_PRINT(("SetTasks fail\n"));
 
         return (1);
     }
@@ -460,12 +458,11 @@ static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio)
 
 static int SignalTask(void *param)
 {
-    DEBUG printf("SignalTask is_WD: %d counter: %lu\n", ((watchdog_t *)param)->is_WD, counter);
+    DEBUG_PRINT(("SignalTask is_WD: %d counter: %lu\n", ((watchdog_t *)param)->is_WD, counter));
 
     if (kill(((watchdog_t *)param)->signal_pid, SIGUSR1) && !atomic_load(&to_stop))
     {
-        DEBUG printf("signal sending fail to %d user_app: %s\n",
-                     ((watchdog_t *)param)->signal_pid, getenv(USER_APP));
+        DEBUG_PRINT(("signal sending fail to %d user_app: %s\n", ((watchdog_t *)param)->signal_pid, getenv(USER_APP)));
 
         return (0);
     }
@@ -478,11 +475,12 @@ static int ViabilityTask(void *param)
     static pid_t pid_child_T2 = 0;
     assert(param);
 
-    DEBUG printf("ViabilityTask, to_stop: %d ", to_stop);
-    DEBUG printf("is_WD: %d counter: %lu ", ((watchdog_t *)param)->is_WD, counter);
+    DEBUG_PRINT(("ViabilityTask to_stop: %d is_WD: %d counter: %lu \n", to_stop, ((watchdog_t *)param)->is_WD, counter));
 
     if (atomic_load(&to_stop))
     {
+        atomic_exchange(&to_stop, 0);
+
         /* NOTE : meybe here try to debug the reopen of 
         the user app if the WD is realive affter the stop sigmal */
         return (0);
@@ -491,8 +489,8 @@ static int ViabilityTask(void *param)
     {
         atomic_exchange(&counter, 0);
 
-        DEBUG printf("ViabilityTask, pid: %d to_stop: %d ", getpid(), to_stop);
-        DEBUG printf("is_WD: %d counter: %lu ", ((watchdog_t *)param)->is_WD, counter);
+        DEBUG_PRINT(("ViabilityTask: counter = 0 \n"));
+        DEBUG_PRINT(("pid is :%d, and ((watchdog_t *)param)->is_WD is :%d counter is: %lu\n", getpid(), ((watchdog_t *)param)->is_WD, counter));
 
         return (2);
     }
@@ -500,9 +498,8 @@ static int ViabilityTask(void *param)
     {
         if (((watchdog_t *)param)->is_WD) /*im WD*/
         {
-            DEBUG printf("ViabilityTask user is dead \n");
-            DEBUG printf("pid: %d to_stop: %d ", getpid(), to_stop);
-            DEBUG printf("is_WD: %d counter: %lu ", ((watchdog_t *)param)->is_WD, counter);
+
+            DEBUG_PRINT(("ViabilityTask user is dead %d argv[0] %s counter %lu\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter));
 
             atomic_exchange(&counter, 1);
             CleanUp(((watchdog_t *)param), CF_CLOSE_SEM_SIGNAL |
@@ -511,13 +508,14 @@ static int ViabilityTask(void *param)
                                                CF_UNLINK_SEM_BLOCK);
 
             ((watchdog_t *)param)->argv[0] = getenv(USER_APP);
+            ((watchdog_t *)param)->is_WD = 0;
             unsetenv(WD_PID);
 
             execv(getenv(USER_APP), ((watchdog_t *)param)->argv);
         }
         else
         {
-            DEBUG printf("ViabilityTask wd is dead  %d %s %lu\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter);
+            DEBUG_PRINT(("ViabilityTask wd is dead  %d %s %lu\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter));
 
             kill(((watchdog_t *)param)->signal_pid, SIGTERM);
             waitpid(((watchdog_t *)param)->signal_pid, NULL, 0);
@@ -548,8 +546,8 @@ static int StopTask(void *param)
 
     if (atomic_load(&to_stop))
     {
-        atomic_exchange(&to_stop, 0);
         CleanUp(((watchdog_t *)param), CF_STOP_SCHEDULER);
+        atomic_exchange(&to_stop, 0);
         return (0);
     }
     return (2);
@@ -560,6 +558,7 @@ static int UnblockSemaphorTask(void *param)
     assert(param);
 
     sem_post(((watchdog_t *)param)->sem_block);
+
 
     return (0);
 }
@@ -582,7 +581,7 @@ static int InitHandler(void (*handler_func)(int num), int signal_to_send)
 static void IncramentCounterHandler(int num)
 {
     (void)num;
-    DEBUG printf("counter %lu is WD %d\n", counter, watchdog_g->is_WD);
+    DEBUG_PRINT(("counter %lu is WD %d\n", counter, watchdog_g->is_WD));
 
     atomic_fetch_add(&counter, 1);
 
@@ -594,10 +593,15 @@ static void TernOnToStopHandler(int num)
 
     (void)num;
 
-    DEBUG printf("TernOnToStopHandler %d %d \n", to_stop, watchdog_g->is_WD);
+    DEBUG_PRINT(("TernOnToStopHandler %d %d \n", to_stop, watchdog_g->is_WD));
 
     atomic_exchange(&to_stop, 1);
 
+    /*    if ()
+   {
+
+   }
+ */
     return;
 }
 
@@ -607,8 +611,10 @@ static void *UserThread(void *param)
 {
     assert(param);
 
-    DEBUG printf("%d %lu\n", ((watchdog_t *)param)->is_WD, counter);
+    DEBUG_PRINT(("%d %lu\n", ((watchdog_t *)param)->is_WD, counter));
+
     atomic_exchange(&to_stop, 0);
+
     SchedulerRun(((watchdog_t *)param)->scheduler);
     CleanUp(((watchdog_t *)param), CF_CLOSE_SEM_SIGNAL |
                                        CF_CLOSE_SEM_BLOCK |
@@ -653,49 +659,6 @@ static void CleanUp(watchdog_t *watchdog, int clean_up_descriptor)
     {
         free(watchdog);
     }
-
-    return;
-}
-
-static void SigMaskBlock(void)
-{
-    sigset_t sig_set = {0};
-    int status = 0;
-
-    status = sigfillset(&sig_set);
-    DEBUG printf("sigfillset retern val: %d \n\n", status);
-
-    status = sigdelset(&sig_set, SIGUSR1);
-    DEBUG printf("sigdelset for SIGUSR1 %d \n", status);
-
-    status = sigdelset(&sig_set, SIGUSR2);
-    DEBUG printf("sigdelset for SIGUSR2 %d \n", status);
-
-    status = sigdelset(&sig_set, SIGTERM);
-    DEBUG printf("sigdelset for SIGUSR2 %d \n", status);
-
-    pthread_sigmask(SIG_BLOCK, &sig_set, NULL);
-    DEBUG perror("pthread_sigmask fail, errno:\n");
-
-    return;
-}
-
-static void SigMaskWD(int how)
-{
-    sigset_t sig_set;
-    int status = 0;
-
-    status = sigemptyset(&sig_set);
-    DEBUG printf("sigemptyset retern val: %d \n\n", status);
-
-    status = sigaddset(&sig_set, SIGUSR1);
-    DEBUG printf("sigaddset for SIGUSR1 %d \n", status);
-
-    status = sigaddset(&sig_set, SIGUSR2);
-    DEBUG printf("sigaddset for SIGUSR2 %d \n", status);
-
-    pthread_sigmask(how, &sig_set, NULL);
-    DEBUG perror("pthread_sigmask fail, errno:\n");
 
     return;
 }
