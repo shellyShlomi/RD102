@@ -1,15 +1,16 @@
 
 /*  Developer: Shelly Shlomi;									*
- *  Status:Approved by mentor;									*
- *  Date Of Creation:25.04.21;									*
- *  Date Of Approval:26.04.21;									*
- *  Approved By: (tests)final approved by Anna;					*
+ *  Status:in development, functonalety - done;                 *
+ *  Date Of Creation:19.07.21;									*
+ *  Date Of Approval:00.07.21                                   *
+ *  Approved By:                                                *
  *  Description: watchdog app :                                 *
  *          +   Have helgring problems, data race, whene        *
  *              WD/user killed;                                 *
  *          +   The WD hes a critical section if the WD is      *
  *              killed and the is realived but didnot run the   *
- *              schedualer yet to activet the stop task         */
+ *              schedualer yet to activet the stop task         *
+ *              - sigmask for that section.                     */
 
 #define _POSIX_SOURCE
 
@@ -197,15 +198,17 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
             if (!sem_wait(watchdog_elem->sem_block))
             {
                 sem_getvalue(watchdog_elem->sem_signal, &sem_val);
-                /* if (0 == sem_val) */
+                if (0 == sem_val)/*TODO:finetuning the semaphor of signaling*/ 
                 {
                     if (pthread_create(&thread_l, NULL, UserThread, watchdog_elem))
                     {
                         CleanUp(watchdog_elem, 1, 1, 1, 1, 1, 1, 1);
                         return (1);
                     }
-                }
                 return (0);
+
+                }
+                return (1);
             }
             else
             {
