@@ -40,8 +40,8 @@
 
 /*------------- defines for setting environment variable ------------*/
 
-#define USER_PID ("WD_USER_PID")
-#define WD_PID ("WD_PID")/*TODO: not to have 2 pid doubel informetion!!! problrmatics!!! fix the problem*/
+#define USER_PID ("WD_USER_PID") /*TODO: not to have 2 pid doubel informetion!!! problrmatics!!! fix the problem*/
+#define WD_PID ("WD_PID")        /*TODO: not to have 2 pid doubel informetion!!! problrmatics!!! fix the problem*/
 #define USER_APP ("WD_USER_APP")
 #define WD_APP ("WD_APP")
 #define SEM_SIGNAL_NAME ("WD_SEM_SIGNAL_NAME")
@@ -90,7 +90,9 @@ pthread_t *thread = NULL;
 
 /* librery func nedded to be declerd */
 int unsetenv(const char *name);
+
 int setenv(const char *name, const char *value, int overwrite);
+
 /*------------- start halper funcs ------------*/
 static int InitWD(watchdog_t *watchdog_elem,
                   char *argv[],
@@ -107,28 +109,24 @@ static int SetEnvVar(watchdog_t *watchdog, char *argv[],
 static int CreatSemaphors(watchdog_t *watchdog);
 
 /*------------- general funcs ------------*/
-/* static void CleanUp(watchdog_t *watchdog,
-                    int to_close_sem_signal,
-                    int to_close_sem_block,
-                    int to_unlink_sem_signal,
-                    int to_unlink_sem_block,
-                    int to_stop_scheduler,
-                    int to_destroy_scheduler,
-                    int to_free_watchdog); */ /*TODO:   cheng to bit flag!*/
-
 static void CleanUp(watchdog_t *watchdog, int clean_up_descriptor);
+
 /*------------- Tasks funcs ------------*/
 static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio);
 
 static int StopTask(void *param);
+
 static int SignalTask(void *param);
+
 static int ViabilityTask(void *param);
+
 static int UnblockSemaphorTask(void *param);
 
 /*------------- signaling funcs ------------*/
 static int InitHandler(void (*handler_func)(int num), int signal_to_send);
 
 static void IncramentCounterHandler(int num);
+
 static void TernOnToStopHandler(int num);
 
 /*------------- user thread funcs ------------*/
@@ -167,7 +165,7 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
         return (1);
     }
     /* DEBUG_PRINT */ printf("WDsatrt, at the begining, is_WD: %d argv[0]: ", watchdog_elem->is_WD);
-    /* DEBUG_PRINT */ printf("%s argv[1]: %s argv[2]: %s \n",argv[0], argv[1], argv[2]);
+    /* DEBUG_PRINT */ printf("%s argv[1]: %s argv[2]: %s \n", argv[0], argv[1], argv[2]);
 
     if (!watchdog_elem->is_WD) /*so im the user*/
     {
@@ -184,7 +182,12 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
             argv[0] = getenv(WD_APP);
             if (-1 == execv(getenv(WD_APP), argv))
             {
-                CleanUp(watchdog_elem, 1, 1, 1, 1, 0, 1, 1);
+                CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
+                                           CF_CLOSE_SEM_BLOCK |
+                                           CF_UNLINK_SEM_SIGNAL |
+                                           CF_UNLINK_SEM_BLOCK |
+                                           CF_DESTROY_SCHEDULER |
+                                           CF_FREE_WATCHDOG);
                 return (1);
             }
         }
@@ -200,21 +203,31 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
             if (!sem_wait(watchdog_elem->sem_block))
             {
                 sem_getvalue(watchdog_elem->sem_signal, &sem_val);
-                if (0 == sem_val)/*TODO:finetuning the semaphor of signaling*/ 
+                if (0 == sem_val) /*TODO:finetuning the semaphor of signaling*/
                 {
                     if (pthread_create(&thread_l, NULL, UserThread, watchdog_elem))
                     {
-                        CleanUp(watchdog_elem, 1, 1, 1, 1, 1, 1, 1);
+                        CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
+                                                   CF_CLOSE_SEM_BLOCK |
+                                                   CF_UNLINK_SEM_SIGNAL |
+                                                   CF_UNLINK_SEM_BLOCK |
+                                                   CF_DESTROY_SCHEDULER |
+                                                   CF_FREE_WATCHDOG |
+                                                   CF_STOP_SCHEDULER);
                         return (1);
                     }
-                return (0);
-
+                    return (0);
                 }
                 return (1);
             }
             else
             {
-                CleanUp(watchdog_elem, 1, 1, 1, 1, 0, 1, 1);
+                CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
+                                           CF_CLOSE_SEM_BLOCK |
+                                           CF_UNLINK_SEM_SIGNAL |
+                                           CF_UNLINK_SEM_BLOCK |
+                                           CF_DESTROY_SCHEDULER |
+                                           CF_FREE_WATCHDOG);
                 DEBUG_PRINT(("sem_wait fail \n"));
 
                 return (1);
@@ -227,7 +240,12 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
         watchdog_elem->signal_pid = atoi(getenv(USER_PID));
         SchedulerRun(watchdog_elem->scheduler);
         kill(watchdog_elem->signal_pid, SIGUSR2);
-        CleanUp(watchdog_elem, 1, 1, 1, 1, 0, 1, 1);
+        CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
+                                   CF_CLOSE_SEM_BLOCK |
+                                   CF_UNLINK_SEM_SIGNAL |
+                                   CF_UNLINK_SEM_BLOCK |
+                                   CF_DESTROY_SCHEDULER |
+                                   CF_FREE_WATCHDOG);
         return (0);
     }
 
@@ -263,8 +281,8 @@ static int InitWD(watchdog_t *watchdog_elem, char *argv[], int check_ratio, int 
 
     if (SetEnvVar((watchdog_elem), argv, check_ratio, beats_interval, SIGNAL, BLOCK))
     {
-        CleanUp((watchdog_elem), 0, 0, 0, 0, 0, 1, 1);
-
+        CleanUp(watchdog_elem, CF_DESTROY_SCHEDULER |
+                                   CF_FREE_WATCHDOG);
         DEBUG_PRINT(("SetEnvVar fail\n"));
 
         return (1);
@@ -272,20 +290,30 @@ static int InitWD(watchdog_t *watchdog_elem, char *argv[], int check_ratio, int 
 
     if (CreatSemaphors((watchdog_elem)))
     {
-        CleanUp((watchdog_elem), 0, 0, 0, 0, 0, 1, 1);
+        CleanUp(watchdog_elem, CF_DESTROY_SCHEDULER |
+                                   CF_FREE_WATCHDOG);
         return (1);
     }
 
     (watchdog_elem)->scheduler = SchedulerCreate();
     if (!(watchdog_elem)->scheduler)
     {
-        CleanUp((watchdog_elem), 1, 1, 1, 1, 0, 0, 1);
+        CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
+                                   CF_CLOSE_SEM_BLOCK |
+                                   CF_UNLINK_SEM_SIGNAL |
+                                   CF_UNLINK_SEM_BLOCK |
+                                   CF_FREE_WATCHDOG);
         return (1);
     }
 
     if (SetTasks((watchdog_elem), beats_interval, check_ratio))
     {
-        CleanUp((watchdog_elem), 1, 1, 1, 1, 0, 1, 1);
+        CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
+                                   CF_CLOSE_SEM_BLOCK |
+                                   CF_UNLINK_SEM_SIGNAL |
+                                   CF_UNLINK_SEM_BLOCK |
+                                   CF_DESTROY_SCHEDULER |
+                                   CF_FREE_WATCHDOG);
 
         DEBUG_PRINT(("SetTasks fail\n"));
 
@@ -296,7 +324,7 @@ static int InitWD(watchdog_t *watchdog_elem, char *argv[], int check_ratio, int 
 
     return (0);
 }
-
+/*TODO: the sem postfor signal if it relevent*/
 static int SetEnvVar(watchdog_t *watchdog, char *argv[], int check_ratio, int beats_interval, char *sem_signa_name, char *sem_block_name)
 {
     char arg[BUF_SIZE] = {"\0"};
@@ -483,8 +511,11 @@ static int ViabilityTask(void *param)
             DEBUG_PRINT(("ViabilityTask user is dead %d argv[0] %s counter %lu\n", ((watchdog_t *)param)->is_WD, ((watchdog_t *)param)->argv[0], counter));
 
             atomic_exchange(&counter, 1);
+            CleanUp(((watchdog_t *)param), CF_CLOSE_SEM_SIGNAL |
+                                               CF_CLOSE_SEM_BLOCK |
+                                               CF_UNLINK_SEM_SIGNAL |
+                                               CF_UNLINK_SEM_BLOCK);
 
-            CleanUp(((watchdog_t *)param), 1, 1, 1, 1, 0, 0, 0);
             ((watchdog_t *)param)->argv[0] = getenv(USER_APP);
             ((watchdog_t *)param)->is_WD = 0;
             unsetenv(WD_PID);
@@ -510,7 +541,7 @@ static int ViabilityTask(void *param)
 
             ((watchdog_t *)param)->is_WD = 0;
             ((watchdog_t *)param)->signal_pid = pid_child_T2;
-            sem_wait(((watchdog_t *)param)->sem_block);
+            sem_wait(((watchdog_t *)param)->sem_block); /*move to be the first?*/
             return (0);
         }
     }
@@ -524,7 +555,7 @@ static int StopTask(void *param)
 
     if (atomic_load(&to_stop))
     {
-        CleanUp(((watchdog_t *)param), 0, 0, 0, 0, 1, 0, 0);
+        CleanUp(((watchdog_t *)param), CF_STOP_SCHEDULER);
         return (0);
     }
     return (2);
@@ -585,49 +616,46 @@ static void *UserThread(void *param)
     DEBUG_PRINT(("%d %lu\n", ((watchdog_t *)param)->is_WD, counter));
 
     SchedulerRun(((watchdog_t *)param)->scheduler);
-    CleanUp(((watchdog_t *)param), 1, 1, 1, 1, 0, 1, 1);
+    CleanUp(((watchdog_t *)param),  CF_CLOSE_SEM_SIGNAL |
+                                    CF_CLOSE_SEM_BLOCK |
+                                    CF_UNLINK_SEM_SIGNAL |
+                                    CF_UNLINK_SEM_BLOCK |
+                                    CF_DESTROY_SCHEDULER |
+                                    CF_FREE_WATCHDOG);
 
     return (NULL);
 }
 
 /********************************* general *********************************/
-
-static void CleanUp(watchdog_t *watchdog,
-                    int to_close_sem_signal,
-                    int to_close_sem_block,
-                    int to_unlink_sem_signal,
-                    int to_unlink_sem_block,
-                    int to_stop_scheduler,
-                    int to_destroy_scheduler,
-                    int to_free_watchdog)
+static void CleanUp(watchdog_t *watchdog, int clean_up_descriptor)
 {
     assert(watchdog);
 
-    if (to_stop_scheduler)
+    if (clean_up_descriptor & CF_STOP_SCHEDULER)
     {
         SchedulerStop(watchdog->scheduler);
     }
-    if (to_close_sem_signal)
+    if (clean_up_descriptor & CF_CLOSE_SEM_SIGNAL)
     {
         sem_close(watchdog->sem_signal);
     }
-    if (to_close_sem_block)
+    if (clean_up_descriptor & CF_CLOSE_SEM_BLOCK)
     {
         sem_close(watchdog->sem_block);
     }
-    if (to_unlink_sem_signal)
+    if (clean_up_descriptor & CF_UNLINK_SEM_SIGNAL)
     {
         sem_unlink("sem_signal");
     }
-    if (to_unlink_sem_block)
+    if (clean_up_descriptor & CF_UNLINK_SEM_BLOCK)
     {
         sem_unlink("sem_block");
     }
-    if (to_destroy_scheduler)
+    if (clean_up_descriptor & CF_DESTROY_SCHEDULER)
     {
         SchedulerDestroy(watchdog->scheduler);
     }
-    if (to_free_watchdog)
+    if (clean_up_descriptor & CF_FREE_WATCHDOG)
     {
         free(watchdog);
     }
