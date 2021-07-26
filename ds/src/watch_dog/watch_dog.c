@@ -41,13 +41,11 @@
 /*------------- defines for setting environment variable ------------*/
 
 #define USER_PID ("WD_USER_PID")
-#define WD_PID ("WD_PID")
+#define WD_PID ("WD_PID")/*TODO: not to have 2 pid doubel informetion!!! problrmatics!!! fix the problem*/
 #define USER_APP ("WD_USER_APP")
 #define WD_APP ("WD_APP")
 #define SEM_SIGNAL_NAME ("WD_SEM_SIGNAL_NAME")
 #define SEM_BLOCK_NAME ("WD_SEM_BLOCK_NAME")
-#define SIGNAL1 (SIGUSR1)
-#define SIGNAL2 (SIGUSR2)
 
 #ifndef NDEBUG
 #define DEBUG_PRINT(x)  \
@@ -98,7 +96,9 @@ static int InitWD(watchdog_t *watchdog_elem,
                   char *argv[],
                   int check_ratio,
                   int beats_interval);
+
 static watchdog_t *CreatWD();
+
 static int SetEnvVar(watchdog_t *watchdog, char *argv[],
                      int check_ratio,
                      int beats_interval,
@@ -107,14 +107,16 @@ static int SetEnvVar(watchdog_t *watchdog, char *argv[],
 static int CreatSemaphors(watchdog_t *watchdog);
 
 /*------------- general funcs ------------*/
-static void CleanUp(watchdog_t *watchdog,
+/* static void CleanUp(watchdog_t *watchdog,
                     int to_close_sem_signal,
                     int to_close_sem_block,
                     int to_unlink_sem_signal,
                     int to_unlink_sem_block,
                     int to_stop_scheduler,
                     int to_destroy_scheduler,
-                    int to_free_watchdog); /*TODO:   cheng to bit flag!*/
+                    int to_free_watchdog); */ /*TODO:   cheng to bit flag!*/
+
+static void CleanUp(watchdog_t *watchdog, int clean_up_descriptor);
 /*------------- Tasks funcs ------------*/
 static int SetTasks(watchdog_t *watchdog, int beats_interval, int check_ratio);
 
