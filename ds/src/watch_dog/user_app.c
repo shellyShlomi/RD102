@@ -1,5 +1,4 @@
 
-
 #include <stdio.h>
 #include <unistd.h>
 
@@ -7,15 +6,16 @@
 
 static void Reset();
 static void Cyan();
-static void Purple();
+ static void Purple(); 
 
 int main(int argc, char **argv)
 {
     size_t i = 0;
     (void)argc;
-    /*     printf("WDStart %d\n", WDStart(argv, 5, 1));
- */
-    /*     for (i = 0; i < 30; i++)
+
+    printf("WDStart %d\n", WDStart(argv, 20, 15));
+ 
+       for (i = 0; i < 30; i++)
     {
         sleep(1);
         Purple();
@@ -23,18 +23,18 @@ int main(int argc, char **argv)
         Reset();
     }
 
-    WDStop(); */
+    WDStop(); 
 
-    printf("WDStart %d\n", WDStart(argv, 5, 1));
+    printf("WDStart %d\n", WDStart(argv, 20, 10));
 
-    for (i = 0; i < 15; i++)
+    for (i = 0; i < 50; i++)
     {
 
         Cyan();
         printf("user app data2 %lu \n", i);
         Reset();
         sleep(1);
-        if (i == 10)
+        if (i == 20)
         {
             WDStop();
             printf("WDStop\n");
@@ -48,11 +48,11 @@ static void Cyan()
     printf("\033[0;36m");
 }
 
-static void Purple()
+ static void Purple()
 {
     printf("\033[0;35m");
 }
-
+ 
 static void Reset()
 {
     printf("\033[0m");

@@ -6,11 +6,16 @@
 #include "watch_dog.h"
 #include "watchdog_iner.h"
 
+#define UNUSED(x) (void)(x)
+
 /*------------- watch_dog funcs ------------*/
 
 int main(int argc, char **argv)
 {
     int status = 0;
+
+    UNUSED(argc);
+
     argv[0] = __FILE__;
     status = WDStart(argv, atoi(getenv(CHECK_RATIO)), atoi(getenv(BEATS_INTERVAL)));
 
