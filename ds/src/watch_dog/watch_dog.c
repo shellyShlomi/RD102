@@ -47,6 +47,9 @@
 #define SEM_SIGNAL_NAME ("WD_SEM_SIGNAL_NAME")
 #define SEM_BLOCK_NAME ("WD_SEM_BLOCK_NAME")
 
+#define SIGNAL1 (SIGUSR1)
+#define SIGNAL2 (SIGUSR2)
+
 #ifndef NDEBUG
 #define DEBUG_PRINT(x)  \
     do                  \
@@ -72,21 +75,9 @@ typedef struct watchdog
 } watchdog_t;
 
 atomic_size_t counter = 0;
-static atomic_int to_stop = 0;
+static atomic_int to_stop = 1;
 watchdog_t *watchdog_g = NULL;
 pthread_t *thread = NULL;
-
-/* static void SigMaskWD(int how)
-{
-    sigset_t sig_set;
-
-    sigaddset(&sig_set, SIGUSR1);
-    sigaddset(&sig_set, SIGUSR2);
-    pthread_sigmask(how, &sig_set, NULL);
-
-    return;
-}
- */
 
 /* librery func nedded to be declerd */
 int unsetenv(const char *name);
@@ -143,8 +134,6 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
     pid_t pid_child = 0;
     int sem_val = 0;
 
-    atomic_exchange(&to_stop, 0);
-
     if (InitHandler(TernOnToStopHandler, SIGNAL2))
     {
         return (1);
@@ -164,8 +153,8 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
     {
         return (1);
     }
-    /* DEBUG_PRINT */ printf("WDsatrt, at the begining, is_WD: %d argv[0]: ", watchdog_elem->is_WD);
-    /* DEBUG_PRINT */ printf("%s argv[1]: %s argv[2]: %s \n", argv[0], argv[1], argv[2]);
+    DEBUG_PRINT(("WDsatrt, at the begining, is_WD: %d argv[0]: ", watchdog_elem->is_WD));
+    DEBUG_PRINT(("%s argv[1]: %s argv[2]: %s \n", argv[0], argv[1], argv[2]));
 
     if (!watchdog_elem->is_WD) /*so im the user*/
     {
@@ -238,6 +227,7 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
     else
     {
         watchdog_elem->signal_pid = atoi(getenv(USER_PID));
+        atomic_exchange(&to_stop, 0);
         SchedulerRun(watchdog_elem->scheduler);
         kill(watchdog_elem->signal_pid, SIGUSR2);
         CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
@@ -470,7 +460,7 @@ static int SignalTask(void *param)
 {
     DEBUG_PRINT(("SignalTask is_WD: %d counter: %lu\n", ((watchdog_t *)param)->is_WD, counter));
 
-    if (kill(((watchdog_t *)param)->signal_pid, SIGUSR1))
+    if (kill(((watchdog_t *)param)->signal_pid, SIGUSR1) && !atomic_load(&to_stop))
     {
         DEBUG_PRINT(("signal sending fail to %d user_app: %s\n", ((watchdog_t *)param)->signal_pid, getenv(USER_APP)));
 
@@ -490,6 +480,7 @@ static int ViabilityTask(void *param)
     if (atomic_load(&to_stop))
     {
         atomic_exchange(&to_stop, 0);
+
         /* NOTE : meybe here try to debug the reopen of 
         the user app if the WD is realive affter the stop sigmal */
         return (0);
@@ -520,7 +511,7 @@ static int ViabilityTask(void *param)
             ((watchdog_t *)param)->is_WD = 0;
             unsetenv(WD_PID);
 
-            execve(getenv(USER_APP), ((watchdog_t *)param)->argv, NULL);
+            execv(getenv(USER_APP), ((watchdog_t *)param)->argv);
         }
         else
         {
@@ -556,6 +547,7 @@ static int StopTask(void *param)
     if (atomic_load(&to_stop))
     {
         CleanUp(((watchdog_t *)param), CF_STOP_SCHEDULER);
+        atomic_exchange(&to_stop, 0);
         return (0);
     }
     return (2);
@@ -566,6 +558,7 @@ static int UnblockSemaphorTask(void *param)
     assert(param);
 
     sem_post(((watchdog_t *)param)->sem_block);
+
 
     return (0);
 }
@@ -604,6 +597,11 @@ static void TernOnToStopHandler(int num)
 
     atomic_exchange(&to_stop, 1);
 
+    /*    if ()
+   {
+
+   }
+ */
     return;
 }
 
@@ -615,13 +613,15 @@ static void *UserThread(void *param)
 
     DEBUG_PRINT(("%d %lu\n", ((watchdog_t *)param)->is_WD, counter));
 
+    atomic_exchange(&to_stop, 0);
+
     SchedulerRun(((watchdog_t *)param)->scheduler);
-    CleanUp(((watchdog_t *)param),  CF_CLOSE_SEM_SIGNAL |
-                                    CF_CLOSE_SEM_BLOCK |
-                                    CF_UNLINK_SEM_SIGNAL |
-                                    CF_UNLINK_SEM_BLOCK |
-                                    CF_DESTROY_SCHEDULER |
-                                    CF_FREE_WATCHDOG);
+    CleanUp(((watchdog_t *)param), CF_CLOSE_SEM_SIGNAL |
+                                       CF_CLOSE_SEM_BLOCK |
+                                       CF_UNLINK_SEM_SIGNAL |
+                                       CF_UNLINK_SEM_BLOCK |
+                                       CF_DESTROY_SCHEDULER |
+                                       CF_FREE_WATCHDOG);
 
     return (NULL);
 }
