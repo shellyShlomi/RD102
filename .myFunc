@@ -32,8 +32,12 @@ alias cdt='c git/ds/test'
 alias cds='c git/ds/src'
 
 alias t='touch'
-function maket { ./../bin/$@; }
-function mkvlg { vlg ./../bin/$@; }
 
+#make alias
+function mktest { ~/git/ds/bin/$@; }
+function mkvlg { vlg ~/git/ds/bin/$@; }
+function mkhlg { valgrind --tool=helgrind --history-level=approx  ~/git/ds/bin/$@; }
 
 #'f(){cd git/c/ws"$@" f; }; f'
+
+

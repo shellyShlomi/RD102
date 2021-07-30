@@ -39,11 +39,11 @@ static void MutexDestroy();
 pthread_mutex_t *lock = NULL;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 sem_t *sem = NULL;
-sig_atomic_t count = 0;
+size_t count = 0;
 
 char queue[Q_SIZE];
-sig_atomic_t write = 0; /* index to write to */
-sig_atomic_t read = 0;  /* index to read from */
+size_t write = 0; /* index to write to */
+size_t read = 0;  /* index to read from */
 
 char buf[SIZE];
 

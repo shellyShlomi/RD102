@@ -35,7 +35,7 @@ int main()
 
 static void Test()
 {
-	cq_t *que = (cq_t *) malloc(sizeof(cq_t));
+	cq_t *que = (cq_t *)malloc(sizeof(cq_t));
     char inputs[] = {'a', 'b', 'c', 'd', 'e'};
   	size_t size = sizeof(inputs)/ sizeof(inputs[0]);
    	size_t i = 0;

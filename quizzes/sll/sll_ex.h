@@ -11,7 +11,8 @@ struct node
 	
 };
 
-node_t *Flip(node_t *head);
+/* node_t *Flip(node_t *head);*/
+node_t *Flip(node_t *node, node_t *next);
 int HasLoop(const node_t *head);
 node_t *FindIntersection(node_t *head_1, node_t *head_2);
 
