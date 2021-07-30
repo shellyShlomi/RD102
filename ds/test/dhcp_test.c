@@ -15,6 +15,7 @@
 /*---------------test func-----------------*/
 static void PrintIp(unsigned char *ip);
 static void TestDhcp();
+static void TestDhcp1();
 
 static void Test();
 
@@ -22,6 +23,7 @@ int main()
 {
     Test();
     TestDhcp();
+    TestDhcp1();
     return 0;
 }
 static void Test()
@@ -297,6 +299,46 @@ static void TestDhcp()
         PrintIp(new_ip);
         puts("expected: \n");
         PrintIp(free_address);
+    }
+
+    DhcpDestroy(dhcp);
+
+    return;
+}
+
+static void TestDhcp1()
+{
+    dhcp_t *dhcp = NULL;
+    unsigned char subnet_id[4] = {192, 168, 15, 4};
+
+    unsigned char new_ip[4] = {0};
+
+    size_t occupied_bits = 30;
+    size_t i = 0;
+    size_t size = pow(2, (32 - occupied_bits));
+
+    dhcp = DhcpCreate(subnet_id, occupied_bits);
+
+    if (NULL == dhcp)
+    {
+        printf("DhcpCreate failed at line: %d\n", __LINE__);
+    }
+
+    if ((size - 3) != DhcpCountFree(dhcp))
+    {
+        printf("DhcpCountFree failed at line: %d\n", __LINE__);
+    }
+
+    for (i = 0; i < size - 3; ++i)
+    {
+        memset(new_ip, 0, 4);
+
+        if (SUCCESS != DhcpAllocteIp(dhcp, NULL, new_ip))
+        {
+            printf("DhcpAllocteIp failed at line: %d in index: %lu\n", __LINE__, i);
+            printf("actual ip: ");
+            PrintIp(new_ip);
+        }
     }
 
     DhcpDestroy(dhcp);

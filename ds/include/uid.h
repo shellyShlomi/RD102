@@ -4,12 +4,13 @@
 
 #include <sys/types.h> /* time_t */
 #include <stddef.h> /* size_t */
+#include <stdatomic.h> /* atomic_size_t */
 
 /* DO NOT USE INTERNAL MEMBERS OF THE STRUCT */
 
 struct unique_id
 {
-	size_t count;
+	atomic_size_t *count;
 	pid_t process_ID;
 	time_t time_stamp;
 	

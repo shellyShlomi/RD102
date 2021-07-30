@@ -128,7 +128,8 @@ static void WarnsdorffsTourTest()
     size_t k = 0;
     int error = 0;
     int status = 1;
-    double sum = 0;
+    double sum = 0.0;
+    double avg = 0.0;
 
     char path[BOARD_SIZE] = {'\0'};
     clock_t end_time = 0;
@@ -174,9 +175,10 @@ static void WarnsdorffsTourTest()
             printf("%d\n", (int)(path[i]));
             printf("duration: %f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
         }
-            sum+=(double)(end_time - start_time) / CLOCKS_PER_SEC;
+        sum += (double)(end_time - start_time) / CLOCKS_PER_SEC;
+        avg = sum / BOARD_SIZE;
     }
-            printf("sum: %f\n", sum);
+    printf("\n****          average: %f\tsum: %f\tn tested numbers: %d          ****\n", avg, sum, BOARD_SIZE);
 
     return;
 }
