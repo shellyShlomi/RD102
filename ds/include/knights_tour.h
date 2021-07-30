@@ -3,13 +3,14 @@
 
 #include <stddef.h>     /* size_t */
 
+#define BOARD_SIZE (64)
+
  typedef enum return_val
  { 
     SUCCESS,
     TIME_OUT
  } return_val_t;
 
-#define BOARD_SIZE (64)
 
 return_val_t CreateTour(char start_position, char path[BOARD_SIZE]);
 return_val_t WarnsdorffsTour(char start_position, char path[BOARD_SIZE]);
