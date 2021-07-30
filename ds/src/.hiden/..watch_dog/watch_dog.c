@@ -39,7 +39,7 @@
 #define SIGNAL2 (SIGUSR2)
 
 #ifndef NDEBUG
-#define DEBUG if (0)
+#define DEBUG if (1)
 #else
 #define DEBUG if (0)
 #endif
@@ -238,6 +238,8 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
         SigMaskUnBlockAll(SIG_UNBLOCK);
         return (0);
     }
+
+    SigMaskWD(SIG_BLOCK);
 
     return (0);
 }
@@ -573,7 +575,6 @@ static int InitHandler(void (*handler_func)(int num), int signal_to_send)
 {
     struct sigaction handler = {0};
 
-    /*set SIGUSER1 Handler */
     handler.sa_handler = handler_func;
     if (sigaction(signal_to_send, &handler, NULL))
     {
