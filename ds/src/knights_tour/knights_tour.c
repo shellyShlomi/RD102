@@ -306,6 +306,7 @@ static void GetPossibleSteps(next_step_t next_steps_lut[], char curr_position, b
     return;
 }
 
+
 static size_t GetDegree(char next_steps_lut[BOARD_AXIS], bit_arr_t chess_board)
 {
     size_t i = 0;
