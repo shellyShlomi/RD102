@@ -39,7 +39,7 @@ int main(int argc, char **argv, char **envp)
 */
 	printf("\n---------------------explicit dynamic linking; shared library-------------------\n\n");
 	
-	handle = dlopen("/home/shelly/git/system_programming_memory_map/libmemory_map.so", RTLD_LAZY);
+	handle = dlopen("/home/shelly/git/shelly/system_programming/system_programming_memory_map/libmemory_map.so", RTLD_LAZY);
 	
 	if (NULL == handle)
 	{
