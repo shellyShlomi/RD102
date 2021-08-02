@@ -1,8 +1,9 @@
 
 
-#include <assert.h> /*  assert    */
-#include <time.h>   /*  clock_t   */
-#include <string.h> /*  memmove   */
+#include <assert.h> /*      assert      */
+#include <time.h>   /*      clock_t     */
+#include <string.h> /*      memmove     */
+#include <stdlib.h> /*      qsort       */
 
 #include "bit_array.h"
 #include "knights_tour.h"
