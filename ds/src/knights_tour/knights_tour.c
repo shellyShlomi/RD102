@@ -3,7 +3,6 @@
 #include <assert.h> /*  assert    */
 #include <time.h>   /*  clock_t   */
 #include <string.h> /*  memmove   */
-#include <stdlib.h> /* time_t, rand */
 
 #include "bit_array.h"
 #include "knights_tour.h"
