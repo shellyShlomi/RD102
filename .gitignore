@@ -3,9 +3,8 @@
 # to re-include a file if its parent directory is excluded.
 
 *
-/**/shelly
-shelly
-/**/ws7
+/shelly/
+/ws7/
 extra
 .
 
