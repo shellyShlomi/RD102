@@ -10,8 +10,8 @@ extern void function_in_f1_file(void);
 
 int main()
 {
-	 implicit_call_func_in_f1(); 
-	//explicit_call_func_in_f1(); 
+	// implicit_call_func_in_f1(); 
+	explicit_call_func_in_f1(); 
 
 	printf("FROM MAIN: Value of iii is: %d;   Address of iii is: %p\n", iii, &iii);
 
@@ -39,5 +39,9 @@ void explicit_call_func_in_f1(void)
 	}
 
 	fptr = dlsym(handle, "function_in_f1_file");
-	(*fptr)();
+	fptr();
+/* 	iii= *(int *)dlsym(handle, "iii");
+ */
+	dlclose(handle);	
+
 }

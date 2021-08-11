@@ -77,7 +77,7 @@ static void TestFilp()
 		head1 = head1->next;
 	}
 
-	fliped_head = Flip(head, head->next);
+	fliped_head = Flip(head);
 
 	for (i = 0; i < count; ++i)
 	{
@@ -254,25 +254,25 @@ int HasLoop(node_t const *head)
 
 	return (0);
 }
-
-/* node_t *Flip(node_t *head)
+/* 
+node_t *Flip(node_t *head)
 {
-	node_t *node = head;
-	node_t *temp = NULL;
+	node_t *prev = NULL;
+	node_t *curr = head;
 	node_t *next = NULL;
 
-	while (node)
+	while (curr)
 	{
-		next = node->next;
-		node->next = temp;
-		temp = node;
-		node = next;
+		next = curr->next;
+		curr->next = prev;
+		prev = curr;
+		curr = next;
 	}
 
-	return (temp);
+	return (prev);
 }
+ 
  */
-
 int OpenLoop(const node_t *head)
 {
 	node_t *fast = NULL;
@@ -303,7 +303,7 @@ int OpenLoop(const node_t *head)
 	return (0);
 }
 
-/* node_t *Flip(node_t *node)
+ node_t *Flip(node_t *node)
 {
 	node_t *new_head = NULL;
 
@@ -317,7 +317,7 @@ int OpenLoop(const node_t *head)
 	node->next = NULL;
 
 	return (new_head);
-} */
+} /*
 
 node_t *Flip(node_t *node, node_t *next)
 {
@@ -337,7 +337,7 @@ node_t *Flip(node_t *node, node_t *next)
 
 	return Flip(next, n_n_node);
 }
-
+*/
 
 /*------------------------------helper functions------------------------------*/
 
