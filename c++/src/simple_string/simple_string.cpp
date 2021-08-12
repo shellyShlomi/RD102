@@ -14,9 +14,9 @@
 
 #include "simple_string.hpp"
 
+char *Init(const char *src, size_t size);
 namespace ilrd
 {
-    char *Init(const char *src, size_t size);
 
     String::String(const char *cstr) : m_cstr(Init(cstr, strlen(cstr) + 1))
     {
@@ -45,7 +45,6 @@ namespace ilrd
                 delete[] m_cstr;
                 m_cstr = local_temp;
             }
-
         }
 
         return (*this);
@@ -90,8 +89,8 @@ namespace ilrd
         return (os << str.CStr());
     }
 
-    char *Init(const char *src, size_t size)
-    {
-        return (reinterpret_cast<char *>(memcpy(new char[size], src, size)));
-    }
+}
+char *Init(const char *src, size_t size)
+{
+    return (reinterpret_cast<char *>(memcpy(new char[size], src, size)));
 }
