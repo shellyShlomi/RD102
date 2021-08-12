@@ -12,22 +12,27 @@ CC = g++
 CFLAGS = -std=c++98 -pedantic-errors -Wall -Wextra -g -I$(INC) 
 RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
 
-
 #----------------shared object flags------------------#
 
 SOFLAG_SECOND = -shared 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lds -lpthread
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
 #----------------------------------------------------#
 
 
-.PHONY: libds build_single build test shared_obj_debug release release_single
+.PHONY: libcla build_single build test vlgT hlgT shared_obj_debug release release_single
 		change clean 
 test: 
 	@make -f ./.make/run
 
-libds:
-	
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libds.so
+vlgT: 
+	@make -f ./.make/runV
+
+hlgT: 
+	@make -f ./.make/runH
+
+ libcla:
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
+
 
 
 build_single:
@@ -35,7 +40,7 @@ build_single:
 
 build:
 	@make shared_obj_debug
-	@make libds
+	@make libcla
 	@make -f ./.make/build
 
 
@@ -56,7 +61,7 @@ release:
 #	$(CC) $(RELEASE_FLAGS) ./tests_for_sorts.c -c -fpic -o $(OBJ)/tests_for_sorts/tests_for_sorts.o 
 #	$(CC) $(RELEASE_FLAGS)  ./avl/extra_func.c -c -fpic -o $(OBJ)/extra_avl/extra_avl.o 
 	@make -f ./.make/releass1
-	@make libds
+	@make libcla
 	@make -f ./.make/releass2_build
 
 release_so:
@@ -67,7 +72,7 @@ change:
 
 clean:
 	@make -f ./.make/clean
-	@rm -r -f $(LIB)/libds.so
+	@rm -r -f $(LIB)/libcla.so
 	@rm -r -f ./*.o
 
 
@@ -75,5 +80,5 @@ clean:
 
 #all:
 #	@make so
-#	$(CC) $(CFLAGS) $(RELEASE_FLAGS) $(shell find $(OBJ)_rel/*/. -maxdepth 1 -type f -regex ".*\.o")  -o $(LIB)/libds_rel.so
+#	$(CC) $(CFLAGS) $(RELEASE_FLAGS) $(shell find $(OBJ)_rel/*/. -maxdepth 1 -type f -regex ".*\.o")  -o $(LIB)/libcla_rel.so
 #	@make -f ./.make/makefile3

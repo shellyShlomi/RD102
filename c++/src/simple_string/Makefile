@@ -12,15 +12,16 @@ TARGET_SINGLE = $(notdir $(shell pwd))_single
 
 
 SRC = .
+LIB = ../../lib
+TEST = ../../test
 INC = ../../include
 BIN = ../../bin
-LIB = /home/shelly/git/c++/lib
-TEST = ../../test
 
 OBJ = ../../obj
-CC = gcc
-CFLAGS =  -ansi -pedantic-errors -Wall -Wextra -g -I$(INC) 
-RELEASE_FLAGS =   -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
+CC = g++
+CFLAGS = -std=c++98 -pedantic-errors -Wall -Wextra -g -I$(INC) 
+RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
+
 
 OBJECTS = $(OBJ)/$(TARGET)/$(TARGET).o 
 OBJECTS_REL = $(OBJ)/$(TARGET)/$(TARGET)_r.o 
@@ -33,10 +34,13 @@ SOURCE = $(SRC)/$(TARGET).cpp
 #----------------shared object flags------------------#
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lds
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla
 
-#----------------auto dependency----------------------#
+#---------------- debuging ----------------------#
 
+VLG		= valgrind --leak-check=yes --track-origins=yes
+HLG		= valgrind --tool=helgrind --history-level=approx
+CGDB	= cgdb
 
 #----------------------------------------------------#
 
@@ -49,8 +53,8 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 $(BIN)/$(TARGET_SINGLE): $(TEST_SOURCE) $(LIB)/$(SHAREDLIB)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ -lpthread
 
-$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libds.so -lm -lpthread
+$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcla.so
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/$(SHAREDLIB)  -lm -lpthread
 
 
 
@@ -62,12 +66,14 @@ $(LIB)/$(SHAREDLIB_REL).so: $(OBJECTS_REL)
 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 $(BIN)/$(TARGET)_r: $(TEST_SOURCE) 
-	$(CC) $(RELEASE_FLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libds.so -lm
+	$(CC) $(RELEASE_FLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libcla.so -lm
+
+$(LIB)/libcla.so: $(OBJECTS)
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
 
 
 
-
-.PHONY :build test shared_obj shared_lib release release_single 
+.PHONY :build test vlgT hlgT shared_obj shared_lib release release_single 
 		update_debug update_release clean 
 
 build:
@@ -81,6 +87,12 @@ build_single:
 
 test:
 	@./$(BIN)/$(TARGET)
+
+vlgT:
+	@$(VLG) ./$(BIN)/$(TARGET)
+
+hlgT:
+	@$(HLG) ./$(BIN)/$(TARGET)
 
 test_release:
 	@./$(BIN)/$(TARGET)_r
@@ -96,7 +108,7 @@ release:
 
 shared_obj:
 	@mkdir -p $(OBJ)/$(TARGET)  
-	@cd ../../ @make libds 
+	@make $(LIB)/libcla.so
 	@make $(LIB)/$(SHAREDLIB)
 
 
@@ -114,7 +126,8 @@ update_release:
 
 clean :
 	@rm -f -r $(OBJECTS) $(BIN)/$(TARGET) $(BIN)/$(TARGET)_r $(BIN)/$(TARGET_SINGLE)
-	@rm -f -r $(LIB)/$(SHAREDLIB) $(LIB)/$(SHAREDLIB_REL).so  $(OBJ)/$(TARGET)  $(OBJECTS_REL)
+	@rm -f -r $(LIB)/$(SHAREDLIB) $(LIB)/$(SHAREDLIB_REL).so  $(OBJ)/$(TARGET) 
+	@rm -f -r $(LIB)/libcla.so $(OBJECTS_REL)
 
 #$(TEST_OBJECTS).o: $(TEST_SOURCE) $(INC)/$(TARGET).h
 #		$(CC) $(CFLAGS) $< -c -o $(OBJ)/$(TARGET)/$@
