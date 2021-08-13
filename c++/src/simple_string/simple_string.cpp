@@ -22,16 +22,11 @@ namespace ilrd
 
     String::String(const char *cstr) :
      m_cstr(Init(cstr, strlen(cstr) + NULL_TERMINETOR))
-    {
-        std::cout << "Default ctor " << cstr << std::endl;
-    }
+    {}
 
     String::String(const String &other) : 
     m_cstr(Init(other.CStr(), other.Length() + NULL_TERMINETOR))
-    {
-        std::cout << "copy ctor " << other.CStr() << std::endl;
-
-    }
+    {}
 
     String::~String()
     {
@@ -54,7 +49,6 @@ namespace ilrd
                 m_cstr = local_temp;
             }
         }
-        std::cout << "copy assignment operator other.CStr()" << other.CStr() << std::endl;
 
         return (*this);
     }

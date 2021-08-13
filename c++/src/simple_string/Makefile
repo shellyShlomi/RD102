@@ -91,9 +91,9 @@ $(LIB)/libcla_rel.so: $(OBJECTS_REL)
 
 #----------------	PHONYs	------------------#
 
-.PHONY :build test silent_test nw_test nmw_test vlgT hlgT shared_obj 
+.PHONY :build silent_test nw_test nmw_test test vlgT hlgT shared_obj 
 		update_debug clean_d
-		release test_release silent_test_release nw_test_release nmw_test_release   
+		release silent_test_release nw_test_release nmw_test_release test_release  
 		hlgT_release vlgT_release release_so update_release clean_r
 		shared_lib clean  
 
@@ -103,9 +103,6 @@ build:
 	@make shared_obj
 	@make $(BIN)/$(TARGET)
 
-test:
-	@make  build
-	@./$(BIN)/$(TARGET)
 
 silent_test:
 	@make -s CFLAGS='-std=c++98 -g -I$(INC)' build
@@ -119,10 +116,16 @@ nmw_test:
 	@make -s build
 	@./$(BIN)/$(TARGET)
 
+test:
+	@make  build
+	@./$(BIN)/$(TARGET)
+
 vlgT:
+	@make  build
 	@$(VLG) ./$(BIN)/$(TARGET)
 
 hlgT:
+	@make  build
 	@$(HLG) ./$(BIN)/$(TARGET)
 
 shared_obj:
@@ -152,10 +155,6 @@ release:
 	@make release_so
 	@make $(BIN)/$(TARGET_RELEASE)
 
-test_release:
-	@make release
-	@./$(BIN)/$(TARGET_RELEASE)
-
 silent_test_release:
 	@make -s RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release
 	@./$(BIN)/$(TARGET_RELEASE)
@@ -170,10 +169,16 @@ nmw_test_release:
 	@./$(BIN)/$(TARGET_RELEASE)
 
 
+test_release:
+	@make release
+	@./$(BIN)/$(TARGET_RELEASE)
+
 vlgT_release:
+	@make release
 	@$(VLG) ./$(BIN)/$(TARGET_RELEASE)
 
 hlgT_release:
+	@make release
 	@$(HLG) ./$(BIN)/$(TARGET_RELEASE)
 
 
