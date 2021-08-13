@@ -6,7 +6,7 @@
 
 static void Reset();
 static void Cyan();
- static void Purple(); 
+static void Purple(); 
 
 int main(int argc, char **argv)
 {
