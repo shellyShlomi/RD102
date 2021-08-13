@@ -20,8 +20,10 @@ extra
 
 !.myFunc
 !*.c
+!*.cpp
 !*.md
 !*.h
+!*.hpp
 !.gitignore
 !Makefile
 !makefile
