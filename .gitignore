@@ -21,7 +21,7 @@ extra
 !.myFunc
 !*.c
 !*.cpp
-!**.md
+!/*.md
 !*.h
 !*.hpp
 !.gitignore
