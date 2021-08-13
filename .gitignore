@@ -23,6 +23,7 @@
 !.gitignore
 !Makefile
 !makefile
+!__makefile
 !.make
 !v_1.txt
 !v_2.txt
