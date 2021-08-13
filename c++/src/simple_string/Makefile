@@ -34,8 +34,8 @@ SOURCE = $(SRC)/$(TARGET).cpp
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared
 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla
-LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -ltest
+LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -ltest
 
 #					-------shared object flags whit thread-------					
 
@@ -63,7 +63,7 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 
 
 $(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcla.so
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libcla.so
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libcla.so $(LIB)/libtest.so
 
 
 #----------------release rules------------------#
@@ -76,7 +76,7 @@ $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)
 
 
 $(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) $(LIB)/libcla_rel.so
-	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/libcla_rel.so
+	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/libcla_rel.so  $(LIB)/libtest.so
 
 
 #----------------	shered librery	------------------#
