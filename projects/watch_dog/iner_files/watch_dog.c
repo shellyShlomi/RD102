@@ -93,8 +93,6 @@ static void CleanUp(watchdog_t *watchdog, int clean_up_descriptor);
 
 static void SigMaskBlock(void);
 
-static void SigMaskUnBlockAll(int how);
-
 static void SigMaskUnBlock(int how);
 
 /*------------- Tasks funcs ------------*/
@@ -702,24 +700,6 @@ static void SigMaskBlock(void)
     {
         DEBUG perror("pthread_sigmask fail, errno:\n");
     }
-    return;
-}
-
-static void SigMaskUnBlockAll(int how)
-{
-    sigset_t sig_set;
-    int status = 0;
-
-    if ((status = sigfillset(&sig_set)))
-    {
-        DEBUG printf("sigfillset retern val: %d \n\n", status);
-    }
-
-    if (pthread_sigmask(how, &sig_set, NULL))
-    {
-        DEBUG perror("pthread_sigmask fail, errno:\n");
-    }
-
     return;
 }
 
