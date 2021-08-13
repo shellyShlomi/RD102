@@ -7,24 +7,26 @@
  *          phas 2: approved by nir;                            *
  *  Description: simple string;					                */
 
-#include <cstddef> /*WHY*/
-#include <cstring>
-#include <cassert>
-#include <iostream>
+#include <cstddef>  /*  size_t  */
+#include <cstring>  /*  memcpy  */
+#include <cassert>  /*  assert  */
+#include <iostream> /*  ostream  */
 
 #include "simple_string.hpp"
 
-char *Init(const char *src, size_t size);
+const size_t NULL_TERMINETOR = 1;
+
+
 namespace ilrd
 {
 
-    String::String(const char *cstr) : m_cstr(Init(cstr, strlen(cstr) + 1))
-    {
-    }
+    String::String(const char *cstr) :
+     m_cstr(Init(cstr, strlen(cstr) + NULL_TERMINETOR))
+    {}
 
-    String::String(const String &other) : m_cstr(Init(other.CStr(), other.Length() + 1))
-    {
-    }
+    String::String(const String &other) : 
+    m_cstr(Init(other.CStr(), other.Length() + NULL_TERMINETOR))
+    {}
 
     String::~String()
     {
@@ -40,7 +42,8 @@ namespace ilrd
 
         if (&other != this)
         {
-            if ((local_temp = Init(other.CStr(), other.Length() + 1)))
+            if ((local_temp = 
+                Init(other.CStr(), other.Length() + NULL_TERMINETOR)))
             {
                 delete[] m_cstr;
                 m_cstr = local_temp;
@@ -89,8 +92,8 @@ namespace ilrd
         return (os << str.CStr());
     }
 
-}
-char *Init(const char *src, size_t size)
-{
-    return (reinterpret_cast<char *>(memcpy(new char[size], src, size)));
+    char *String::Init(const char *src, size_t size)
+    {
+        return (reinterpret_cast<char *>(memcpy(new char[size], src, size)));
+    }
 }

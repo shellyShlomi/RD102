@@ -25,7 +25,6 @@ test:
 	@make -f ./.make/run
 
 libds:
-	
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libds.so
 
 
