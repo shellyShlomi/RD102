@@ -20,15 +20,26 @@ SOFLAG_SECOND = -shared
 
 #----------------	PHONYs	------------------#
 
-.PHONY:	NTD test build vlgT hlgT so_debug update_debug
-		NTR test_release release vlgT_release vlgh_release so_release update_release
-		change clean clean_d clean_r libcla reless_lib
+.PHONY:	silent_test nw_test nmw_test test build vlgT hlgT so_debug
+		update_debug clean_d libcla 
+
+		silent_test_release nw_test_release nmw_test_release 
+		test_release release vlgT_release vlgh_release so_release 
+		update_release clean_r reless_lib
+		
+		change clean 
 
 #----------------DEBUG------------------#
 
 
-NTD: 
-	@make -s -f ./.make/run_n
+silent_test: 
+	@make -s -f ./.make/run_silent
+
+nw_test: 
+	@make -f ./.make/run_NW
+
+nmw_test: 
+	@make -s -f ./.make/run_no_make_worning
 
 test: 
 	@make -f ./.make/run
@@ -50,8 +61,14 @@ update_debug:
 
 #----------------RELEASE------------------#
 
-NTR:
-	@make -s -f ./.make/run_rel_n
+silent_test_release:
+	@make -s -f ./.make/run_rel_silent
+
+nw_test_release: 
+	@make -f ./.make/run_rel_NW
+
+nmw_test_release: 
+	@make -s -f ./.make/run_rel_no_make_worning
 
 test_release:
 	@make -f ./.make/run_rel
