@@ -8,6 +8,8 @@ INC = ../include
 BIN = ../bin
 
 OBJ = ../obj
+OBJ_REL = ../obj_rel
+
 CC = g++
 CFLAGS = -std=c++98 -pedantic-errors -Wall -Wextra -g -I$(INC) 
 RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
@@ -16,28 +18,26 @@ RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)
 
 SOFLAG_SECOND = -shared 
 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla 
-LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel 
+#----------------	PHONYs	------------------#
 
-#-------shared object flags whit thread-------#
+.PHONY:	NTD test build vlgT hlgT so_debug update_debug
+		NTR test_release release vlgT_release vlgh_release so_release update_release
+		change clean clean_d clean_r libcla reless_lib
 
-LDFLAGS_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
-LDFLAGS_REL_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
-
-#----------------------------------------------------#
-.PHONY :build test vlgT hlgT shared_obj update_debug
-		release test_release vlgT_release hlgT_release release_so update_release
-		shared_lib clean 
+#----------------DEBUG------------------#
 
 
-
-.PHONY: libcla  build test vlgT hlgT shared_obj_debug release release_single
-		change clean build_single 
-
-
+NTD: 
+	@make -s -f ./.make/run_n
 
 test: 
 	@make -f ./.make/run
+
+build:
+	@make -f ./.make/build
+
+so_debug:
+	@make -f ./.make/shared_obj_debug
 
 vlgT: 
 	@make -f ./.make/runV
@@ -45,46 +45,57 @@ vlgT:
 hlgT: 
 	@make -f ./.make/runH
 
- libcla:
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
+update_debug: 
+	@make -f ./.make/update_debug
 
- reless_lib:
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla_rel.so
+#----------------RELEASE------------------#
 
-
-build_single:
-	@make -f ./.make/build_single
-
-build:
-	@make shared_obj_debug
-	@make libcla
-	@make -f ./.make/build
-
+NTR:
+	@make -s -f ./.make/run_rel_n
 
 test_release:
 	@make -f ./.make/run_rel
 
-shared_obj_debug:
-	@make -f ./.make/shared_obj
-
 release:
+	@make -f ./.make/releass
 
-	@make -f ./.make/releass1
-	@make libcla
-	@make -f ./.make/releass2_build
+so_release:
+	@make -f ./.make/shared_obj_release
 
-release_so:
-	@make -f ./.make/releass1
+vlgT_release: 
+	@make -f ./.make/runV_rel
+
+hlgT_release: 
+	@make -f ./.make/runH_rel
+
+update_release: 
+	@make -f ./.make/update_release
+
+
+
+#----------------GENERAL------------------#
+
+libcla:
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
+
+reless_lib:
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla_rel.so
+
 
 change:
 	@make -f ./.make/change
 
-clean:
+
+clean :
 	@make -f ./.make/clean
-	@rm -r -f $(LIB)/libcla.so
-	@rm -r -f	$(LIB)/libcla_rel.so
-	@rm -r -f ./*.o
-	@rm -r -f ./*.so
 
 
 
+clean_d :
+	@rm -f -r $(OBJ)
+	@make -f ./.make/clean_d
+
+
+clean_r :
+	@rm -f -r $(OBJ_REL)
+	@make -f ./.make/clean_r
