@@ -17,6 +17,9 @@ RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)
 #----------------shared object flags------------------#
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared 
+FILE  = $(shell find ../../tools/ -type f -regex ".*\.c")
+TEST_OBJ = $(patsubst *.c, *.o, $(notdir $(FILE:.c=.o)))
+TEST_OBJs = $(patsubst %.o, $(OBJ)/tests_lib/%.o,  $(TEST_OBJ))
 
 #----------------	PHONYs	------------------#
 .PHONY:	silent_test nw_test nmw_test test build vlgT hlgT so_debug
@@ -26,7 +29,7 @@ SOFLAG_SECOND = -shared
 		test_release release vlgT_release vlgh_release so_release 
 		update_release clean_r reless_lib
 		
-		change clean libtests libtests_r
+		change clean libtests libtests_r 
 
 #----------------DEBUG------------------#
 
@@ -37,10 +40,12 @@ silent_test:
 nw_test: libtests
 	@make -f ./.make/run_NW
 
-nmw_test: libtests
+nmw_test: 
+	@make -s libtests
 	@make -s -f ./.make/run_no_make_worning
 
-test: libtests
+test: 
+	@make libtests
 	@make -f ./.make/run
 
 build: libtests
@@ -68,7 +73,8 @@ silent_test_release:
 nw_test_release: libtests_r
 	@make -f ./.make/run_rel_NW
 
-nmw_test_release: libtests_r
+nmw_test_release: 
+	@make -s libtests_r
 	@make -s -f ./.make/run_rel_no_make_worning
 
 test_release: libtests_r
@@ -90,6 +96,9 @@ update_release: libtests_r
 	@make -f ./.make/update_release
 
 #----------------GENERAL------------------#
+$(OBJ)/tests_lib/%.o: ../../tools/%.c
+	@mkdir -p $(OBJ)/tests_lib 
+	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $^ -o $@ 
 
 libcla: 
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
@@ -98,25 +107,10 @@ reless_lib:
 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)  $(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
 
 
-libtests:
-	@mkdir -p $(OBJ)/tests_lib
-	@mkdir -p $(LIB)
-	for files in $(shell find ../../tools/ -type f -regex ".*\.c"); do \
-		$(CC) $(CFLAGS) $(SOFLAG_FIRST) $$files -o $(OBJ)/tests_lib/$^.o; \
-		$(CC) $(CFLAGS) $(SOFLAG_SECOND) $$files  -o $(LIB)/libtest.so; \
-    done 
-# $(CC) $(CFLAGS) $(SOFLAG_SECOND) $(OBJ)/tests_lib/libtests.o  -o $(LIB)/libtest.so
+libtests: $(TEST_OBJs)
 
-
-libtests_r:
-	@mkdir -p $(OBJ)/tests_lib
-	@mkdir -p $(LIB)
-	for files in $(shell find ../../tools/ -type f -regex ".*\.c"); do \
-		$(CC) $(RELEASE_FLAGS) $(SOFLAG_FIRST) $$files -o $(OBJ)/tests_lib/$files; \
-		$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $$files  -o $(LIB)/libtest.so; \
-    done 
-# $(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(OBJ)/tests_lib/libtests_r.o  -o $(LIB)/libtest.so
-
+libtests_r: CFLAGS = $(RELEASE_FLAGS)
+libtests_r: libtests
 
 change:
 	@make -f ./.make/change

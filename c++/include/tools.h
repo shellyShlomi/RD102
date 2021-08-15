@@ -11,5 +11,6 @@ int IntArrayCompare(int arr1[], size_t len1, int arr2[], size_t len2);
 void TotalErrors(void);
 int ValidStrEqual(const char *str1, const char *str2, const char *message, int line);
 void PrintIntArr(int arr[], size_t size);
+int V();
 
 #endif /* __TOOLS_H__*/

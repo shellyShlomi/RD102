@@ -16,6 +16,7 @@ int main()
     TestCopyCtorAndCopyAssingment();
     TestOperators();
     TotalErrors();
+
     return (0);
 }
 
@@ -33,26 +34,23 @@ static void TestDefaultCDtor()
     ilrd::String str3("Default Ctor 3");  //  default ctor with string literal
     ilrd::String empty;                   //  default ctor no args
     ilrd::String dtor = "Default Dtor";
-
+    
     strcpy(message, "Default ctor failed in empty string ");
     Validate((*empty.CStr() != '\0'), message, __LINE__);
 
     strcpy(message, "Default ctor failed on var of char * ");
     Validate((0 != strcmp(str.CStr(), "Default Ctor")), message, __LINE__);
 
-    strcpy(message, "Default ctor failed on var of char * ");
     Validate((0 != strcmp(str1.CStr(), "Default Ctor 1")), message, __LINE__);
 
     strcpy(message, "Default ctor failed on string literal ");
     Validate((0 != strcmp(str2.CStr(), "Default Ctor 2")), message, __LINE__);
 
-    strcpy(message, "Default ctor failed on string literal ");
     Validate((0 != strcmp(str3.CStr(), "Default Ctor 3")), message, __LINE__);
 
     strcpy(message, "Default ctor fail ");
     Validate((0 == strcmp(str.CStr(), str1.CStr())), message, __LINE__);
 
-    strcpy(message, "Default ctor fail ");
     Validate((0 == strcmp(str2.CStr(), str3.CStr())), message, __LINE__);
 
     return;
@@ -72,7 +70,6 @@ static void TestCopyCtorAndCopyAssingment()
     strcpy(message, "No assignment to assigned ");
     Validate((0 != strcmp(str1.CStr(), "hello world")), message, __LINE__);
 
-    strcpy(message, "No assignment to assigned ");
     Validate((0 != strcmp(str.CStr(), str1.CStr())), message, __LINE__);
 
     str1 = "shelly"; //  creat obj of shelly by default ctor and
@@ -88,7 +85,6 @@ static void TestCopyCtorAndCopyAssingment()
     strcpy(message, "No copy ctor to str2 ");
     Validate((0 != strcmp(str2.CStr(), "shelly")), message, __LINE__);
 
-    strcpy(message, "No copy ctor to str2 ");
     Validate((0 != strcmp(str1.CStr(), str2.CStr())), message, __LINE__);
 
     String empty; //  default ctor no args
@@ -102,14 +98,12 @@ static void TestCopyCtorAndCopyAssingment()
     strcpy(message, "No assignment to str2 of empty ");
     Validate((*str2.CStr() != '\0'), message, __LINE__);
 
-    strcpy(message, "No assignment to str2 of empty ");
     Validate((0 != strcmp(str2.CStr(), empty.CStr())), message, __LINE__);
 
     str2 = ivy;
     strcpy(message, "No assignment to str2 of ivy ");
     Validate((0 != strcmp(str2.CStr(), "Ivy")), message, __LINE__);
 
-    strcpy(message, "No assignment to str2 of ivy ");
     Validate((0 != strcmp(str2.CStr(), ivy.CStr())), message, __LINE__);
 
     str2 = str2;
@@ -131,23 +125,17 @@ static void TestOperators()
     strcpy(message, "TestOperators failed at line:  ");
     Validate((false == (str1 < str2)), message, __LINE__);
 
-    strcpy(message, "TestOperators failed at line:  ");
     Validate((true == (str1 > str2)), message, __LINE__);
 
-    strcpy(message, "TestOperators failed at line:  ");
     Validate((true == (str1 == str2)), message, __LINE__);
 
-    strcpy(message, "TestOperators failed at line:  ");
     Validate((true != (str1 == str1)), message, __LINE__);
 
     str2 = str1;
-    strcpy(message, "TestOperators failed at line:  ");
     Validate((false == (str1 == str2)), message, __LINE__);
 
-    strcpy(message, "TestOperators failed at line:  ");
     Validate((true == (str1 > str2)), message, __LINE__);
 
-    strcpy(message, "TestOperators failed at line:  ");
     Validate((true == (str1 < str2)), message, __LINE__);
 
     std::cout << std::endl;
@@ -157,11 +145,9 @@ static void TestOperators()
 
     std::cout << std::endl;
 
-    strcpy(message, "TestOperators failed at line:  ");
     Validate((true == ("123" == str2)), message, __LINE__);
 
     str2 = "123";
-    strcpy(message, "TestOperators failed at line:  ");
     Validate((true != ("123" == str2)), message, __LINE__);
 
     return;
