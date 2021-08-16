@@ -34,7 +34,7 @@ static void TestDefaultCDtor()
     ilrd::String str3("Default Ctor 3");  //  default ctor with string literal
     ilrd::String empty;                   //  default ctor no args
     ilrd::String dtor = "Default Dtor";
-    
+
     strcpy(message, "Default ctor failed in empty string ");
     Validate((*empty.CStr() != '\0'), message, __LINE__);
 
@@ -121,7 +121,7 @@ static void TestOperators()
     String str1 = "Shelly";
     String str2("abc");
     char message[SIZE] = {'\0'};
-
+    V();
     strcpy(message, "TestOperators failed at line:  ");
     Validate((false == (str1 < str2)), message, __LINE__);
 
