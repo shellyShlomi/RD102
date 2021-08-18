@@ -92,8 +92,7 @@ namespace ilrd
 	}
 	inline bool operator!=(const Complex &lhs_, const Complex &rhs_)
 	{
-		return (/* (lhs_.GetReal() != rhs_.GetReal()) |
-				(lhs_.GetImagenary() != rhs_.GetImagenary()) */ !(lhs_ == rhs_));
+		return (!(lhs_ == rhs_));
 	}
 
 	inline std::istream &operator>>(std::istream &in, Complex &rhs_)
