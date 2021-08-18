@@ -92,29 +92,12 @@ namespace ilrd
 	}
 	inline bool operator!=(const Complex &lhs_, const Complex &rhs_)
 	{
-		return ((lhs_.GetReal() != rhs_.GetReal()) |
-				(lhs_.GetImagenary() != rhs_.GetImagenary()));
+		return (/* (lhs_.GetReal() != rhs_.GetReal()) |
+				(lhs_.GetImagenary() != rhs_.GetImagenary()) */ !(lhs_ == rhs_));
 	}
 
 	inline std::istream &operator>>(std::istream &in, Complex &rhs_)
 	{
-		// char num[100] = {'\0'};
-		// char *num_ptr = 0;
-		// size_t offset = 0;
-		// double real = 0.0;
-		// double imag = 0.0;
-
-		// in.getline(num, 99);
-
-		// real = strtod(num, &num_ptr);
-		// rhs_.SetReal(real);
-
-		// offset = num_ptr - num;
-
-		// imag = strtod(num, NULL);
-
-		// rhs_.SetImagenary(imag);
-
 		char num[100] = {'\0'};
 
 		in.getline(num, 100, ',');
@@ -122,24 +105,8 @@ namespace ilrd
 		in.getline(num, 100, '\n');
 
 		rhs_.SetImagenary(atof(num));
-
-		return (in);
-
 		return (in);
 	}
-
-	// inline std::istream &operator>>(std::istream &in, Complex &rhs_)
-	// {
-	// 	double real = 0.0;
-	// 	double imagenary = 0.0;
-
-	// 	in >> real >> imagenary;
-
-	// 	rhs_.SetReal(real);
-	// 	rhs_.SetImagenary(imagenary);
-
-	// 	return in; // return (in >> "(" << str.GetReal() << "), (" << str.GetImagenary() << ")");
-	// }
 
 	inline std::ostream &operator<<(std::ostream &os, const Complex &complex)
 	{

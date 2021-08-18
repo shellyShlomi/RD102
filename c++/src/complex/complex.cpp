@@ -7,9 +7,7 @@
  *          phas 2: approved by nir;                            *
  *  Description: complex numbers;					                */
 
-#include <cstddef>  /*  size_t  */
-#include <cstring>  /*  memcpy  */
-#include <cassert>  /*  assert  */
+
 #include <iostream> /*  ostream  */
 
 #include "complex.hpp"

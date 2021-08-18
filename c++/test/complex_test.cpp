@@ -1,6 +1,7 @@
-#include <cstring>  /*  memcpy  */
-#include <iostream> /*  ostream  */
+#include <cstring>  /*  strcpy  */
+#include <iostream> /*  cout  */
 #include <sstream>  /* td::istringstream */
+
 #include "complex.hpp"
 #include "tools.h"
 
