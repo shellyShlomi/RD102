@@ -6,8 +6,8 @@
 #include "tools.h"
 #include "print_colores.h"
 
-static size_t err_count = 0;
-static size_t count = 0;
+size_t err_count = 0;
+size_t count = 0;
 
 int Validate(int expression, const char *message, int line)
 {
@@ -22,6 +22,21 @@ int Validate(int expression, const char *message, int line)
 	return EXIT_SUCCESS;
 }
 
+
+int Valid(int expression, const char *message, int line)
+{
+	++count;
+	if (!expression)
+	{
+		printf("%s %d\n", message, line);
+		++err_count;
+		return 1;
+	}
+
+	return EXIT_SUCCESS;
+}
+
+
 void TotalErrors(void)
 {
 	printf("Total tested: %s%ld", BLUE, count);
@@ -35,8 +50,3 @@ void TotalErrors(void)
 
 	return;
 }
-
-
-
-
-

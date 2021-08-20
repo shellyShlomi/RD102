@@ -7,7 +7,19 @@ public:
     explicit X();
     explicit X(int a_);
     explicit X(int a_, int b_);
+    // X &operator=(const X &other)
+    // {
+    //     std::cout << " asigment ctor " << std::endl;
+    //     return (*this);
+    // };
 
+    // X X(const X &other)
+    // {
+    //     std::cout << " copy ctor " << std::endl;
+    //     return (*this);
+    // };
+
+    ~X();
     // X &operator=(const int x){Print();m_a +=x;return *this;};
 
     operator int() const;
@@ -17,7 +29,10 @@ private:
     int m_a;
 };
 
-
+X::~X()
+{
+    std::cout << "default d tor " << m_a << std::endl;
+}
 X::X() : m_a(0)
 {
     std::cout << "default c tor " << m_a << std::endl;
@@ -55,6 +70,8 @@ int main()
     std::cout << std::endl;
 
     Fifi(x1); // (1)
+    std::cout << std::endl;
+
     std::cout << std::endl;
 
     Fifi(X(8)); // (2)

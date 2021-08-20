@@ -2,14 +2,14 @@
 class X
 {
 public:
-    X() : m_id(++s_cntr) {}
-    static int GetId();// { std::cout << m_id << std::endl; return m_id;}
+    X() : m_id(++s_cntr) {};
+    int GetId()  { std::cout << m_id << std::endl; return m_id;};
 private:
     int m_id;
     static int s_cntr;
 };
 
-int X::s_cntr = 0;
+int X::s_cntr = 9;
 
 int main()
 {
@@ -19,5 +19,5 @@ int main()
     x1.GetId();
     x2.GetId();
 
-    return 0;   
+    return 0;
 }

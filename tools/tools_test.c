@@ -44,8 +44,3 @@ void PrintIntArr(int arr[], size_t size)
 	puts("");
 }
 
-int V()
-{
-return printf("ddd\n");
-}
-

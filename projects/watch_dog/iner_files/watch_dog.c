@@ -170,6 +170,13 @@ int WDStart(char **argv, int check_ratio, int beats_interval)
             argv[0] = "WD_file_for_user";
             if (-1 == execv("WD_file_for_user", argv))
             {
+                if (kill(watchdog_g->signal_pid, SIGRTMIN))
+                {
+                    DEBUG printf("user WD sending (SIGRTMIN) fail\n");
+                }
+
+                waitpid(watchdog_g->signal_pid, NULL, 0);
+
                 CleanUp(watchdog_elem, CF_CLOSE_SEM_SIGNAL |
                                            CF_CLOSE_SEM_BLOCK |
                                            CF_UNLINK_SEM_SIGNAL |
@@ -734,7 +741,6 @@ static void SigMaskUnBlock(int how)
 
     return;
 }
-
 
 static void Reset()
 {

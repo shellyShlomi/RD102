@@ -121,7 +121,7 @@ static void TestOperators()
     String str1 = "Shelly";
     String str2("abc");
     char message[SIZE] = {'\0'};
-    V();
+    
     strcpy(message, "TestOperators failed at line:  ");
     Validate((false == (str1 < str2)), message, __LINE__);
 
