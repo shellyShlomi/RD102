@@ -11,7 +11,7 @@
 #include <vector>   /*  vector  */
 #include <cstdio>   /*  EOF     */
 
-#include "RCString.hpp"
+#include "rcstring.hpp"
 
 const size_t SELF_COUNT(1);
 const int NOT_EXSIST(0);
@@ -20,7 +20,7 @@ const size_t NULL_TERMINETOR(1);
 
 namespace ilrd
 {
-    void RefManupulet(ilrd::RefCountStr *m_data);
+    void RefManipulation(ilrd::RefCountStr *m_data);
 
     struct RefCountStr
     {
@@ -33,27 +33,20 @@ namespace ilrd
     {
         const size_t LEN = strlen(str) + NULL_TERMINETOR;
         RefCountStr *rc_ptr = 0;
-        try
-        {
-            rc_ptr = static_cast<RefCountStr *>(::operator new(LEN + sizeof(size_t)));
-        }
-        catch (const std::bad_alloc &e)
-        {
-            return (0);
-        }
 
+        rc_ptr = static_cast<RefCountStr *>(::operator new(LEN + sizeof(size_t)));
         memcpy(rc_ptr->m_cstr, str, LEN);
         rc_ptr->m_ref_count = SELF_COUNT;
         return (rc_ptr);
     }
 
-    RCString::RCString(const char *cstr) 
-    : m_data(InitRCString(cstr)), is_char_ref(NOT_EXSIST)
+    RCString::RCString(const char *cstr)
+        : m_data(InitRCString(cstr)), is_char_ref(NOT_EXSIST)
     {
     }
 
-    RCString::RCString(const RCString &other) 
-    : m_data(other.m_data), is_char_ref(NOT_EXSIST)
+    RCString::RCString(const RCString &other)
+        : m_data(other.m_data), is_char_ref(NOT_EXSIST)
     {
         if (NOT_EXSIST != other.is_char_ref)
         {
@@ -67,7 +60,7 @@ namespace ilrd
 
     RCString::~RCString()
     {
-        RefManupulet(m_data);
+        RefManipulation(m_data);
         is_char_ref = NOT_EXSIST;
     }
 
@@ -75,13 +68,13 @@ namespace ilrd
     {
         if (NOT_EXSIST != other.is_char_ref)
         {
-            delete m_data;
+            RefManipulation(m_data);
             m_data = InitRCString(other.m_data->m_cstr);
         }
         else
         {
             ++other.m_data->m_ref_count;
-            RefManupulet(m_data);
+            RefManipulation(m_data);
             m_data = other.m_data;
         }
 
@@ -164,7 +157,7 @@ namespace ilrd
         return (m_data->m_cstr[index]);
     }
 
-    void RefManupulet(RefCountStr *m_data)
+    void RefManipulation(RefCountStr *m_data)
     {
         --m_data->m_ref_count;
         if (NOT_EXSIST == m_data->m_ref_count)
