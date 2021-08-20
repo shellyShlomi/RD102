@@ -3,7 +3,7 @@
 # to re-include a file if its parent directory is excluded.
 
 *
-
+tools_cpp
 
 
 !/**/
@@ -23,7 +23,7 @@
 !.gitignore
 !Makefile
 !makefile
-!__makefile
+!_makefile
 !.make
 !v_1.txt
 !v_2.txt
