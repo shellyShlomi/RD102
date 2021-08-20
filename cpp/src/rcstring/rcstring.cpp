@@ -46,10 +46,11 @@ namespace ilrd
     }
 
     RCString::RCString(const RCString &other)
-        : m_data(other.m_data), is_char_ref(NOT_EXSIST)
+        : m_data(other.m_data), is_char_ref(other.is_char_ref)
     {
         if (NOT_EXSIST != other.is_char_ref)
         {
+            is_char_ref = NOT_EXSIST;
             m_data = InitRCString(other.m_data->m_cstr);
         }
         else
@@ -68,6 +69,7 @@ namespace ilrd
     {
         if (NOT_EXSIST != other.is_char_ref)
         {
+            is_char_ref = NOT_EXSIST;
             RefManipulation(m_data);
             m_data = InitRCString(other.m_data->m_cstr);
         }
@@ -76,6 +78,7 @@ namespace ilrd
             ++other.m_data->m_ref_count;
             RefManipulation(m_data);
             m_data = other.m_data;
+            is_char_ref = other.is_char_ref;
         }
 
         return (*this);
