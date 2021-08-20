@@ -17,9 +17,6 @@ RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)
 #----------------shared object flags------------------#
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared 
-FILE  = $(shell find ../../tools/ -type f -regex ".*\.c")
-TEST_OBJ = $(patsubst *.c, *.o, $(notdir $(FILE:.c=.o)))
-TEST_OBJs = $(patsubst %.o, $(OBJ)/tests_lib/%.o,  $(TEST_OBJ))
 
 #----------------	PHONYs	------------------#
 .PHONY:	silent_test nw_test nmw_test test build vlgT hlgT so_debug
@@ -34,43 +31,50 @@ TEST_OBJs = $(patsubst %.o, $(OBJ)/tests_lib/%.o,  $(TEST_OBJ))
 #----------------DEBUG------------------#
 
 silent_test: 
-	@make -s libtests
+	@make -s -f ./.make/libtests
 	@make -s -f ./.make/run_silent
 
-nw_test: libtests
+nw_test: 
+	@make -f ./.make/libtests
 	@make -f ./.make/run_NW
 
 nmw_test: 
-	@make -s libtests
+	@make -s -f ./.make/libtests
 	@make -s -f ./.make/run_no_make_worning
 
 test: 
-	@make libtests
+	@make -f ./.make/libtests
 	@make -f ./.make/run
 
-build: libtests
+build: 
+	@make -f ./.make/libtests
 	@make -f ./.make/build
 
-so_debug: libtests
+so_debug: 
+	@make -f ./.make/libtests
 	@make -f ./.make/shared_obj_debug
 
-vlgT: libtests
+vlgT: 
+	@make -f ./.make/libtests
 	@make -f ./.make/runV
 
-hlgT: libtests
+hlgT: 
+	@make -f ./.make/libtests
 	@make -f ./.make/runH
 
-update_debug: libtests
+update_debug: 
+	@make -f ./.make/libtests
 	@make -f ./.make/update_debug
 
 #----------------RELEASE------------------#
 	
 	
 silent_test_release: 
-	@make -s libtests_r
+	@make -f ./.make/libtests
 	@make -s -f ./.make/run_rel_silent
 
-nw_test_release: libtests_r
+nw_test_release: 
+	@make -f ./.make/libtests
 	@make -f ./.make/run_rel_NW
 
 nmw_test_release: 
