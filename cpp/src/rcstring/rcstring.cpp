@@ -10,6 +10,7 @@
 #include <iostream> /*  ostream */
 #include <vector>   /*  vector  */
 #include <cstdio>   /*  EOF     */
+#include <cstddef>  /*  offsetof*/
 
 #include "rcstring.hpp"
 
@@ -26,6 +27,7 @@ namespace ilrd
     {
     public:
         size_t m_ref_count;
+        size_t is_char_ref;
         char m_cstr[NULL_TERMINETOR];
     };
 
@@ -34,42 +36,34 @@ namespace ilrd
         const size_t LEN = strlen(str) + NULL_TERMINETOR;
         RefCountStr *rc_ptr = 0;
 
-        rc_ptr = static_cast<RefCountStr *>(::operator new(LEN + sizeof(size_t)));
+        rc_ptr = static_cast<RefCountStr *>(::operator new(LEN + offsetof(RefCountStr, m_cstr)));
+
         memcpy(rc_ptr->m_cstr, str, LEN);
         rc_ptr->m_ref_count = SELF_COUNT;
+        rc_ptr->is_char_ref = NOT_EXSIST;
+
         return (rc_ptr);
     }
 
-    RCString::RCString(const char *cstr)
-        : m_data(InitRCString(cstr)), is_char_ref(NOT_EXSIST)
+    RCString::RCString(const char *cstr) : m_data(InitRCString(cstr))
     {
+        ; //empty on purpose
     }
 
-    RCString::RCString(const RCString &other)
-        : m_data(other.m_data), is_char_ref(other.is_char_ref)
+    RCString::RCString(const RCString &other) : m_data(other.m_data)
     {
-        if (NOT_EXSIST != other.is_char_ref)
-        {
-            is_char_ref = NOT_EXSIST;
-            m_data = InitRCString(other.m_data->m_cstr);
-        }
-        else
-        {
-            ++other.m_data->m_ref_count;
-        }
+        ++other.m_data->m_ref_count;
     }
 
     RCString::~RCString()
     {
         RefManipulation(m_data);
-        is_char_ref = NOT_EXSIST;
     }
 
     RCString &RCString::operator=(const RCString &other)
     {
-        if (NOT_EXSIST != other.is_char_ref)
+        if (NOT_EXSIST != other.m_data->is_char_ref)
         {
-            is_char_ref = NOT_EXSIST;
             RefManipulation(m_data);
             m_data = InitRCString(other.m_data->m_cstr);
         }
@@ -78,7 +72,6 @@ namespace ilrd
             ++other.m_data->m_ref_count;
             RefManipulation(m_data);
             m_data = other.m_data;
-            is_char_ref = other.is_char_ref;
         }
 
         return (*this);
@@ -146,7 +139,7 @@ namespace ilrd
     }
     char &RCString::operator[](size_t index)
     {
-        ++is_char_ref;
+        ++m_data->is_char_ref;
         if (SELF_COUNT != m_data->m_ref_count)
         {
             --(m_data->m_ref_count);
