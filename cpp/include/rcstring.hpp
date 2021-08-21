@@ -5,7 +5,7 @@
 
 namespace ilrd
 {
-	typedef class RefCountStr RefCountStr_t;
+
 	class RCString
 	{
 	public:
@@ -19,6 +19,7 @@ namespace ilrd
 		char operator[](size_t index) const;
 
 	private:
+		typedef class RefCountStr RefCountStr_t;
 		RefCountStr_t *m_data;
 	}; //RCString
 
@@ -28,8 +29,6 @@ namespace ilrd
 	bool operator>(const RCString &str1, const RCString &str2);
 	bool operator==(const RCString &str1, const RCString &str2);
 	bool operator!=(const RCString &str1, const RCString &str2);
-	RefCountStr *InitRCSDataMemb(const char *str);
-	void RCSDataMembCleanUp(RefCountStr_t *m_data, size_t size);
 
 } //ilrd
 

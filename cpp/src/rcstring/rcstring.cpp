@@ -21,6 +21,8 @@ const size_t NULL_TERMINETOR(1);
 
 namespace ilrd
 {
+	void RefCountStrCleanUp(ilrd::RefCountStr *m_data, size_t size);
+	RefCountStr *InitRefCountStr(const char *str);
 
     struct RefCountStr
     {
@@ -30,7 +32,7 @@ namespace ilrd
         char m_cstr[NULL_TERMINETOR];
     };
 
-    RCString::RCString(const char *cstr) : m_data(InitRCSDataMemb(cstr))
+    RCString::RCString(const char *cstr) : m_data(InitRefCountStr(cstr))
     {
         ; //empty on purpose
     }
@@ -42,20 +44,20 @@ namespace ilrd
 
     RCString::~RCString()
     {
-        RCSDataMembCleanUp(m_data,Length());
+        RefCountStrCleanUp(m_data,Length());
     }
 
     RCString &RCString::operator=(const RCString &other)
     {
         if (false != other.m_data->m_char_ref)
         {
-            RCSDataMembCleanUp(m_data, Length());
-            m_data = InitRCSDataMemb(other.m_data->m_cstr);
+            RefCountStrCleanUp(m_data, Length());
+            m_data = InitRefCountStr(other.m_data->m_cstr);
         }
         else
         {
             ++other.m_data->m_ref_count;
-            RCSDataMembCleanUp(m_data, Length());
+            RefCountStrCleanUp(m_data, Length());
             m_data = other.m_data;
         }
 
@@ -128,7 +130,7 @@ namespace ilrd
         if (SELF_COUNT != m_data->m_ref_count)
         {
             --(m_data->m_ref_count);
-            m_data = InitRCSDataMemb(m_data->m_cstr);
+            m_data = InitRefCountStr(m_data->m_cstr);
         }
 
         return (m_data->m_cstr[index]);
@@ -138,7 +140,7 @@ namespace ilrd
         return (m_data->m_cstr[index]);
     }
 
-    void RCSDataMembCleanUp(RefCountStr_t *m_data, size_t size)
+    void RefCountStrCleanUp(RefCountStr *m_data, size_t size)
     {
         --m_data->m_ref_count;
         if (NOT_EXSIST == m_data->m_ref_count)
@@ -153,7 +155,7 @@ namespace ilrd
         return;
     }
 
-    RefCountStr *InitRCSDataMemb(const char *str)
+	RefCountStr *InitRefCountStr(const char *str)
     {
         const size_t LEN = strlen(str) + NULL_TERMINETOR;
         RefCountStr *rc_ptr = 0;
