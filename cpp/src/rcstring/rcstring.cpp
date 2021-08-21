@@ -138,7 +138,7 @@ namespace ilrd
         return (m_data->m_cstr[index]);
     }
 
-    void RCString::RCSDataMembCleanUp(RefCountStr_t *m_data, size_t size)
+    void RCSDataMembCleanUp(RefCountStr_t *m_data, size_t size)
     {
         --m_data->m_ref_count;
         if (NOT_EXSIST == m_data->m_ref_count)
@@ -153,7 +153,7 @@ namespace ilrd
         return;
     }
 
-    RefCountStr *RCString::InitRCSDataMemb(const char *str)
+    RefCountStr *InitRCSDataMemb(const char *str)
     {
         const size_t LEN = strlen(str) + NULL_TERMINETOR;
         RefCountStr *rc_ptr = 0;
