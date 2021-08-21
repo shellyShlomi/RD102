@@ -19,8 +19,9 @@ namespace ilrd
 
 	private:
 		typedef class RefCountStr RefCountStr_t;
+		RefCountStr *InitRCSDataMemb(const char *str);
+		void RCSDataMembCleanUp(RefCountStr_t *m_data, size_t size);
 		RefCountStr_t *m_data;
-		int is_char_ref;
 	}; //RCString
 
 	std::ostream &operator<<(std::ostream &os, const RCString &str);

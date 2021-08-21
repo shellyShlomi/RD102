@@ -21,31 +21,16 @@ const size_t NULL_TERMINETOR(1);
 
 namespace ilrd
 {
-    void RefManipulation(ilrd::RefCountStr *m_data);
 
     struct RefCountStr
     {
     public:
         size_t m_ref_count;
-        size_t is_char_ref;
+        bool m_char_ref;
         char m_cstr[NULL_TERMINETOR];
     };
 
-    inline RefCountStr *InitRCString(const char *str)
-    {
-        const size_t LEN = strlen(str) + NULL_TERMINETOR;
-        RefCountStr *rc_ptr = 0;
-
-        rc_ptr = static_cast<RefCountStr *>(::operator new(LEN + offsetof(RefCountStr, m_cstr)));
-
-        memcpy(rc_ptr->m_cstr, str, LEN);
-        rc_ptr->m_ref_count = SELF_COUNT;
-        rc_ptr->is_char_ref = NOT_EXSIST;
-
-        return (rc_ptr);
-    }
-
-    RCString::RCString(const char *cstr) : m_data(InitRCString(cstr))
+    RCString::RCString(const char *cstr) : m_data(InitRCSDataMemb(cstr))
     {
         ; //empty on purpose
     }
@@ -57,20 +42,20 @@ namespace ilrd
 
     RCString::~RCString()
     {
-        RefManipulation(m_data);
+        RCSDataMembCleanUp(m_data,Length());
     }
 
     RCString &RCString::operator=(const RCString &other)
     {
-        if (NOT_EXSIST != other.m_data->is_char_ref)
+        if (false != other.m_data->m_char_ref)
         {
-            RefManipulation(m_data);
-            m_data = InitRCString(other.m_data->m_cstr);
+            RCSDataMembCleanUp(m_data, Length());
+            m_data = InitRCSDataMemb(other.m_data->m_cstr);
         }
         else
         {
             ++other.m_data->m_ref_count;
-            RefManipulation(m_data);
+            RCSDataMembCleanUp(m_data, Length());
             m_data = other.m_data;
         }
 
@@ -139,11 +124,11 @@ namespace ilrd
     }
     char &RCString::operator[](size_t index)
     {
-        ++m_data->is_char_ref;
+        m_data->m_char_ref = true;
         if (SELF_COUNT != m_data->m_ref_count)
         {
             --(m_data->m_ref_count);
-            m_data = InitRCString(m_data->m_cstr);
+            m_data = InitRCSDataMemb(m_data->m_cstr);
         }
 
         return (m_data->m_cstr[index]);
@@ -153,16 +138,33 @@ namespace ilrd
         return (m_data->m_cstr[index]);
     }
 
-    void RefManipulation(RefCountStr *m_data)
+    void RCString::RCSDataMembCleanUp(RefCountStr_t *m_data, size_t size)
     {
         --m_data->m_ref_count;
         if (NOT_EXSIST == m_data->m_ref_count)
         {
+            memset(m_data->m_cstr, 0, size);
+            m_data->m_char_ref = false;
+            m_data->m_ref_count = SELF_COUNT;
             delete (m_data);
             m_data = 0;
         }
 
         return;
+    }
+
+    RefCountStr *RCString::InitRCSDataMemb(const char *str)
+    {
+        const size_t LEN = strlen(str) + NULL_TERMINETOR;
+        RefCountStr *rc_ptr = 0;
+
+        rc_ptr = static_cast<RefCountStr *>(::operator new(LEN + offsetof(RefCountStr, m_cstr)));
+
+        memcpy(rc_ptr->m_cstr, str, LEN);
+        rc_ptr->m_ref_count = SELF_COUNT;
+        rc_ptr->m_char_ref = false;
+
+        return (rc_ptr);
     }
 
 }
