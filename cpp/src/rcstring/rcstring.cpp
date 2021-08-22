@@ -19,9 +19,9 @@ const size_t NULL_TERMINATOR(1);
 
 namespace ilrd
 {
-    RefCountStr *DataKeeper(RefCountStr *to_assinge);
     void RefCountStrCleanUp(ilrd::RefCountStr *m_data, size_t size);
     RefCountStr *InitRefCountStr(const char *str);
+    RefCountStr *DataKeeper(RefCountStr *to_assinge);
 
     struct RefCountStr
     {
