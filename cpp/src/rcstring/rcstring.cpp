@@ -15,21 +15,20 @@
 #include "rcstring.hpp"
 
 const size_t SELF_COUNT(1);
-const int NOT_EXSIST(0);
-const int EQUALETY_INDICATOR(0);
-const size_t NULL_TERMINETOR(1);
+const int EQUALITY_INDICATOR(0);
+const size_t NULL_TERMINATOR(1);
 
 namespace ilrd
 {
-	void RefCountStrCleanUp(ilrd::RefCountStr *m_data, size_t size);
-	RefCountStr *InitRefCountStr(const char *str);
+    void RefCountStrCleanUp(ilrd::RefCountStr *m_data, size_t size);
+    RefCountStr *InitRefCountStr(const char *str);
 
     struct RefCountStr
     {
     public:
-        size_t m_ref_count;
+        size_t m_copy_count;
         bool m_char_ref;
-        char m_cstr[NULL_TERMINETOR];
+        char m_cstr[NULL_TERMINATOR];
     };
 
     RCString::RCString(const char *cstr) : m_data(InitRefCountStr(cstr))
@@ -39,12 +38,12 @@ namespace ilrd
 
     RCString::RCString(const RCString &other) : m_data(other.m_data)
     {
-        ++other.m_data->m_ref_count;
+        ++other.m_data->m_copy_count;
     }
 
     RCString::~RCString()
     {
-        RefCountStrCleanUp(m_data,Length());
+        RefCountStrCleanUp(m_data, Length());
     }
 
     RCString &RCString::operator=(const RCString &other)
@@ -56,7 +55,7 @@ namespace ilrd
         }
         else
         {
-            ++other.m_data->m_ref_count;
+            ++other.m_data->m_copy_count;
             RefCountStrCleanUp(m_data, Length());
             m_data = other.m_data;
         }
@@ -76,24 +75,15 @@ namespace ilrd
 
     bool operator<(const RCString &lhs, const RCString &rhs)
     {
-        assert(lhs.CStr() != NULL);
-        assert(rhs.CStr() != NULL);
-
-        return (EQUALETY_INDICATOR > strcmp(lhs.CStr(), rhs.CStr()));
+        return (EQUALITY_INDICATOR > strcmp(lhs.CStr(), rhs.CStr()));
     }
     bool operator>(const RCString &lhs, const RCString &rhs)
     {
-        assert(lhs.CStr() != NULL);
-        assert(rhs.CStr() != NULL);
-
-        return (EQUALETY_INDICATOR < strcmp(lhs.CStr(), rhs.CStr()));
+        return (EQUALITY_INDICATOR < strcmp(lhs.CStr(), rhs.CStr()));
     }
     bool operator==(const RCString &lhs, const RCString &rhs)
     {
-        assert(lhs.CStr() != NULL);
-        assert(rhs.CStr() != NULL);
-
-        return (EQUALETY_INDICATOR == strcmp(lhs.CStr(), rhs.CStr()));
+        return (EQUALITY_INDICATOR == strcmp(lhs.CStr(), rhs.CStr()));
     }
     bool operator!=(const RCString &lhs, const RCString &rhs)
     {
@@ -102,8 +92,6 @@ namespace ilrd
 
     std::ostream &operator<<(std::ostream &os, const RCString &str)
     {
-        assert(str.CStr() != NULL);
-
         return (os << str.CStr());
     }
 
@@ -124,46 +112,50 @@ namespace ilrd
 
         return is;
     }
+    
     char &RCString::operator[](size_t index)
     {
-        m_data->m_char_ref = true;
-        if (SELF_COUNT != m_data->m_ref_count)
+        if (SELF_COUNT != m_data->m_copy_count)
         {
-            --(m_data->m_ref_count);
+            --(m_data->m_copy_count);
             m_data = InitRefCountStr(m_data->m_cstr);
         }
+        m_data->m_char_ref = true;
 
         return (m_data->m_cstr[index]);
     }
+
     char RCString::operator[](size_t index) const
     {
         return (m_data->m_cstr[index]);
     }
 
-    void RefCountStrCleanUp(RefCountStr *m_data, size_t size)
+    void RefCountStrCleanUp(RefCountStr *m_data, size_t size) //also here, more general name like
+                                                              //"DataCleanUp"
     {
-        --m_data->m_ref_count;
-        if (NOT_EXSIST == m_data->m_ref_count)
+        --m_data->m_copy_count;
+        if (0 == m_data->m_copy_count)
         {
             memset(m_data->m_cstr, 0, size);
             m_data->m_char_ref = false;
-            m_data->m_ref_count = SELF_COUNT;
+            m_data->m_copy_count = SELF_COUNT;
             delete (m_data);
-            m_data = 0;
+            m_data = 0; // use NULL
         }
 
         return;
     }
 
-	RefCountStr *InitRefCountStr(const char *str)
+    RefCountStr *InitRefCountStr(const char *str) //its not only the ref_counter your'e initializing.
+                                                  // better call it "initdata", or somthing more general.
     {
-        const size_t LEN = strlen(str) + NULL_TERMINETOR;
-        RefCountStr *rc_ptr = 0;
+        const size_t LEN = strlen(str) + NULL_TERMINATOR;
+        RefCountStr *rc_ptr = 0; //can use NULL
 
         rc_ptr = static_cast<RefCountStr *>(::operator new(LEN + offsetof(RefCountStr, m_cstr)));
 
         memcpy(rc_ptr->m_cstr, str, LEN);
-        rc_ptr->m_ref_count = SELF_COUNT;
+        rc_ptr->m_copy_count = SELF_COUNT;
         rc_ptr->m_char_ref = false;
 
         return (rc_ptr);
