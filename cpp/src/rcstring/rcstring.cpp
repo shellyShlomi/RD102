@@ -6,7 +6,6 @@
  *  Description: refernc count string;                          */
 
 #include <cstring>  /*  memcpy  */
-#include <cassert>  /*  assert  */
 #include <iostream> /*  ostream */
 #include <vector>   /*  vector  */
 #include <cstdio>   /*  EOF     */
@@ -112,7 +111,7 @@ namespace ilrd
 
         return is;
     }
-    
+
     char &RCString::operator[](size_t index)
     {
         if (SELF_COUNT != m_data->m_copy_count)
