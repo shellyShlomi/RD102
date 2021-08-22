@@ -13,9 +13,9 @@
 
 #include "rcstring.hpp"
 
-const size_t SELF_COUNT(1);
-const int EQUALITY_INDICATOR(0);
-const size_t NULL_TERMINATOR(1);
+static const size_t SELF_COUNT(1);
+static const int EQUALITY_INDICATOR(0);
+static const size_t NULL_TERMINATOR(1);
 
 namespace ilrd
 {
