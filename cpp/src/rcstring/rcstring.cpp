@@ -17,10 +17,9 @@ const size_t SELF_COUNT(1);
 const int EQUALITY_INDICATOR(0);
 const size_t NULL_TERMINATOR(1);
 
-static ilrd::RefCountStr *DataKeeper(ilrd::RefCountStr *to_assinge);
-
 namespace ilrd
 {
+    RefCountStr *DataKeeper(RefCountStr *to_assinge);
     void RefCountStrCleanUp(ilrd::RefCountStr *m_data, size_t size);
     RefCountStr *InitRefCountStr(const char *str);
 
@@ -41,7 +40,7 @@ namespace ilrd
     {
         if (false != other.m_data->m_char_ref)
         {
-            m_data = DataKeeper(m_data); 
+            m_data = DataKeeper(m_data);
         }
         else
         {
@@ -59,7 +58,7 @@ namespace ilrd
         if (false != other.m_data->m_char_ref)
         {
             RefCountStrCleanUp(m_data, Length());
-            m_data = DataKeeper(other.m_data); 
+            m_data = DataKeeper(other.m_data);
         }
         else
         {
@@ -126,7 +125,7 @@ namespace ilrd
         if (SELF_COUNT != m_data->m_copy_count)
         {
             --(m_data->m_copy_count);
-            m_data = DataKeeper(m_data); 
+            m_data = DataKeeper(m_data);
         }
         m_data->m_char_ref = true;
 
@@ -166,15 +165,14 @@ namespace ilrd
         return (rc_ptr);
     }
 
-}
-
-static ilrd::RefCountStr *DataKeeper(ilrd::RefCountStr *to_assinge)
-{
-    ilrd::RefCountStr *local_cpy = ilrd::InitRefCountStr(to_assinge->m_cstr);
-    if (local_cpy)
+    RefCountStr *DataKeeper(RefCountStr *to_assinge)
     {
-        return (local_cpy);
-    }
+        RefCountStr *local_cpy = InitRefCountStr(to_assinge->m_cstr);
+        if (local_cpy)
+        {
+            return (local_cpy);
+        }
 
-    return (to_assinge);
+        return (to_assinge);
+    }
 }
