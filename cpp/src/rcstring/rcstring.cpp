@@ -37,7 +37,14 @@ namespace ilrd
 
     RCString::RCString(const RCString &other) : m_data(other.m_data)
     {
-        ++other.m_data->m_copy_count;
+        if (false != other.m_data->m_char_ref)
+        {
+            m_data = InitRefCountStr(other.m_data->m_cstr);
+        }
+        else
+        {
+            ++other.m_data->m_copy_count;
+        }
     }
 
     RCString::~RCString()
@@ -129,7 +136,7 @@ namespace ilrd
         return (m_data->m_cstr[index]);
     }
 
-    void RefCountStrCleanUp(RefCountStr *m_data, size_t size) 
+    void RefCountStrCleanUp(RefCountStr *m_data, size_t size)
     {
         --m_data->m_copy_count;
         if (0 == m_data->m_copy_count)
@@ -138,16 +145,16 @@ namespace ilrd
             m_data->m_char_ref = false;
             m_data->m_copy_count = SELF_COUNT;
             delete (m_data);
-            m_data = 0; 
+            m_data = 0;
         }
 
         return;
     }
 
-    RefCountStr *InitRefCountStr(const char *str) 
+    RefCountStr *InitRefCountStr(const char *str)
     {
         const size_t LEN = strlen(str) + NULL_TERMINATOR;
-        RefCountStr *rc_ptr = 0; 
+        RefCountStr *rc_ptr = 0;
         rc_ptr = static_cast<RefCountStr *>(::operator new(LEN + offsetof(RefCountStr, m_cstr)));
 
         memcpy(rc_ptr->m_cstr, str, LEN);
