@@ -165,14 +165,14 @@ namespace ilrd
         return (rc_ptr);
     }
 
-    RefCountStr *DataKeeper(RefCountStr *to_assinge)
+    RefCountStr *DataKeeper(RefCountStr *to_assigne)
     {
-        RefCountStr *local_cpy = InitRefCountStr(to_assinge->m_cstr);
+        RefCountStr *local_cpy = InitRefCountStr(to_assigne->m_cstr);
         if (local_cpy)
         {
             return (local_cpy);
         }
 
-        return (to_assinge);
+        return (to_assigne);
     }
 }
