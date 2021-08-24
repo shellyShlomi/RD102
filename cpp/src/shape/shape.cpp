@@ -8,10 +8,7 @@
 #include <iostream> // cout
 #include <list>		// list
 
-#include "line.hpp"
-#include "circle.hpp"
-#include "rectangle.hpp"
-#include "square.hpp"
+#include "shapes.hpp"
 
 static const int SPACE(1);
 
