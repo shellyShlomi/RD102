@@ -18,102 +18,102 @@ namespace ilrd
 
 /**************************** Shapes interface impl ****************************/
 
-	void PrintShapes(const std::list<Shape*> &shape_list)
+void PrintShapes(const std::list<Shape*> &shape_list)
+{
+	for (std::list<Shape *>::const_iterator it = shape_list.begin();
+												it != shape_list.end(); ++it)
 	{
-		for (std::list<Shape *>::const_iterator it = shape_list.begin();
-												 it != shape_list.end(); ++it)
-		{
-			(*it)->Draw();
-		}
-		std::cout << std::endl;
-		return;
+		(*it)->Draw();
 	}
+	std::cout << std::endl;
+	return;
+}
 
-	Shape::~Shape()
-	{
-		//empty
-	}
+Shape::~Shape()
+{
+	//empty
+}
 
-	void Shape::Move(size_t offset)
+void Shape::Move(size_t offset)
+{
+	for (size_t i = 0; i < offset; ++i)
 	{
-		for (size_t i = 0; i < offset; ++i)
-		{
-			std::cout << " ";
-		}
-		Draw();
-		return;
+		std::cout << " ";
 	}
+	Draw();
+	return;
+}
 
 /********************************* Circle impl *********************************/
 
-	Circle::Circle()
-	{
-		//empty
-	}
+Circle::Circle()
+{
+	//empty
+}
 
-	Circle::~Circle()
-	{
-		//empty
-	}
+Circle::~Circle()
+{
+	//empty
+}
 
-	void Circle::Draw() const
-	{
-		std::cout << "Circle ";
-		return;
-	}
+void Circle::Draw() const
+{
+	std::cout << "Circle ";
+	return;
+}
 
 /******************************* Rectangle impl *******************************/
 
 
-	Rectangle::Rectangle()
-	{
-		//empty
-	}
+Rectangle::Rectangle()
+{
+	//empty
+}
 
-	Rectangle::~Rectangle()
-	{
-		//empty
-	}
-	void Rectangle::Draw() const
-	{
-		std::cout << "Rectangle " ;
-		return;
-	}
+Rectangle::~Rectangle()
+{
+	//empty
+}
+void Rectangle::Draw() const
+{
+	std::cout << "Rectangle " ;
+	return;
+}
 
 
 /********************************** Line impl **********************************/
 
-	Line::Line()
-	{
-		//empty
-	}
+Line::Line()
+{
+	//empty
+}
 
-	Line::~Line()
-	{
-		//empty
-	}
-	void Line::Draw() const
-	{
-		std::cout << "Line ";
-		return;
-	}
+Line::~Line()
+{
+	//empty
+}
+void Line::Draw() const
+{
+	std::cout << "Line ";
+	return;
+}
 
 
 /********************************* Square impl *********************************/
 
-	Square::Square()
-	{
-		//empty
-	}
+Square::Square()
+{
+	//empty
+}
 
-	Square::~Square()
-	{
-		//empty
-	}
-	void Square::Draw() const
-	{
-		std::cout << "Square ";
-		return;
-	}
+Square::~Square()
+{
+	//empty
+}
+void Square::Draw() const
+{
+	std::cout << "Square ";
+	return;
+}
 
 }
