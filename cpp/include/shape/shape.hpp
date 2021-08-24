@@ -17,7 +17,7 @@ public:
 
 }; // Shape
 
-void PrintShapes(const std::list<Shape*> &shape_list); // stl list
+void PrintShapes(const std::list<Shape *> &shape_list); // stl list
 
 
 } // ilrd

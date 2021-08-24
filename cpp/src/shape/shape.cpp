@@ -13,17 +13,19 @@
 #include "rectangle.hpp"
 #include "square.hpp"
 
+static const int SPACE(1);
+
 namespace ilrd
 {
 
 /**************************** Shapes interface impl ****************************/
 
-void PrintShapes(const std::list<Shape*> &shape_list)
+void PrintShapes(const std::list<Shape *> &shape_list)
 {
 	for (std::list<Shape *>::const_iterator it = shape_list.begin();
 												it != shape_list.end(); ++it)
 	{
-		(*it)->Draw();
+		(*it)->Move(SPACE);
 	}
 	std::cout << std::endl;
 	return;
@@ -36,9 +38,10 @@ Shape::~Shape()
 
 void Shape::Move(size_t offset)
 {
-	for (size_t i = 0; i < offset; ++i)
+	while (offset)
 	{
-		std::cout << " ";
+		std::cout << ' ';
+		--offset;
 	}
 	Draw();
 	return;
@@ -58,7 +61,7 @@ Circle::~Circle()
 
 void Circle::Draw() const
 {
-	std::cout << "Circle ";
+	std::cout << "Circle";
 	return;
 }
 
@@ -76,7 +79,7 @@ Rectangle::~Rectangle()
 }
 void Rectangle::Draw() const
 {
-	std::cout << "Rectangle " ;
+	std::cout << "Rectangle" ;
 	return;
 }
 
@@ -94,7 +97,7 @@ Line::~Line()
 }
 void Line::Draw() const
 {
-	std::cout << "Line ";
+	std::cout << "Line";
 	return;
 }
 
@@ -112,7 +115,7 @@ Square::~Square()
 }
 void Square::Draw() const
 {
-	std::cout << "Square ";
+	std::cout << "Square";
 	return;
 }
 
