@@ -20,80 +20,80 @@ const size_t NULL_TERMINETOR = 1;
 namespace ilrd
 {
 
-    String::String(const char *cstr) :
-     m_cstr(Init(cstr, strlen(cstr) + NULL_TERMINETOR))
-    {}
+String::String(const char *cstr) :
+    m_cstr(Init(cstr, strlen(cstr) + NULL_TERMINETOR))
+{}
 
-    String::String(const String &other) : 
-    m_cstr(Init(other.CStr(), other.Length() + NULL_TERMINETOR))
-    {}
+String::String(const String &other) : 
+m_cstr(Init(other.CStr(), other.Length() + NULL_TERMINETOR))
+{}
 
-    String::~String()
+String::~String()
+{
+    delete[] m_cstr;
+    m_cstr = 0;
+}
+
+String &String::operator=(const String &other)
+{
+    char *local_temp = 0;
+
+    assert(other.CStr() != NULL);
+
+    if (&other != this)
     {
-        delete[] m_cstr;
-        m_cstr = 0;
-    }
-
-    String &String::operator=(const String &other)
-    {
-        char *local_temp = 0;
-
-        assert(other.CStr() != NULL);
-
-        if (&other != this)
+        if ((local_temp = 
+            Init(other.CStr(), other.Length() + NULL_TERMINETOR)))
         {
-            if ((local_temp = 
-                Init(other.CStr(), other.Length() + NULL_TERMINETOR)))
-            {
-                delete[] m_cstr;
-                m_cstr = local_temp;
-            }
+            delete[] m_cstr;
+            m_cstr = local_temp;
         }
-
-        return (*this);
     }
 
-    size_t String::Length() const
-    {
-        return (strlen(m_cstr));
-    }
+    return (*this);
+}
 
-    const char *String::CStr() const
-    {
-        return (m_cstr);
-    }
+size_t String::Length() const
+{
+    return (strlen(m_cstr));
+}
 
-    bool operator<(const String &lhs, const String &rhs)
-    {
-        assert(lhs.CStr() != NULL);
-        assert(rhs.CStr() != NULL);
+const char *String::CStr() const
+{
+    return (m_cstr);
+}
 
-        return (0 > strcmp(lhs.CStr(), rhs.CStr()));
-    }
-    bool operator>(const String &lhs, const String &rhs)
-    {
-        assert(lhs.CStr() != NULL);
-        assert(rhs.CStr() != NULL);
+bool operator<(const String &lhs, const String &rhs)
+{
+    assert(lhs.CStr() != NULL);
+    assert(rhs.CStr() != NULL);
 
-        return (0 < strcmp(lhs.CStr(), rhs.CStr()));
-    }
-    bool operator==(const String &lhs, const String &rhs)
-    {
-        assert(lhs.CStr() != NULL);
-        assert(rhs.CStr() != NULL);
+    return (0 > strcmp(lhs.CStr(), rhs.CStr()));
+}
+bool operator>(const String &lhs, const String &rhs)
+{
+    assert(lhs.CStr() != NULL);
+    assert(rhs.CStr() != NULL);
 
-        return (0 == strcmp(lhs.CStr(), rhs.CStr()));
-    }
+    return (0 < strcmp(lhs.CStr(), rhs.CStr()));
+}
+bool operator==(const String &lhs, const String &rhs)
+{
+    assert(lhs.CStr() != NULL);
+    assert(rhs.CStr() != NULL);
 
-    std::ostream &operator<<(std::ostream &os, const String &str)
-    {
-        assert(str.CStr() != NULL);
+    return (0 == strcmp(lhs.CStr(), rhs.CStr()));
+}
 
-        return (os << str.CStr());
-    }
+std::ostream &operator<<(std::ostream &os, const String &str)
+{
+    assert(str.CStr() != NULL);
 
-    char *String::Init(const char *src, size_t size)
-    {
-        return (reinterpret_cast<char *>(memcpy(new char[size], src, size)));
-    }
+    return (os << str.CStr());
+}
+
+char *String::Init(const char *src, size_t size)
+{
+    return (reinterpret_cast<char *>(memcpy(new char[size], src, size)));
+}
 }

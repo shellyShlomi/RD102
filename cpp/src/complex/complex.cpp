@@ -18,7 +18,7 @@ const size_t NULL_TERMINETOR = 1;
 namespace ilrd
 {
 
-    Complex::Complex(double real_, double imag_) :
-     m_real(real_), m_imag(imag_)
-    {}
+Complex::Complex(double real_, double imag_) :
+    m_real(real_), m_imag(imag_)
+{}
 }
