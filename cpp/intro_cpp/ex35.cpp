@@ -77,8 +77,6 @@ public:
     K() :  m_x(new X), m_y(new Y)
     {
         std::cerr << "K Ctor" << std::endl;
-       
-        
     }
     ~K()
     {
@@ -88,15 +86,15 @@ public:
     }
 
 private:
-    X *m_x;
     Y *m_y;
+    X *m_x;
 };
 
 int main()
 {
     try
     {
-        M var1;
+        K var1;
     }
     catch (std::exception &e)
     {
