@@ -19,7 +19,7 @@ namespace ilrd
 		char operator[](size_t index) const;
 
 	private:
-		typedef class RefCountStr RefCountStr_t;
+		typedef struct RefCountStr RefCountStr_t;
 		RefCountStr_t *m_data;
 	}; //RCString
 
