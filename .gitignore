@@ -24,6 +24,6 @@ tools_cpp
 !Makefile
 !makefile
 !_makefile
-!.make
+!*make
 !v_1.txt
 !v_2.txt
