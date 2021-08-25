@@ -1,0 +1,14 @@
+
+SUBDIRS := $(wildcard */.)
+
+OBJ = ../obj
+
+
+TOPTARGETS := all
+
+$(TOPTARGETS): $(SUBDIRS) 
+$(SUBDIRS):
+	$(MAKE) -C $@ $(MAKECMDGOALS) shared_obj	
+
+
+.PHONY: $(TOPTARGETS) $(SUBDIRS) 

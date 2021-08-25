@@ -1,0 +1,14 @@
+
+SUBDIRS := $(wildcard */.)
+
+
+TOPTARGETS := all
+
+$(TOPTARGETS): $(SUBDIRS) 
+$(SUBDIRS):
+	@cp $@/Makefile $@/old 
+	@cp ./_makefile $@/new
+	@cp $@/new $@/Makefile
+	@rm -r -f $@/old $@/new
+
+.PHONY: $(TOPTARGETS) $(SUBDIRS) 

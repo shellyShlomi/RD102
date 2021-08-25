@@ -1,0 +1,12 @@
+
+SUBDIRS := $(wildcard */.)
+
+TOPTARGETS := all
+
+$(TOPTARGETS): $(SUBDIRS) 
+$(SUBDIRS):
+	$(MAKE) -C $@ $(MAKECMDGOALS) build 
+
+
+.PHONY: $(TOPTARGETS) $(SUBDIRS) 
+
