@@ -14,14 +14,15 @@ TARGET_RELEASE = $(TARGET)_rel
 SRC = .
 LIB = ../../lib
 TEST = ../../test
-INC = ../../include
+INC = ../../include 
+INC_SHAPE = ../../include/shape
 BIN = ../../bin
 
 OBJ = ../../obj
 OBJ_REL = ../../obj_rel
 CC = g++
-CFLAGS = -std=c++98 -pedantic-errors -Wall -Wextra -g -I$(INC) 
-RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
+CFLAGS = -std=c++98 -pedantic-errors -Wall -Wextra -g -I$(INC)  -I$(INC_SHAPE)
+RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) -I$(INC_SHAPE) 
 
 OBJECTS = $(OBJ)/$(TARGET)/$(TARGET).o 
 OBJECTS_REL = $(OBJ_REL)/$(TARGET_RELEASE)/$(TARGET_RELEASE).o
@@ -96,6 +97,7 @@ $(LIB)/libcla_rel.so: $(OBJECTS_REL)
 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/tests_lib/. -type f -regex ".*\.o") \
 	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
 
+
 libtests: $(TEST_OBJs)
 #----------------	PHONYs	------------------#
 
@@ -114,11 +116,11 @@ build:
 
 
 silent_test:
-	@make -s CFLAGS='-std=c++98 -g -I$(INC)' build
+	@make -s CFLAGS='-std=c++98 -g -I$(INC) -I$(INC_SHAPE)' build
 	@./$(BIN)/$(TARGET)
 
 nw_test:
-	@make CFLAGS='-std=c++98 -g -I$(INC)' build
+	@make CFLAGS='-std=c++98 -g -I$(INC) -I$(INC_SHAPE)' build
 	@./$(BIN)/$(TARGET)
 
 nmw_test:
@@ -167,11 +169,11 @@ release:
 	@make $(BIN)/$(TARGET_RELEASE)
 
 silent_test_release:
-	@make -s RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release
+	@make -s RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC) -I$(INC_SHAPE)' release
 	@./$(BIN)/$(TARGET_RELEASE)
 
 nw_test_release:
-	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release
+	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC) -I$(INC_SHAPE)' release
 	@./$(BIN)/$(TARGET_RELEASE)
 
 
@@ -227,5 +229,6 @@ clean :
 	@rm -f -r $(LIB)
 	@rm -f -r $(OBJ_REL)
 	@rm -f -r $(OBJ)
+
 
 
