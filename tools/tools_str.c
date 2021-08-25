@@ -26,7 +26,7 @@ int ValidStrUnEqual(const char *str1, const char *str2, const char *message, int
 {
 	if (Validate(!strcmp(str1, str2), message, line))
 	{
-		printf("%s not equal ", str1);
+		printf("%s is equal ", str1);
 		printf("%s \n", str2);
 
 		return 1;

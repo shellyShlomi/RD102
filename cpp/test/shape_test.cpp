@@ -45,7 +45,7 @@ void TestShape()
     std::cout << std::endl;
     std::cout << std::endl;
 
-    PrintShapes(shape_l);
+    ilrd::PrintShapes(shape_l);
 
     std::cout << std::endl;
 

@@ -22,7 +22,6 @@ int Validate(int expression, const char *message, int line)
 	return EXIT_SUCCESS;
 }
 
-
 int Valid(int expression, const char *message, int line)
 {
 	++count;
