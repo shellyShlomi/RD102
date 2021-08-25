@@ -31,73 +31,73 @@ SOFLAG_SECOND = -shared
 #----------------DEBUG------------------#
 
 silent_test: 
-	@make -s -f ./.make/libtests
-	@make -s -f ./.make/run_silent
+	@make -s -f ./make/libtests
+	@make -s -f ./make/run_silent
 
 nw_test: 
-	@make -f ./.make/libtests
-	@make -f ./.make/run_NW
+	@make -f ./make/libtests
+	@make -f ./make/run_NW
 
 nmw_test: 
-	@make -s -f ./.make/libtests
-	@make -s -f ./.make/run_no_make_worning
+	@make -s -f ./make/libtests
+	@make -s -f ./make/run_no_make_worning
 
 test: 
-	@make -f ./.make/libtests
-	@make -f ./.make/run
+	@make -f ./make/libtests
+	@make -f ./make/run
 
 build: 
-	@make -f ./.make/libtests
-	@make -f ./.make/build
+	@make -f ./make/libtests
+	@make -f ./make/build
 
 so_debug: 
-	@make -f ./.make/libtests
-	@make -f ./.make/shared_obj_debug
+	@make -f ./make/libtests
+	@make -f ./make/shared_obj_debug
 
 vlgT: 
-	@make -f ./.make/libtests
-	@make -f ./.make/runV
+	@make -f ./make/libtests
+	@make -f ./make/runV
 
 hlgT: 
-	@make -f ./.make/libtests
-	@make -f ./.make/runH
+	@make -f ./make/libtests
+	@make -f ./make/runH
 
 update_debug: 
-	@make -f ./.make/libtests
-	@make -f ./.make/update_debug
+	@make -f ./make/libtests
+	@make -f ./make/update_debug
 
 #----------------RELEASE------------------#
 	
 	
 silent_test_release: 
-	@make -f ./.make/libtests
-	@make -s -f ./.make/run_rel_silent
+	@make -f ./make/libtests
+	@make -s -f ./make/run_rel_silent
 
 nw_test_release: 
-	@make -f ./.make/libtests
-	@make -f ./.make/run_rel_NW
+	@make -f ./make/libtests
+	@make -f ./make/run_rel_NW
 
 nmw_test_release: 
 	@make -s libtests_r
-	@make -s -f ./.make/run_rel_no_make_worning
+	@make -s -f ./make/run_rel_no_make_worning
 
 test_release: libtests_r
-	@make -f ./.make/run_rel
+	@make -f ./make/run_rel
 
 release: libtests_r
-	@make -f ./.make/releass
+	@make -f ./make/releass
 
 so_release: libtests_r
-	@make -f ./.make/shared_obj_release
+	@make -f ./make/shared_obj_release
 
 vlgT_release: libtests_r
-	@make -f ./.make/runV_rel
+	@make -f ./make/runV_rel
 
 hlgT_release: libtests_r
-	@make -f ./.make/runH_rel
+	@make -f ./make/runH_rel
 
 update_release: libtests_r
-	@make -f ./.make/update_release
+	@make -f ./make/update_release
 
 #----------------GENERAL------------------#
 $(OBJ)/tests_lib/%.o: ../../tools/%.c
@@ -117,19 +117,19 @@ libtests_r: CFLAGS = $(RELEASE_FLAGS)
 libtests_r: libtests
 
 change:
-	@make -f ./.make/change
+	@make -f ./make/change
 
 
 clean :
-	@make -f ./.make/clean
+	@make -f ./make/clean
 
 
 
 clean_d :
 	@rm -f -r $(OBJ)
-	@make -f ./.make/clean_d
+	@make -f ./make/clean_d
 
 
 clean_r :
 	@rm -f -r $(OBJ_REL)
-	@make -f ./.make/clean_r
+	@make -f ./make/clean_r
