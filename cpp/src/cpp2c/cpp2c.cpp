@@ -1,7 +1,8 @@
 #include <iostream> //cout
 using namespace std;
 
-class PublicTransport {
+class PublicTransport
+{
 public:
     PublicTransport() : m_license_plate(++s_count)
     {
@@ -28,6 +29,7 @@ public:
     {
         cout << "s_count: " << s_count << "\n";
     }
+
 protected:
     int get_ID()
     {
@@ -42,7 +44,8 @@ private:
 
 int PublicTransport::s_count = 0;
 
-class Minibus: public PublicTransport {
+class Minibus : public PublicTransport
+{
 public:
     Minibus() : m_numSeats(20)
     {
@@ -75,7 +78,8 @@ private:
     int m_numSeats;
 };
 
-class Taxi: public PublicTransport {
+class Taxi : public PublicTransport
+{
 public:
     Taxi()
     {
@@ -100,13 +104,14 @@ public:
 private:
 };
 
-template<class T>
+template <class T>
 inline T max_func(const T &t1, const T &t2)
 {
     return ((t1 > t2) ? t1 : t2);
 }
 
-/**/class SpecialTaxi: public Taxi {
+/**/ class SpecialTaxi : public Taxi
+{
 public:
     SpecialTaxi()
     {
@@ -127,6 +132,7 @@ public:
     {
         cout << "SpecialTaxi::display() ID:" << get_ID() << "\n";
     }
+
 private:
 };
 
@@ -188,45 +194,73 @@ void taxi_display(Taxi s)
 int main(int argc, char **argv, char **envp)
 {
     Minibus m;
+    // std::cout << "------------------------------------------------" << std::endl;
     print_info(m);
-    print_info(3).display();
-    PublicTransport *array[] = { new Minibus(), new Taxi(), new Minibus() };
+    // std::cout << "------------------------------------------------" << std::endl;
 
-    for (int i = 0; i < 3; ++i) {
+    print_info(3).display();
+    // std::cout << "------------------------------------------------" << std::endl;
+
+    PublicTransport *array[] = {new Minibus(), new Taxi(), new Minibus()};
+    // //     std::cout << "------------------------------------------------" << std::endl;
+
+    for (int i = 0; i < 3; ++i)
+    {
         array[i]->display();
     }
+    // std::cout << "------------------------------------------------" << std::endl;
 
     for (int i = 0; i < 3; ++i) {
         delete array[i];
     }
 
     PublicTransport arr2[] = { Minibus(), Taxi(), PublicTransport() };
+    // std::cout << "------------------------------------------------" << std::endl;
 
     for (int i = 0; i < 3; ++i) {
         arr2[i].display();
     }
+
     print_info(arr2[0]);
+    //     std::cout << "------------------------------------------------" << std::endl;
 
     PublicTransport::print_count();
+
     Minibus m2;
+    //     std::cout << "------------------------------------------------" << std::endl;
+
     m2.print_count();
+    //     std::cout << "------------------------------------------------" << std::endl;
 
     Minibus arr3[4];
+    //     std::cout << "------------------------------------------------" << std::endl;
+
     Taxi *arr4 = new Taxi[4];
+    //     std::cout << "------------------------------------------------" << std::endl;
+
     delete[] arr4;
+    //     std::cout << "------------------------------------------------" << std::endl;
 
     std::cout << max_func(1, 2) << "\n";
-    std::cout << max_func<int>(1, 2.0f)<< "\n";
-    SpecialTaxi st;
-    taxi_display(st);
+    //     std::cout << "------------------------------------------------" << std::endl;
 
-    /*PublicConvoy *ts1 = new PublicConvoy();
-    PublicConvoy *ts2 = new PublicConvoy(*ts1);
-    ts1->display();
-    ts2->display();
-    delete ts1;
-    ts2->display(); // this crashes. fix the bug!
-    delete ts2;*/
+    std::cout << max_func<int>(1, 2.0f)<< "\n";
+    //     std::cout << "------------------------------------------------" << std::endl;
+
+        // std::cout << "------------------------------------------------" << std::endl;
+    SpecialTaxi st;
+    //     std::cout << "------------------------------------------------" << std::endl;
+
+    taxi_display(st);
+        // std::cout << "------------------------------------------------" << std::endl;
+
+    // /*PublicConvoy *ts1 = new PublicConvoy();
+    // PublicConvoy *ts2 = new PublicConvoy(*ts1);
+    // ts1->display();
+    // ts2->display();
+    // delete ts1;
+    // ts2->display(); // this crashes. fix the bug!
+    // delete ts2;*/
 
     return 0;
 }
