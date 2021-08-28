@@ -86,14 +86,14 @@ $(LIB)/libcla_cpp.so: $(OBJECTS_CPP)
 #	first -  comparison of c and cpp output files, secound -  C, third -  CPP,
 #	fourth -  general
 
-.PHONY :test_cmp for_test cpp_to_file c_to_file
-
-		build silent_test nw_test nmw_test test vlgT hlgT shared_obj 
-		update_debug clean_d
-
-		build_cpp silent_test_cpp nw_test_cpp nmw_test_cpp test_cpp vlgT_cpp   
-		hlgT_cpp shared_obj_cpp update_debug_cpp clean_d_cpp
-
+.PHONY :test_cmp for_test cpp_to_file c_to_file \
+\
+		build silent_test nw_test nmw_test test vlgT hlgT shared_obj \
+		update_debug clean_d \
+\
+		build_cpp silent_test_cpp nw_test_cpp nmw_test_cpp test_cpp vlgT_cpp \
+		hlgT_cpp shared_obj_cpp update_debug_cpp clean_d_cpp \
+\
 		shared_lib  clean  
 #----------------Comparison Of C & CPP Outפut Files------------------#
 
