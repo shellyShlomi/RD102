@@ -117,7 +117,7 @@ c_to_file:
 
 build:
 	@make shared_obj
-	@make $(BIN)/$(TARGET)_c
+	@make $(BIN)/$(TARGET_C)
 
 silent_test:
 	@make -s CFLAGS='-std=c++98 -g -I$(INC)' build
@@ -173,8 +173,8 @@ test_cpp:
 	@./$(BIN)/$(TARGET_CPP)
 
 silent_test_cpp:
-	@make -s CPPFLAGS='-std=c++98 -g -I$(INC)' build
-	@./$(BIN)/$(TARGET)
+	@make -s CPPFLAGS='-std=c++98 -g -I$(INC)' build_cpp
+	@./$(BIN)/$(TARGET_CPP)
 
 nw_test_cpp:
 	@make CPPFLAGS='-std=c++98 -g -I$(INC)' build_cpp
