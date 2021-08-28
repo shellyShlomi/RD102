@@ -120,11 +120,11 @@ build:
 	@make $(BIN)/$(TARGET_C)
 
 silent_test:
-	@make -s CFLAGS='-std=c++98 -g -I$(INC)' build
+	@make -s CFLAGS='-std=c99 -g -I$(INC) ' build
 	@./$(BIN)/$(TARGET_C)
 
 nw_test:
-	@make CFLAGS='-std=c++98 -g -I$(INC)' build
+	@make CFLAGS='-std=c99 -g -I$(INC) ' build
 	@./$(BIN)/$(TARGET_C)
 
 nmw_test:
