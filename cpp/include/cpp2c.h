@@ -23,7 +23,7 @@ typedef enum type_id
     SPECIALTAXI,
     NUM_OF_TYPE,
 } typeid_t;
-
+/* 
 struct PublicTransport
 {
     vtable_t *vptr;
@@ -49,8 +49,8 @@ struct SpecialTaxi
     vtable_t *vptr;
     Taxi_t m_superclass;
 };
+ */
 /******************************* FDecleretions *******************************/
-
 void PublicTransportCreat(PublicTransport_t *pt);
 void PublicTransportDestroy(void *pt);
 void PublicTransportCopyCreate(PublicTransport_t *pt, const PublicTransport_t *other);

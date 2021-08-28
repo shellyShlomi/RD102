@@ -1,5 +1,8 @@
-
-#made by shelly
+#*****************************************************************************#
+#-------- PHONYs command and thire meaning to test the foledr's files --------#
+#-----------------------------------------------------------------------------#
+#------------------------------- made by shelly ------------------------------#
+# ****************************************************************************#
 
 
 TARGET = $(notdir $(shell pwd))
@@ -41,20 +44,6 @@ LDFLAGS_CPP = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_cpp
 #					-------shared object flags whit thread-------					
 
 LDFLAGS_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
-
-
-#******************************** release flags ******************************** 
-#						-------not used in this make-------					
-
-SHAREDLIB_REL = lib$(TARGET)_rel.so
-
-TARGET_RELEASE = $(TARGET)_rel
-
-OBJ_REL = ../../obj_rel
-OBJECTS_REL = $(OBJ_REL)/$(TARGET_RELEASE)/$(TARGET_RELEASE).o
-RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
-LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel 
-LDFLAGS_REL_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
 
 # ********************************** debuging **********************************
 
@@ -237,6 +226,21 @@ clean :
 	@rm -f -r $(OBJ_REL)
 	@rm -f -r $(OBJ)
 	@rm -f -r $(FILE)
+
+
+
+#******************************** release flags ******************************** 
+#						-------not used in this make-------					
+
+SHAREDLIB_REL = lib$(TARGET)_rel.so
+
+TARGET_RELEASE = $(TARGET)_rel
+
+OBJ_REL = ../../obj_rel
+OBJECTS_REL = $(OBJ_REL)/$(TARGET_RELEASE)/$(TARGET_RELEASE).o
+RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
+LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel 
+LDFLAGS_REL_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
 
 
 #----------------RELEASE PHONYs------------------#

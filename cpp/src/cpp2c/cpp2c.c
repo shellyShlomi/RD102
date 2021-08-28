@@ -2,6 +2,9 @@
 #include <stdio.h> /*printf*/
 
 #include "cpp2c.h"
+
+/******************************* Struct Definition *******************************/
+
 struct vtable
 {
     void (*Dtor)(void *);
@@ -14,6 +17,33 @@ struct vtable_mb
     void (*Display)(void const *);
     void (*Wash)(void *, int);
 };
+
+struct PublicTransport
+{
+    vtable_t *vptr;
+    void (*PrintCount)(void);
+    int m_license_plate;
+};
+
+struct Minibus
+{
+    vtable_mb_t *vptr;
+    PublicTransport_t m_superclass;
+    int m_numSeats;
+};
+
+struct Taxi
+{
+    vtable_t *vptr;
+    PublicTransport_t m_superclass;
+};
+
+struct SpecialTaxi
+{
+    vtable_t *vptr;
+    Taxi_t m_superclass;
+};
+
 /******************************* Static Data Memb ******************************/
 
 static int PublicTransport_s_count = 0;
