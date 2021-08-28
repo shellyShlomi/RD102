@@ -2,26 +2,56 @@
 #include <stdio.h> /*printf*/
 
 #include "cpp2c.h"
+struct vtable
+{
+    void (*Dtor)(void *);
+    void (*Display)(void const *);
+};
 
-/******************************* Static Data Memb *******************************/
+struct vtable_mb
+{
+    void (*Dtor)(void *);
+    void (*Display)(void const *);
+    void (*Wash)(void *, int);
+};
+/******************************* Static Data Memb ******************************/
 
 static int PublicTransport_s_count = 0;
 
-/********************************* Static SizeOf *********************************/
+/******************************** Static SizeOf ********************************/
 
 size_t GetSizeof(typeid_t type)
 {
-    static size_t types_size[NUM_OF_TYPE] = {sizeof(PublicTransport_t), sizeof(Minibus_t), sizeof(Taxi_t), sizeof(SpecialTaxi_t)};
+    static size_t types_size[NUM_OF_TYPE] = {   sizeof(PublicTransport_t), 
+                                                sizeof(Minibus_t), 
+                                                sizeof(Taxi_t), 
+                                                sizeof(SpecialTaxi_t)
+                                            };
     return (types_size[type]);
 }
 
-/************************************ V-Table ************************************/
+/******************************** Static V-Table *******************************/
+
+vtable_mb_t *GetVtableMB()
+{
+    static vtable_mb_t g_minibus_vtble = {MinibusDestroy, MinibusDisplay, Wash};
+    return (&g_minibus_vtble);
+}
+
+
 vtable_t *GetVtable(typeid_t type)
 {
-    static vtable_t g_publictransport_vtble = {PublicTransportDestroy, PublicTransportDisplay, Wash};
-    static vtable_t g_minibus_vtble = {MinibusDestroy, MinibusDisplay, Wash};
-    static vtable_t g_taxi_vtble = {TaxiDestroy, TaxiDisplay, Wash};
-    static vtable_t g_staxi_vtble = {SpecialTaxiDestroy, SpecialTaxiDisplay, Wash};
+    static vtable_t g_publictransport_vtble = { PublicTransportDestroy, 
+                                                PublicTransportDisplay
+                                                };
+
+    static vtable_t g_taxi_vtble = {    TaxiDestroy, 
+                                        TaxiDisplay
+                                    };
+
+    static vtable_t g_staxi_vtble = {   SpecialTaxiDestroy, 
+                                        SpecialTaxiDisplay
+                                    };
 
     vtable_t *return_table = NULL;
 
@@ -29,13 +59,7 @@ vtable_t *GetVtable(typeid_t type)
     {
     case PUBLICTRANSPORT:
     {
-
         return_table = &g_publictransport_vtble;
-        break;
-    }
-    case MINIBUS:
-    {
-        return_table = &g_minibus_vtble;
         break;
     }
     case TAXI:
@@ -196,7 +220,7 @@ void MinibusCreate(Minibus_t *mb)
 {
     PublicTransportCreat(&(mb->m_superclass));
 
-    mb->vptr = GetVtable(MINIBUS);
+    mb->vptr = GetVtableMB();
     mb->m_numSeats = 20;
 
     printf("Minibus::Ctor()\n");

@@ -8,9 +8,6 @@ TARGET_CPP = $(notdir $(shell pwd))_cpp
 
 
 SHAREDLIB = lib$(TARGET).so
-SHAREDLIB_REL = lib$(TARGET)_rel.so
-
-TARGET_RELEASE = $(TARGET)_rel
 
 
 SRC = .
@@ -18,14 +15,8 @@ LIB = ../../lib
 TEST = ../../test
 INC = ../../include 
 BIN = ../../bin
-FILE = $(SRC)/file
-
 OBJ = ../../obj
-OBJ_REL = ../../obj_rel
-OBJECTS_REL = $(OBJ_REL)/$(TARGET_RELEASE)/$(TARGET_RELEASE).o
-RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
-LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel 
-
+FILE = $(SRC)/file
 
 CPP = g++
 CC = gcc
@@ -33,8 +24,8 @@ CC = gcc
 CFLAGS =  -std=c99 -pedantic-errors -Wall -Wextra -g -I$(INC) 
 CPPFLAGS = -std=c++98 -pedantic-errors -Wall -Wextra -g -I$(INC) 
 
-OBJECTS = $(OBJ)/$(TARGET_C)/$(TARGET_C).o 
-OBJECTS_CPP = $(OBJ)/$(TARGET_CPP)/$(TARGET)_cpp.o 
+OBJECTS = $(OBJ)/$(TARGET)/$(TARGET_C)/$(TARGET_C).o 
+OBJECTS_CPP = $(OBJ)/$(TARGET)/$(TARGET_CPP)/$(TARGET)_cpp.o 
 
 # ************************* source & test sourec files *************************
 SOURCE = $(SRC)/$(TARGET).c
@@ -50,6 +41,19 @@ LDFLAGS_CPP = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_cpp
 #					-------shared object flags whit thread-------					
 
 LDFLAGS_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
+
+
+#******************************** release flags ******************************** 
+#						-------not used in this make-------					
+
+SHAREDLIB_REL = lib$(TARGET)_rel.so
+
+TARGET_RELEASE = $(TARGET)_rel
+
+OBJ_REL = ../../obj_rel
+OBJECTS_REL = $(OBJ_REL)/$(TARGET_RELEASE)/$(TARGET_RELEASE).o
+RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) 
+LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel 
 LDFLAGS_REL_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
 
 # ********************************** debuging **********************************
@@ -80,35 +84,18 @@ $(OBJECTS_CPP): $(SOURCE_CPP)
 $(BIN)/$(TARGET_CPP): $(SOURCE_CPP) $(OBJECTS_CPP) $(LIB)/libcla_cpp.so
 	$(CPP) $(CPPFLAGS) $(LDFLAGS_CPP) $< -o $@ $(LIB)/libcla_cpp.so 
 
-#----------------release rules------------------#
-
-$(OBJECTS_REL): $(SOURCE)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_FIRST) $< -o $@ 
-
-$(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)  
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $^ -o $@ 
-
-
-$(BIN)/$(TARGET_RELEASE): $(OBJECTS_REL) $(LIB)/libcla_rel.so
-	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/libcla_rel.so  
-
-$(LIB)/libcla_rel.so: $(OBJECTS_REL)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) \
-	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
-
-
 #----------------	shered librery (C & CPP)	------------------#
 
 $(LIB)/libcla.so: $(OBJECTS)
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/$(TARGET_C)/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/$(TARGET)/$(TARGET_C)/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
 
 
 $(LIB)/libcla_cpp.so: $(OBJECTS_CPP)
-	$(CPP) $(CPPFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/$(TARGET_CPP)/. -type f -regex ".*\.o")  -o $(LIB)/libcla_cpp.so
+	$(CPP) $(CPPFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/$(TARGET)/$(TARGET_CPP)/. -type f -regex ".*\.o")  -o $(LIB)/libcla_cpp.so
 
 #----------------	PHONYs	------------------#
 #	first -  comparison of c and cpp output files, secound -  C, third -  CPP,
-#	fourth -  reless, fifth -  general
+#	fourth -  general
 
 .PHONY :test_cmp for_test cpp_to_file c_to_file
 
@@ -118,14 +105,7 @@ $(LIB)/libcla_cpp.so: $(OBJECTS_CPP)
 		build_cpp silent_test_cpp nw_test_cpp nmw_test_cpp test_cpp vlgT_cpp   
 		hlgT_cpp shared_obj_cpp update_debug_cpp clean_d_cpp
 
-		release silent_test_release nw_test_release nmw_test_release test_release  
-		hlgT_release vlgT_release release_so update_release clean_r
-
 		shared_lib  clean  
-
-
-
-
 #----------------Comparison Of C & CPP Outפut Files------------------#
 
 test_cmp:
@@ -175,7 +155,7 @@ hlgT:
 	@$(HLG) ./$(BIN)/$(TARGET_C)
 
 shared_obj:
-	@mkdir -p $(OBJ)/$(TARGET_C)  
+	@mkdir -p $(OBJ)/$(TARGET)/$(TARGET_C)  
 	@mkdir -p $(LIB)/  
 	@mkdir -p $(BIN)/  
 	@make $(LIB)/libcla.so
@@ -224,7 +204,7 @@ hlgT_cpp:
 	@$(HLG) ./$(BIN)/$(TARGET_CPP)
 
 shared_obj_cpp:
-	@mkdir -p $(OBJ)/$(TARGET_CPP)  
+	@mkdir -p $(OBJ)/$(TARGET)/$(TARGET_CPP)  
 	@mkdir -p $(LIB)/  
 	@mkdir -p $(BIN)/  
 	@make $(LIB)/libcla_cpp.so
@@ -239,6 +219,48 @@ clean_d_cpp:
 	@rm -f -r  $(BIN)/$(TARGET_CPP)
 	@rm -f -r $(LIB)/libcla_cpp.so 
 	@rm -f -r $(OBJ)/$(TARGET_CPP) 
+
+
+
+#----------------GENERAL------------------#
+
+
+shared_lib:
+	@make $(LIB)/libcla_rel.so
+	@make $(LIB)/libcla.so
+	@make $(LIB)/libcla_cpp.so
+
+
+clean :
+	@rm -f -r  $(BIN)
+	@rm -f -r $(LIB)
+	@rm -f -r $(OBJ_REL)
+	@rm -f -r $(OBJ)
+	@rm -f -r $(FILE)
+
+
+#----------------RELEASE PHONYs------------------#
+
+#	release silent_test_release nw_test_release nmw_test_release test_release  
+#	hlgT_release vlgT_release release_so update_release clean_r
+
+
+#----------------release rules------------------#
+
+$(OBJECTS_REL): $(SOURCE)
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_FIRST) $< -o $@ 
+
+$(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)  
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $^ -o $@ 
+
+
+$(BIN)/$(TARGET_RELEASE): $(OBJECTS_REL) $(LIB)/libcla_rel.so
+	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/libcla_rel.so  
+
+$(LIB)/libcla_rel.so: $(OBJECTS_REL)
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) \
+	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
+
 
 #----------------RELEASE------------------#
 
@@ -293,23 +315,5 @@ clean_r :
 	@rm -f -r $(LIB)/$(SHAREDLIB_REL)  
 	@rm -f -r  $(LIB)/libcla_rel.so
 	@rm -f -r  $(OBJ_REL)/$(TARGET_RELEASE) 
-
-
-#----------------GENERAL------------------#
-
-
-shared_lib:
-	@make $(LIB)/libcla_rel.so
-	@make $(LIB)/libcla.so
-	@make $(LIB)/libcla_cpp.so
-
-
-clean :
-	@rm -f -r  $(BIN)
-	@rm -f -r $(LIB)
-	@rm -f -r $(OBJ_REL)
-	@rm -f -r $(OBJ)
-	@rm -f -r $(FILE)
-
 
 

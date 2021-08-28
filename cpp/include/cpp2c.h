@@ -3,9 +3,9 @@
 
 #include <stddef.h> /* size_t */
 
-
 #define UNUSED(x) ((void)(x))
 
+typedef struct vtable_mb vtable_mb_t;
 typedef struct vtable vtable_t;
 
 typedef struct PublicTransport PublicTransport_t;
@@ -14,13 +14,6 @@ typedef struct Taxi Taxi_t;
 typedef struct SpecialTaxi SpecialTaxi_t;
 
 /******************************* Struct Definition *******************************/
-
-struct vtable
-{
-    void (*Dtor)(void *);
-    void (*Display)(void const *);
-    void (*Wash)(void *, int);
-};
 
 typedef enum type_id
 {
@@ -40,7 +33,7 @@ struct PublicTransport
 
 struct Minibus
 {
-    vtable_t *vptr;
+    vtable_mb_t *vptr;
     PublicTransport_t m_superclass;
     int m_numSeats;
 };
@@ -57,7 +50,6 @@ struct SpecialTaxi
     Taxi_t m_superclass;
 };
 /******************************* FDecleretions *******************************/
-
 
 void PublicTransportCreat(PublicTransport_t *pt);
 void PublicTransportDestroy(void *pt);
@@ -87,6 +79,8 @@ int SpecialTaxiGetID(SpecialTaxi_t *const s_tx);
 
 size_t GetSizeof(typeid_t type);
 vtable_t *GetVtable(typeid_t type);
+vtable_mb_t *GetVtableMB();
+
 void *Allocet(void **location, size_t size_of_alloc);
 void *Init(void **obj_ptr, typeid_t flag);
 
