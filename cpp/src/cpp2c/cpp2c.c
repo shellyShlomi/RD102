@@ -130,17 +130,17 @@ void *Init(void **obj_ptr, typeid_t flag)
     }
     case MINIBUS:
     {
-        MinibusCreate((Minibus_t *)*obj_ptr);
+        MinibusCreate((Minibus_t *)(*obj_ptr));
         break;
     }
     case TAXI:
     {
-        TaxiCreate((Taxi_t *)*obj_ptr);
+        TaxiCreate((Taxi_t *)(*obj_ptr));
         break;
     }
     case SPECIALTAXI:
     {
-        SpecialTaxiCreate((SpecialTaxi_t *)*obj_ptr);
+        SpecialTaxiCreate((SpecialTaxi_t *)(*obj_ptr));
         break;
     }
     default:
@@ -249,7 +249,7 @@ int GetID(PublicTransport_t *const pt)
 
 void MinibusCreate(Minibus_t *mb)
 {
-    PublicTransportCreat(&(mb->m_superclass));
+    PublicTransportCreat((PublicTransport_t *)mb);
 
     ((PublicTransport_t *)mb)->vptr = GetVtable(MINIBUS);
     mb->m_numSeats = 20;
