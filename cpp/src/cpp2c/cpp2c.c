@@ -1,3 +1,11 @@
+// Developer: Shelly Shlomi
+// Status: Approved
+// Reviewer: Yakov .M|.
+// Group: RD102
+// date: 29.8.21
+// description: Implementation cpp2c
+
+
 #include <stdlib.h> /* malloc */
 #include <stdio.h>  /*printf*/
 
@@ -167,20 +175,6 @@ void PrintInfoMinibus(Minibus_t *mb)
 {
     ((PublicTransport_t *)mb)->vptr->Wash(mb, 3);
     return;
-}
-
-PublicTransport_t PrintInfoInt(int i)
-{
-    UNUSED(i);
-    Minibus_t mb;
-    MinibusCreate(&mb);
-    printf("print_info(int i)\n");
-    MinibusDisplay(&mb);
-
-    PublicTransport_t pt;
-    PublicTransportCopyCreate(&pt, ((PublicTransport_t *)&mb));
-    MinibusDestroy(&mb);
-    return (pt);
 }
 
 //copy ellision

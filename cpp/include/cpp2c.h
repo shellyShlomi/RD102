@@ -5,7 +5,6 @@
 
 #define UNUSED(x) ((void)(x))
 
-typedef struct vtable_mb vtable_mb_t;
 typedef struct vtable vtable_t;
 
 typedef struct PublicTransport PublicTransport_t;
@@ -57,7 +56,6 @@ void *Init(void **obj_ptr, typeid_t flag);
 void PrintInfoPublicTransport(PublicTransport_t *pt);
 void PrintInfoVoid();
 void PrintInfoMinibus(Minibus_t *mb);
-PublicTransport_t PrintInfoInt(int i);
 PublicTransport_t *PrintInfoIntAndHiden(PublicTransport_t *hiden, int i);
 
 int MaxFunc(const int *t1, const int *t2);
