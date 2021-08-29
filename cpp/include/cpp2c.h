@@ -53,7 +53,11 @@ int SpecialTaxiGetID(SpecialTaxi_t *const s_tx);
 
 size_t GetSizeof(typeid_t type);
 vtable_t *GetVtable(typeid_t type);
-vtable_mb_t *GetVtableMB();
+
+vtable_t *GetVptrPT(PublicTransport_t *pt);
+vtable_t *GetVptrMB(Minibus_t *mb);
+vtable_t *GetVptrTX(Taxi_t *tx);
+vtable_t *GetVptrSTX(SpecialTaxi_t *s_tx);
 
 void *Allocet(void **location, size_t size_of_alloc);
 void *Init(void **obj_ptr, typeid_t flag);

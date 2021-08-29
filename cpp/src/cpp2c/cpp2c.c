@@ -1,17 +1,11 @@
 #include <stdlib.h> /* malloc */
-#include <stdio.h> /*printf*/
+#include <stdio.h>  /*printf*/
 
 #include "cpp2c.h"
 
 /******************************* Struct Definition *******************************/
 
 struct vtable
-{
-    void (*Dtor)(void *);
-    void (*Display)(void const *);
-};
-
-struct vtable_mb
 {
     void (*Dtor)(void *);
     void (*Display)(void const *);
@@ -22,26 +16,27 @@ struct PublicTransport
 {
     vtable_t *vptr;
     void (*PrintCount)(void);
+    vtable_t *(*GetVptr)(PublicTransport_t *pt);
     int m_license_plate;
 };
 
 struct Minibus
 {
-    vtable_mb_t *vptr;
     PublicTransport_t m_superclass;
+    vtable_t *(*GetVptr)(Minibus_t *mb);
     int m_numSeats;
 };
 
 struct Taxi
 {
-    vtable_t *vptr;
     PublicTransport_t m_superclass;
+    vtable_t *(*GetVptr)(Taxi_t *tx);
 };
 
 struct SpecialTaxi
 {
-    vtable_t *vptr;
     Taxi_t m_superclass;
+    vtable_t *(*GetVptr)(SpecialTaxi_t *s_tx);
 };
 
 /******************************* Static Data Memb ******************************/
@@ -52,36 +47,30 @@ static int PublicTransport_s_count = 0;
 
 size_t GetSizeof(typeid_t type)
 {
-    static size_t types_size[NUM_OF_TYPE] = {   sizeof(PublicTransport_t), 
-                                                sizeof(Minibus_t), 
-                                                sizeof(Taxi_t), 
-                                                sizeof(SpecialTaxi_t)
-                                            };
+    static size_t types_size[NUM_OF_TYPE] = {sizeof(PublicTransport_t),
+                                             sizeof(Minibus_t),
+                                             sizeof(Taxi_t),
+                                             sizeof(SpecialTaxi_t)};
     return (types_size[type]);
 }
 
 /******************************** Static V-Table *******************************/
 
-vtable_mb_t *GetVtableMB()
-{
-    static vtable_mb_t g_minibus_vtble = {MinibusDestroy, MinibusDisplay, Wash};
-    return (&g_minibus_vtble);
-}
-
-
 vtable_t *GetVtable(typeid_t type)
 {
-    static vtable_t g_publictransport_vtble = { PublicTransportDestroy, 
-                                                PublicTransportDisplay
-                                                };
+    static vtable_t g_publictransport_vtble = {PublicTransportDestroy,
+                                               PublicTransportDisplay,
+                                               NULL};
 
-    static vtable_t g_taxi_vtble = {    TaxiDestroy, 
-                                        TaxiDisplay
-                                    };
+    static vtable_t g_minibus_vtble = {MinibusDestroy,
+                                       MinibusDisplay,
+                                       Wash};
 
-    static vtable_t g_staxi_vtble = {   SpecialTaxiDestroy, 
-                                        SpecialTaxiDisplay
-                                    };
+    static vtable_t g_taxi_vtble = {TaxiDestroy,
+                                    TaxiDisplay, NULL};
+
+    static vtable_t g_staxi_vtble = {SpecialTaxiDestroy,
+                                     SpecialTaxiDisplay, NULL};
 
     vtable_t *return_table = NULL;
 
@@ -90,6 +79,11 @@ vtable_t *GetVtable(typeid_t type)
     case PUBLICTRANSPORT:
     {
         return_table = &g_publictransport_vtble;
+        break;
+    }
+    case MINIBUS:
+    {
+        return_table = &g_minibus_vtble;
         break;
     }
     case TAXI:
@@ -174,7 +168,7 @@ void PrintInfoVoid()
 
 void PrintInfoMinibus(Minibus_t *mb)
 {
-    mb->vptr->Wash(mb, 3);
+    mb->m_superclass.vptr->Wash(mb, 3);
     return;
 }
 
@@ -205,7 +199,7 @@ void S_TaxiDisplay(Taxi_t s)
 void PublicTransportCreat(PublicTransport_t *pt)
 {
     pt->vptr = GetVtable(PUBLICTRANSPORT);
-
+    pt->GetVptr = GetVptrPT;
     ++PublicTransport_s_count;
     pt->m_license_plate = PublicTransport_s_count;
 
@@ -227,7 +221,7 @@ void PublicTransportCopyCreate(PublicTransport_t *pt, const PublicTransport_t *o
 {
     UNUSED(other);
     pt->vptr = GetVtable(PUBLICTRANSPORT);
-
+    pt->GetVptr = GetVptrPT;
     ++PublicTransport_s_count;
     pt->m_license_plate = PublicTransport_s_count;
 
@@ -244,13 +238,19 @@ int PublicTransportGetID(PublicTransport_t *const pt)
     return (pt->m_license_plate);
 }
 
+vtable_t *GetVptrPT(PublicTransport_t *pt)
+{
+    return (pt->vptr);
+}
+
 /**************************** Minibus *******************************/
 
 void MinibusCreate(Minibus_t *mb)
 {
     PublicTransportCreat(&(mb->m_superclass));
+    mb->GetVptr = GetVptrMB;
 
-    mb->vptr = GetVtableMB();
+    mb->m_superclass.vptr = GetVtable(MINIBUS);
     mb->m_numSeats = 20;
 
     printf("Minibus::Ctor()\n");
@@ -275,6 +275,11 @@ int MinibusGetID(Minibus_t *const mb)
     return (mb->m_superclass.m_license_plate);
 }
 
+vtable_t *GetVptrMB(Minibus_t *mb)
+{
+    return (GetVptrPT(&(mb->m_superclass)));
+}
+
 void Wash(void *obj, int minutes)
 {
     printf("Minibus::wash(%d) ID:%d\n", minutes, PublicTransportGetID(&((Minibus_t *)obj)->m_superclass));
@@ -285,8 +290,21 @@ void Wash(void *obj, int minutes)
 void TaxiCreate(Taxi_t *tx)
 {
     PublicTransportCreat(&(tx->m_superclass));
-    tx->vptr = GetVtable(TAXI);
+    tx->m_superclass.vptr = GetVtable(TAXI);
+    tx->GetVptr = GetVptrTX;
+
     printf("Taxi::Ctor()\n");
+    return;
+}
+
+void TaxiCopyCreate(Taxi_t *tx, const Taxi_t *other)
+{
+    PublicTransportCopyCreate(&tx->m_superclass, &other->m_superclass);
+    printf("Taxi::CCtor()\n");
+    tx->m_superclass.vptr = GetVtable(TAXI);
+    tx->GetVptr = GetVptrTX;
+
+    TaxiGetID(tx);
     return;
 }
 
@@ -307,14 +325,9 @@ int TaxiGetID(Taxi_t *const tx)
     return (tx->m_superclass.m_license_plate);
 }
 
-void TaxiCopyCreate(Taxi_t *tx, const Taxi_t *other)
+vtable_t *GetVptrTX(Taxi_t *tx)
 {
-    PublicTransportCopyCreate(&tx->m_superclass, &other->m_superclass);
-    printf("Taxi::CCtor()\n");
-    tx->vptr = GetVtable(TAXI);
-
-    TaxiGetID(tx);
-    return;
+    return (GetVptrPT(&(tx->m_superclass)));
 }
 
 /**************************** SpecialTaxi *******************************/
@@ -322,7 +335,8 @@ void TaxiCopyCreate(Taxi_t *tx, const Taxi_t *other)
 void SpecialTaxiCreate(SpecialTaxi_t *s_tx)
 {
     TaxiCreate(&(s_tx->m_superclass));
-    s_tx->vptr = GetVtable(SPECIALTAXI);
+    s_tx->m_superclass.m_superclass.vptr = GetVtable(SPECIALTAXI);
+    s_tx->GetVptr = GetVptrSTX;
 
     printf("SpecialTaxi::Ctor()\n");
     return;
@@ -344,6 +358,11 @@ int SpecialTaxiGetID(SpecialTaxi_t *const s_tx)
 {
     return (s_tx->m_superclass.m_superclass.m_license_plate);
 }
+
+vtable_t *GetVptrSTX(SpecialTaxi_t *s_tx)
+{
+    return (GetVptrTX(&(s_tx->m_superclass)));
+}
 /**************************** main *******************************/
 
 int main(int argc, char **argv, char **envp)
@@ -359,19 +378,21 @@ int main(int argc, char **argv, char **envp)
     PublicTransportDestroy(&pt);
 
     PublicTransport_t *array[3] = {NULL};
-
-    array[0] = Init(Allocet((void **)(array), GetSizeof(MINIBUS)), MINIBUS);
-    array[1] = Init(Allocet((void **)(array + 1), GetSizeof(TAXI)), TAXI);
-    array[2] = Init(Allocet((void **)(array + 2), GetSizeof(MINIBUS)), MINIBUS);
+    Allocet((void **)(array), GetSizeof(MINIBUS));
+    MinibusCreate((Minibus_t *)*array);
+    Allocet((void **)(array + 1), GetSizeof(TAXI));
+    TaxiCreate((Taxi_t *)*(array + 1));
+    Allocet((void **)(array + 2), GetSizeof(MINIBUS));
+    MinibusCreate((Minibus_t *)*(array + 2));
 
     for (size_t i = 0; i < 3; ++i)
     {
-        array[i]->vptr->Display(array[i]);
+        array[i]->GetVptr(array[i])->Display(array[i]);
     }
 
     for (size_t i = 0; i < 3; ++i)
     {
-        array[i]->vptr->Dtor(array[i]);
+        array[i]->GetVptr(array[i])->Dtor(array[i]);
         free(array[i]);
     }
 
@@ -393,7 +414,7 @@ int main(int argc, char **argv, char **envp)
 
     for (size_t i = 0; i < 3; ++i)
     {
-        arr2[i].vptr->Display(arr2 + i);
+        arr2[i].GetVptr(arr2 + i)->Display(arr2 + i);
     }
 
     PrintInfoPublicTransport(arr2 + 0);
@@ -420,7 +441,7 @@ int main(int argc, char **argv, char **envp)
 
     for (size_t i = 0; i < 4; ++i)
     {
-        (arr4 + (3 - i))->vptr->Dtor(arr4 + (3 - i));
+        (arr4 + (3 - i))->GetVptr((arr4 + (3 - i)))->Dtor(arr4 + (3 - i));
     }
 
     free(arr4);
