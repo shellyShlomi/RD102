@@ -29,35 +29,27 @@ void PublicTransportCreat(PublicTransport_t *pt);
 void PublicTransportDestroy(void *pt);
 void PublicTransportCopyCreate(PublicTransport_t *pt, const PublicTransport_t *other);
 void PublicTransportDisplay(void const *pt);
-int PublicTransportGetID(PublicTransport_t *const pt);
+int GetID(PublicTransport_t *const pt);
 void PublicTransportInit(PublicTransport_t **pt);
 
 void MinibusCreate(Minibus_t *mb);
 void MinibusDestroy(void *mb);
 void MinibusDisplay(void const *mb);
-int MinibusGetID(Minibus_t *const mb);
 void Wash(void *obj, int minutes);
 
 void TaxiCreate(Taxi_t *tx);
 void TaxiCopyCreate(Taxi_t *tx, const Taxi_t *other);
 void TaxiDestroy(void *tx);
 void TaxiDisplay(void const *tx);
-int TaxiGetID(Taxi_t *const tx);
 
 void SpecialTaxiCreate(SpecialTaxi_t *s_tx);
 void SpecialTaxiDestroy(void *s_tx);
 void SpecialTaxiDisplay(void const *s_tx);
-int SpecialTaxiGetID(SpecialTaxi_t *const s_tx);
 
 /**************************** general *******************************/
 
 size_t GetSizeof(typeid_t type);
 vtable_t *GetVtable(typeid_t type);
-
-vtable_t *GetVptrPT(PublicTransport_t *pt);
-vtable_t *GetVptrMB(Minibus_t *mb);
-vtable_t *GetVptrTX(Taxi_t *tx);
-vtable_t *GetVptrSTX(SpecialTaxi_t *s_tx);
 
 void *Allocet(void **location, size_t size_of_alloc);
 void *Init(void **obj_ptr, typeid_t flag);
@@ -66,6 +58,7 @@ void PrintInfoPublicTransport(PublicTransport_t *pt);
 void PrintInfoVoid();
 void PrintInfoMinibus(Minibus_t *mb);
 PublicTransport_t PrintInfoInt(int i);
+PublicTransport_t *PrintInfoIntAndHiden(PublicTransport_t *hiden, int i);
 
 int MaxFunc(const int *t1, const int *t2);
 
