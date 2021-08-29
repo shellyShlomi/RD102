@@ -261,7 +261,8 @@ void MinibusCreate(Minibus_t *mb)
 void MinibusDestroy(void *mb)
 {
     printf("Minibus::Dtor()\n");
-    PublicTransportDestroy((void *)&(((Minibus_t *)mb)->m_superclass));
+    PublicTransportDestroy((void *)((PublicTransport_t *)mb));
+
     return;
 }
 
@@ -282,7 +283,7 @@ void Wash(void *obj, int minutes)
 
 void TaxiCreate(Taxi_t *tx)
 {
-    PublicTransportCreat(&(tx->m_superclass));
+    PublicTransportCreat((PublicTransport_t *)tx);
     ((PublicTransport_t *)tx)->vptr = GetVtable(TAXI);
 
     printf("Taxi::Ctor()\n");
@@ -316,7 +317,7 @@ void TaxiDisplay(void const *tx)
 
 void SpecialTaxiCreate(SpecialTaxi_t *s_tx)
 {
-    TaxiCreate(&(s_tx->m_superclass));
+    TaxiCreate(((Taxi_t *)s_tx));
     ((PublicTransport_t *)s_tx)->vptr = GetVtable(SPECIALTAXI);
 
     printf("SpecialTaxi::Ctor()\n");
