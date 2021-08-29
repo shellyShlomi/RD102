@@ -1,6 +1,6 @@
 // Developer: Shelly Shlomi
 // Status: Approved
-// Reviewer: Yakov .M|.
+// Reviewer: Yakov .M.
 // Group: RD102
 // date: 29.8.21
 // description: Implementation cpp2c
