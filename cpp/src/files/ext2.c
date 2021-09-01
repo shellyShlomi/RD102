@@ -149,7 +149,10 @@ int PrintFileContent(const char *device_path, const char *file_path)
     if (inode.i_block[i])
     {
       lseek(fd, BLOCK_OFFSET(inode.i_block[i]), SEEK_SET);
-      read(fd, file, block_size);
+      if (-1 == read(fd, file, block_size))
+      {
+        return (ERROR);
+      }
       printf("%s\n", file);
     }
   }
@@ -216,8 +219,10 @@ static int SearchDir(ext2_handle_t *ext2, char *name)
   }
 
   lseek(ext2->fd, BLOCK_OFFSET(ext2->inode->i_block[0]), SEEK_SET);
-  read(ext2->fd, block, block_size);
-
+  if (-1 == read(ext2->fd, block, block_size))
+  {
+    return (-1);
+  }
   entry = (dir_entry_t *)block;
 
   while ((size < ext2->inode->i_size) && entry->inode)
@@ -246,11 +251,11 @@ static int SearchDir(ext2_handle_t *ext2, char *name)
   return (inode_n);
 }
 
-static void ReadInode(ext2_handle_t *ext2, int inode_num)
+static int ReadInode(ext2_handle_t *ext2, int inode_num)
 {
   lseek(ext2->fd, BLOCK_OFFSET(ext2->group->bg_inode_table) + ((inode_num - 1) * sizeof(inode_t)), SEEK_SET);
-  read(ext2->fd, ext2->inode, sizeof(inode_t));
-  return;
+
+  return read(ext2->fd, ext2->inode, sizeof(inode_t));
 }
 
 int InitSuperblock(super_block_t *super_block, const char *device_path)
@@ -266,7 +271,10 @@ int InitSuperblock(super_block_t *super_block, const char *device_path)
   }
 
   lseek(fd, BASE_OFFSET, SEEK_SET); /* position head above super_block */
-  read(fd, super_block, sizeof(super_block_t));
+  if (-1 == read(fd, super_block, sizeof(super_block_t)))
+  {
+    return (-1);
+  }
 
   block_size = EXT2_BLOCK_SIZE(super_block);
 
@@ -278,16 +286,14 @@ int InitSuperblock(super_block_t *super_block, const char *device_path)
   return (fd);
 }
 
-void InitGroupDescriptor(group_desc_t *group, int fd, size_t block_size)
+int InitGroupDescriptor(group_desc_t *group, int fd, size_t block_size)
 {
   assert(group);
   assert(0 < fd);
   assert(0 < block_size);
 
   lseek(fd, block_size, SEEK_SET);
-  read(fd, group, sizeof(group_desc_t));
-
-  return;
+  return read(fd, group, sizeof(group_desc_t));
 }
 
 void InitEXT2(ext2_handle_t *ext2, super_block_t *super, group_desc_t *group, inode_t *inode, int fd)
