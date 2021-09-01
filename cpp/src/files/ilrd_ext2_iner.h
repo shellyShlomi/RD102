@@ -25,4 +25,9 @@ static void GetFileInode(ext2_handle_t *ext2, char *file_path);
 static int SearchDir(ext2_handle_t *ext2, char *name);
 static void ReadInode(ext2_handle_t *ext2, int inode_num);
 
+
+int InitSuperblock(super_block_t *super_block, const char *device_path);
+void InitGroupDescriptor(group_desc_t *group, int fd, size_t block_size);
+void InitEXT2(ext2_handle_t *ext2, super_block_t *super, group_desc_t *group, inode_t *inode, int fd);
+
 #endif /* S_S_ILRD_RD102_EXT2_INER_H */

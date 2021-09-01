@@ -6,8 +6,8 @@
 int main(int argc, char *argv[])
 {
   UNUSED(argc);
-/*   PrintSuperblock(argv[1]);
-  PrintGroupDescriptor(argv[1]); */
+   PrintSuperblock(argv[1]);
+  PrintGroupDescriptor(argv[1]); 
   PrintFileContent(argv[1], argv[2]);
   
   return (0);
