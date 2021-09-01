@@ -7,6 +7,6 @@ int main(int argc, char *argv[])
   PrintSuperblock("/dev/ram0");
   PrintGroupDescriptor("/dev/ram0");
 
-  PrintFileContent("/dev/ram0", "root");
+  PrintFileContent("/dev/ram0", "shelly.txt");
   return (0);
 }
