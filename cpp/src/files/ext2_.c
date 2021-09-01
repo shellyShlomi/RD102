@@ -161,10 +161,9 @@ int PrintFileContent(const char *device_path, const char *file_path)
   inode_t inode;
   super_block_t super;
   group_desc_t group;
-  int fd = 0;
-  size_t i = 0;
-  const size_t file_size = block_size + 1;
-  char file[EXT2_BLOCK_SIZE(&super) + 1];
+  int fd;
+  int i;
+  char file[4243456];
 
   ext2_handle_t ext2 = {0};
 
@@ -193,7 +192,6 @@ int PrintFileContent(const char *device_path, const char *file_path)
 
   for (i = 0; i < EXT2_N_BLOCKS; i++)
   {
-
     if (inode.i_block[i])
     {
       lseek(fd, BLOCK_OFFSET(inode.i_block[i] + 1), SEEK_SET);
@@ -221,7 +219,7 @@ static void GetFileInode(ext2_handle_t *ext2, char *file_path)
 
   ReadInode(ext2_loc.fd, inode_num, ext2_loc.group, &curr_inode);
 
-  /*   printf("%d\n", curr_inode.i_size);
+/*   printf("%d\n", curr_inode.i_size);
  */
   while (curr_file != NULL)
   {
