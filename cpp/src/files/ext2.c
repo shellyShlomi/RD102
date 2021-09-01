@@ -7,25 +7,17 @@
 
 #include "linux_ext2.h"
 #include "ilrd_ext2.h"
+#include "ilrd_ext2_iner.h"
 
 /* 
 mke2fs 1.45.5 (07-Jan-2020)
-Creating filesystem with 262144 4k blocks and 65536 inodes
-Filesystem UUID: 8243b37e-ade7-474b-9a1c-6860c5fd7f4e
-Superblock backups stored on blocks: 
-	32768, 98304, 163840, 229376
+Creating filesystem with 26214 4k blocks and 26240 inodes
 
 Allocating group tables: done                            
 Writing inode tables: done                            
 Writing superblocks and filesystem accounting information: done
-
 */
-
-enum errors
-{
-  SUCCESS,
-  ERROR
-};
+super_block_t InitSuperblock(const char *device_path);
 
 static size_t block_size = 0;
 
@@ -34,13 +26,17 @@ static size_t block_size = 0;
 
 int PrintSuperblock(const char *device_path)
 {
+  super_block_t super_block = InitSuperblock(device_path);
+  int fd = -1;
+  /* 
+  if (((fd = open(device_path, O_RDONLY)) < 0))
+  {
+    printf("can not open device: %s\n", device_path);
+    return (ERROR);
+  }
 
-  struct ext2_super_block super_block;
-  int fd;
-
-  fd = open(device_path, O_RDONLY);
-  lseek(fd, BASE_OFFSET, SEEK_SET); /* position head above super_block */
-  read(fd, &super_block, sizeof(struct ext2_super_block));
+  lseek(fd, BASE_OFFSET, SEEK_SET); 
+  read(fd, &super_block, sizeof(super_block_t));
 
   block_size = EXT2_BLOCK_SIZE(&super_block);
 
@@ -50,24 +46,16 @@ int PrintSuperblock(const char *device_path)
     close(fd);
 
     return (ERROR);
-  }
-
-  /*    printf("Reading super block from device %s: \n", device_path);
-  printf("Inodos count: %d \n", super_block.s_inodes_count);
-  printf("Blocks count: %d \n", super_block.s_blocks_count);
-  printf("Blocks per group: %d \n", super_block.s_blocks_per_group);
-  printf("NM: %x\n", super_block.s_magic);
-  printf("size: %d\n", block_size); */
+  } */
 
   printf("Reading super block from device %s: \n"
-
          "Inodes count            : %u\n"
          "Blocks count            : %u\n"
          "Reserved blocks count   : %u\n"
          "Free blocks count       : %u\n"
          "Free inodes count       : %u\n"
          "First data block        : %u\n"
-         "Block size              : %u\n"
+         "Block size              : %lu\n"
          "Blocks per group        : %u\n"
          "Inodes per group        : %u\n"
          "Creator OS              : %u\n"
@@ -86,26 +74,25 @@ int PrintSuperblock(const char *device_path)
          super_block.s_creator_os,
          super_block.s_first_ino,
          super_block.s_inode_size);
+
   close(fd);
 
   return (SUCCESS);
 }
 
-int PrintGroupDescriptor(const char *device_path)
+super_block_t InitSuperblock(const char *device_path)
 {
-  struct ext2_super_block super_block;
-  struct ext2_group_desc group;
-  int fd;
+  super_block_t super_block = {0};
+  int fd = -1;
 
   if (((fd = open(device_path, O_RDONLY)) < 0))
   {
-    fprintf(stderr, "Not a Ext2 filesystem\n");
-    close(fd);
-    return (ERROR);
+    printf("can not open device: %s\n", device_path);
+    return (super_block);
   }
 
   lseek(fd, BASE_OFFSET, SEEK_SET); /* position head above super_block */
-  read(fd, &super_block, sizeof(struct ext2_super_block));
+  read(fd, &super_block, sizeof(super_block_t));
 
   block_size = EXT2_BLOCK_SIZE(&super_block);
 
@@ -113,10 +100,40 @@ int PrintGroupDescriptor(const char *device_path)
   {
     fprintf(stderr, "Not a Ext2 filesystem\n");
     close(fd);
+
+    return (super_block);
+  }
+
+  close(fd);
+
+  return (super_block);
+}
+
+int PrintGroupDescriptor(const char *device_path)
+{
+  super_block_t super_block = {0};
+  group_desc_t group = {0};
+  int fd = -1;
+
+  if (((fd = open(device_path, O_RDONLY)) < 0))
+  {
+    printf("can not open device: %s\n", device_path);
     return (ERROR);
   }
 
-  lseek(fd, block_size, SEEK_SET); /*get the offset in bytes*/
+  lseek(fd, BASE_OFFSET, SEEK_SET);
+  read(fd, &super_block, sizeof(struct ext2_super_block));
+
+  block_size = EXT2_BLOCK_SIZE(&super_block);
+
+  if (super_block.s_magic != EXT2_SUPER_MAGIC)
+  {
+    printf("Not a Ext2 filesystem\n");
+    close(fd);
+    return (ERROR);
+  }
+
+  lseek(fd, block_size, SEEK_SET);
   read(fd, &group, sizeof(group));
 
   printf("Reading first group-descriptor from device %s:\n"
@@ -139,62 +156,20 @@ int PrintGroupDescriptor(const char *device_path)
   return (SUCCESS);
 }
 
-static void read_inode(int fd, int inode_no, struct ext2_group_desc *group, struct ext2_inode *inode)
-{
-  lseek(fd, BLOCK_OFFSET(group->bg_inode_table) + ((inode_no) * sizeof(struct ext2_inode)), SEEK_SET);
-  read(fd, inode, sizeof(struct ext2_inode));
-}
-
-static void read_dir(int fd, struct ext2_inode *inode, struct ext2_group_desc *group)
-{
-  void *block;
-  if (S_ISDIR(inode->i_mode))
-  {
-    struct ext2_dir_entry_2 *entry;
-    unsigned int size = 0;
-
-    if ((block = malloc(block_size)) == NULL)
-    {
-      fprintf(stderr, "Memory error\n");
-      close(fd);
-      exit(1);
-    }
-
-    lseek(fd, BLOCK_OFFSET(inode->i_block[0]), SEEK_SET);
-    read(fd, block, block_size);
-
-    entry = (struct ext2_dir_entry_2 *)block;
-
-    while ((size < inode->i_size) && entry->inode)
-    {
-      char file_name[EXT2_NAME_LEN + 1];
-      memcpy(file_name, entry->name, entry->name_len);
-      file_name[entry->name_len] = 0;
-      printf("%u", entry->rec_len);
-      printf("%10u %s\n", entry->inode, file_name);
-
-      entry = (struct ext2_dir_entry_2 *)((char *)entry + entry->rec_len);
-      size += entry->rec_len;
-    }
-
-    free(block);
-  }
-  return;
-}
-
 int PrintFileContent(const char *device_path, const char *file_path)
 {
-  struct ext2_inode inode;
-  struct ext2_inode inode2;
-  struct ext2_super_block super;
-  struct ext2_group_desc group;
-  int fd;
-  int i;
-  char file[4243456];
+  char file_path_loc[EXT2_MAX_BLOCK_SIZE + 1] = {0};
+  super_block_t super = {0};
+  group_desc_t group = {0};
+  ext2_handle_t ext2 = {0};
+  inode_t inode = {0};
+  size_t i = 0;
+  int fd = -1;
 
   if ((fd = open(device_path, O_RDONLY)) < 0)
   {
-    perror(device_path);
+    printf("can not open device: %s\n", device_path);
+    return (ERROR);
   }
 
   lseek(fd, BASE_OFFSET, SEEK_SET);
@@ -202,125 +177,149 @@ int PrintFileContent(const char *device_path, const char *file_path)
 
   if (super.s_magic != EXT2_SUPER_MAGIC)
   {
-    fprintf(stderr, "Not a Ext2 filesystem\n");
+    perror("Not a Ext2 filesystem\n");
+    return (ERROR);
   }
+  memcpy(file_path_loc, file_path, strlen(file_path));
+  block_size = EXT2_BLOCK_SIZE(&super);
 
-  lseek(fd, EXT2_BLOCK_SIZE(&super), SEEK_SET);
+  lseek(fd, EXT2_MAX_BLOCK_SIZE, SEEK_SET);
   read(fd, &group, sizeof(group));
 
-  read_inode(fd, 2, &group, &inode);
-  read_dir(fd, &inode, &group);
+  ext2.super = &super;
+  ext2.group = &group;
+  ext2.inode = &inode;
+  ext2.fd = fd;
 
-  printf("\nReading root inode\n"
-         "File mode: %hu\n"
-         "File mode: %u\n"
-         "Owner UID: %hu\n"
-         "Size     : %u bytes\n"
-         "Blocks   : %u\n",
-         inode.i_mode,
-         S_ISREG(inode.i_mode),
-         inode.i_uid,
-         inode.i_size,
-         inode.i_blocks);
+  GetFileInode(&ext2, file_path_loc);
 
+  /*prints the offset of each datat block of the curr inode */
   for (i = 0; i < EXT2_N_BLOCKS; i++)
+  {
     if (i < EXT2_NDIR_BLOCKS)
-      printf("Block %2u : %u\n", i, inode.i_block[i]);
+    {
+      printf("Block %2lu : %u\n", i, inode.i_block[i]);
+    }
     else if (i == EXT2_IND_BLOCK)
+    {
       printf("Single   : %u\n", inode.i_block[i]);
+    }
     else if (i == EXT2_DIND_BLOCK)
+    {
       printf("Double   : %u\n", inode.i_block[i]);
+    }
     else if (i == EXT2_TIND_BLOCK)
+    {
       printf("Triple   : %u\n", inode.i_block[i]);
-
-  read_inode(fd, 12, &group, &inode2);
-
-  printf("\nReading 12 inode\n"
-         "File mode: %hu\n"
-         "File mode: %u\n"
-         "Owner UID: %hu\n"
-         "Size     : %u bytes\n"
-         "Blocks   : %u\n",
-         inode2.i_mode,
-         S_ISREG(inode2.i_mode),
-         inode2.i_uid,
-         inode2.i_size,
-         inode2.i_blocks);
+    }
+  }
 
   for (i = 0; i < EXT2_N_BLOCKS; i++)
   {
+    char file[EXT2_MAX_BLOCK_SIZE + 1];
 
-    if (i < EXT2_NDIR_BLOCKS)
+    if (inode.i_block[i])
     {
-      printf("Block %2u : %u\n", i, inode2.i_block[i]);
-      lseek(fd, BLOCK_OFFSET(inode2.i_block[i] + 1), SEEK_SET);
-      read(fd, file, block_size);
-      printf("%s\n", file);
-
-    }
-    else if (i == EXT2_IND_BLOCK)
-    {
-      printf("Single   : %u\n", inode2.i_block[i]);
-      lseek(fd, BLOCK_OFFSET(inode2.i_block[i] + 1), SEEK_SET);
-      read(fd, file, block_size);
-      printf("%s\n", file);
-
-    }
-    else if (i == EXT2_DIND_BLOCK)
-    {
-      printf("Double   : %u\n", inode2.i_block[i]);
-      lseek(fd, BLOCK_OFFSET(inode2.i_block[i] + 1), SEEK_SET);
-      read(fd, file, block_size);
-      printf("%s\n", file);
-
-    }
-    else if (i == EXT2_TIND_BLOCK)
-    {
-      printf("Triple   : %u\n", inode2.i_block[i]);
-      lseek(fd, BLOCK_OFFSET(inode2.i_block[i] + 1), SEEK_SET);
+      lseek(fd, BLOCK_OFFSET(inode.i_block[i]), SEEK_SET);
       read(fd, file, block_size);
       printf("%s\n", file);
     }
-    /* 
-    lseek(fd, BLOCK_OFFSET(584 + 1), SEEK_SET);
-
-    read(fd, file, block_size);
-
-    printf("%s\n", file); */
   }
 
   close(fd);
-}
 
+  return (SUCCESS);
+}
 
 static void GetFileInode(ext2_handle_t *ext2, char *file_path)
 {
-    size_t inode_num = EXT2_ROOT_INO;
-    size_t size = 0;
-    inode_t curr_inode = {0};
-    char *curr_file = strtok(file_path, "/");
+  int inode_num = EXT2_ROOT_INO;
+  inode_t curr_inode = {0};
+  ext2_handle_t ext2_loc = {0};
+  char *curr_file = file_path;
 
+  memcpy(&ext2_loc, ext2, sizeof(ext2_handle_t));
+
+  printf("  file = %s\n", curr_file);
+
+  ext2_loc.inode = &curr_inode;
+
+  ReadInode(&ext2_loc, inode_num);
+
+  printf("%d\n", curr_inode.i_size);
+  curr_file = strtok(curr_file, "/");
+
+  while (curr_file != NULL)
+  {
     printf("file = %s\n", curr_file);
-    ReadInode(ext2, inode_num, ext2->groups, &curr_inode);
+    inode_num = SearchDir(&ext2_loc, curr_file);
+    /* printf("inode is = %d\n", inode_num); */
 
-    printf("%d\n", curr_inode.i_size);
-
-    while (curr_file != NULL)
+    if (-1 == inode_num)
     {
-        inode_num = SearchDir(ext2, &curr_inode, file_path);
+      puts("File not found");
+      return;
+    }
+    curr_file = strtok(NULL, "/");
+    ReadInode(&ext2_loc, inode_num);
+  }
 
-        if (0 == inode_num)
-        {
-            puts("File not found");
-            return;
-        }
+  memcpy(ext2->inode, &curr_inode, sizeof(inode_t));
 
-        printf("inode is = %ld\n", inode_num);
-        curr_file = strtok(NULL, "/");
-        ReadInode(ext2, inode_num, ext2->groups, &curr_inode);
+  return;
+}
+
+static int SearchDir(ext2_handle_t *ext2, char *name)
+{
+  void *block = NULL;
+  dir_entry_t *entry = NULL;
+  int inode_num = -1;
+
+  if (S_ISDIR(ext2->inode->i_mode))
+  {
+    size_t size = 0;
+
+    if ((block = malloc(block_size)) == NULL)
+    {
+      perror("Memory error\n");
+      return (-1);
     }
 
-    puts("File found");
+    lseek(ext2->fd, BLOCK_OFFSET(ext2->inode->i_block[0]), SEEK_SET);
+    read(ext2->fd, block, block_size);
 
-    return;
+    entry = (dir_entry_t *)block;
+
+    while ((size < ext2->inode->i_size) && entry->inode)
+    {
+      char file_name[EXT2_MAX_BLOCK_SIZE];
+      memcpy(file_name, entry->name, entry->name_len);
+      file_name[entry->name_len] = '\0';
+
+      /*prints the dir content*/
+      printf("%10u %s\n", entry->inode, file_name);
+
+      /*if the file is found leave and return the inode num */
+      if (!strncmp(file_name, name, strlen(name) + 1))
+      {
+        printf("File found\n");
+        inode_num = entry->inode;
+        break;
+      }
+
+      entry = (dir_entry_t *)((char *)entry + entry->rec_len);
+      size += entry->rec_len;
+    }
+
+    free(block);
+  }
+
+  return (inode_num);
+}
+
+static void ReadInode(ext2_handle_t *ext2, int inode_num)
+{
+  lseek(ext2->fd, BLOCK_OFFSET(ext2->group->bg_inode_table) + ((inode_num - 1) * sizeof(inode_t)), SEEK_SET);
+  read(ext2->fd, ext2->inode, sizeof(inode_t));
+  return;
 }
