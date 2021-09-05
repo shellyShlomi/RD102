@@ -25,10 +25,9 @@
 #endif
 
 #define BASE_OFFSET (1024)
-#define BED_FD (-1)
-#define BED_READ (-1)
+#define BAD_FD (-1)
+#define BAD_READ (-1)
 #define BLOCK_OFFSET(block) ((block)*block_size)
-#define BUFF_SIZE (EXT2_MAX_BLOCK_SIZE + 1)
 
 /******************************* Definition *******************************/
 
@@ -36,12 +35,13 @@ typedef enum debug_print_of
 {
 	SEARCH_DIR_ENTERY,
 	SEARCH_DIR_ENTRY_AND_NAME,
+	DEBUG_DIR = SEARCH_DIR_ENTRY_AND_NAME,
+	RESULT_DIR,
 	GET_FILE_INODE,
 	GET_FILE_INODE_SEARCH_DIR,
 	GET_FILE_INODE_READ_INODE,
-	GET_FILE_INODE_SIZE,
 	PRINT_FILE_CONTENT,
-	INIT_SUPER_BLOCK
+	INIT_FD
 } debug_print_of_t;
 
 typedef struct debug_print_serch_dir
@@ -54,22 +54,31 @@ typedef struct debug_print_serch_dir
 
 static size_t block_size = 0;
 
-static void PrintDebugFileContent(inode_t *inode);
-static void PrintDebug(debug_print_of_t func, void *data);
+static void InerPrintForPrintFileContent(inode_t *inode);
+static void PrintDebug(debug_print_of_t flag, void *data);
+static void PrintSerchDir(debug_print_of_t flag, void *data);
 static void InitDebugPrintSerchDir(debug_print_serch_dir_t *debug_print,
 								   unsigned int inode_n, char *name);
+
+/********************************** imple **********************************/
 
 int PrintSuperblock(const char *device_path)
 {
 	super_block_t super_block = {0};
-	int fd = BED_FD;
+	int fd = BAD_FD;
 
 	if (!device_path)
 	{
 		return (ERROR);
 	}
 
-	if (BED_FD == (fd = InitSuperblock(&super_block, device_path)))
+	if (BAD_FD == (fd = GetFileDescriptor(device_path)))
+	{
+		PrintDebug(INIT_FD, (void *)device_path);
+		return (ERROR);
+	}
+
+	if (SUCCESS != InitSuperblock(&super_block, fd, device_path))
 	{
 		return (ERROR);
 	}
@@ -110,19 +119,21 @@ int PrintGroupDescriptor(const char *device_path)
 {
 	super_block_t super_block = {0};
 	group_desc_t group = {0};
-	int fd = BED_FD;
+	int fd = BAD_FD;
 
 	if (!device_path)
 	{
 		return (ERROR);
 	}
 
-	if (BED_FD == (fd = InitSuperblock(&super_block, device_path)))
+	if (BAD_FD == (fd = GetFileDescriptor(device_path)))
 	{
+		PrintDebug(INIT_FD, (void *)device_path);
 		return (ERROR);
 	}
 
-	if (BED_READ == InitGroupDescriptor(&group, fd, block_size))
+	if (SUCCESS != InitSuperblock(&super_block, fd, device_path) ||
+		(BAD_READ == InitGroupDescriptor(&group, fd, block_size)))
 	{
 		return (ERROR);
 	}
@@ -156,21 +167,21 @@ int PrintFileContent(const char *device_path, const char *file_path)
 	ext2_handle_t ext2 = {0};
 	inode_t inode = {0};
 
-	size_t i = 0;
-	int fd = BED_FD;
+	int fd = BAD_FD;
+	unsigned int status = 11;
 
 	if (!device_path || !file_path)
 	{
 		return (ERROR);
 	}
 
-	fd = InitSuperblock(&super, device_path);
-	if (-1 == fd)
+	if (BAD_FD == (fd = GetFileDescriptor(device_path)))
 	{
+		PrintDebug(INIT_FD, (void *)device_path);
 		return (ERROR);
 	}
-
-	if (BED_READ == InitGroupDescriptor(&group, fd, block_size))
+	if (SUCCESS != InitSuperblock(&super, fd, device_path) ||
+		(BAD_READ == InitGroupDescriptor(&group, fd, block_size)))
 	{
 		return (ERROR);
 	}
@@ -185,69 +196,78 @@ int PrintFileContent(const char *device_path, const char *file_path)
 		return (ERROR);
 	}
 
-	DEBUG PrintDebugFileContent(&inode);
+	status = S_ISDIR(inode.i_mode) ? 
+	(InerPrintFileContentDir(&ext2, file_path_loc)) : 
+	(InerPrintFileContentFile(&inode, fd));
 
-	printf("%s\n", GREEN);
-	puts("File Content:");
-	printf("%s\n", RESET);
+	close(fd);
+	return (status);
+}
 
-	for (i = 0; i < inode.i_blocks; i++)
+/***************************** Inner Function  *****************************/
+
+/*----------- for print file contect ------------*/
+
+int InerPrintFileContentDir(ext2_handle_t *ext2, char *name)
+{
+	return !(EXT2_BAD_INO == SearchDir(ext2, name, RESULT_DIR));
+}
+
+int InerPrintFileContentFile(inode_t *inode, int fd)
+{
+	size_t i = 0;
+	char file[EXT2_MAX_BLOCK_SIZE + 1] = {'\0'};
+	InerPrintForPrintFileContent(inode);
+
+	for (i = 0; i < inode->i_blocks; ++i)
 	{
-		char file[EXT2_MAX_BLOCK_SIZE + 1] = {'\0'};
-
-		if (inode.i_block[i])
+		if (inode->i_block[i])
 		{
-			lseek(fd, BLOCK_OFFSET(inode.i_block[i]), SEEK_SET);
-			if (BED_READ == read(fd, file, block_size))
+			lseek(fd, BLOCK_OFFSET(inode->i_block[i]), SEEK_SET);
+			if (BAD_READ == read(fd, file, block_size))
 			{
 				return (ERROR);
 			}
-			puts(file);
+			printf("%s\n", file);
 		}
 	}
-
-	close(fd);
-
 	return (SUCCESS);
 }
+
+/*----------- Files funcs ------------*/
 
 int GetFileInode(ext2_handle_t *ext2, char *file_path)
 {
 	unsigned int inode_num = EXT2_ROOT_INO;
-	char *curr_file = file_path;
 
 	assert(file_path);
 	assert(ext2);
 
-	PrintDebug(GET_FILE_INODE, curr_file);
-
-	if (BED_READ == ReadInode(ext2, inode_num))
+	PrintDebug(GET_FILE_INODE, file_path);
+	if (BAD_READ == ReadInode(ext2, inode_num))
 	{
-		PrintDebug(GET_FILE_INODE_READ_INODE, curr_file);
+		PrintDebug(GET_FILE_INODE_READ_INODE, file_path);
 		return (ERROR);
 	}
 
-	PrintDebug(GET_FILE_INODE_SIZE, (void *)(&(ext2->inode->i_size)));
+	file_path = strtok(file_path, "/");
 
-	curr_file = strtok(curr_file, "/");
-
-	while (curr_file != NULL)
+	while (file_path != NULL)
 	{
-		PrintDebug(GET_FILE_INODE, curr_file);
-
-		inode_num = SearchDir(ext2, curr_file);
+		PrintDebug(GET_FILE_INODE, file_path);
+		inode_num = SearchDir(ext2, file_path, DEBUG_DIR);
 
 		if (EXT2_BAD_INO == inode_num)
 		{
-			PrintDebug(GET_FILE_INODE_SEARCH_DIR, curr_file);
+			PrintDebug(GET_FILE_INODE_SEARCH_DIR, file_path);
 			return (ERROR);
 		}
 
-		curr_file = strtok(NULL, "/");
+		file_path = strtok(NULL, "/");
 
-		if (BED_READ == ReadInode(ext2, inode_num))
+		if (BAD_READ == ReadInode(ext2, inode_num))
 		{
-			PrintDebug(GET_FILE_INODE_READ_INODE, curr_file);
+			PrintDebug(GET_FILE_INODE_READ_INODE, file_path);
 			return (ERROR);
 		}
 	}
@@ -255,7 +275,7 @@ int GetFileInode(ext2_handle_t *ext2, char *file_path)
 	return (SUCCESS);
 }
 
-unsigned int SearchDir(const ext2_handle_t *ext2, char *name)
+unsigned int SearchDir(const ext2_handle_t *ext2, char *name, int falg)
 {
 	dir_entry_t *entry = NULL;
 	void *block = NULL;
@@ -265,41 +285,29 @@ unsigned int SearchDir(const ext2_handle_t *ext2, char *name)
 	assert(ext2);
 	assert(name);
 
-	if (!S_ISDIR(ext2->inode->i_mode))
+	if (!S_ISDIR(ext2->inode->i_mode) || ((block = malloc(block_size)) == NULL))
+	{
+		DEBUG S_ISDIR(ext2->inode->i_mode) ? printf("Memory error\n") : printf("inode mode is: %u\n", S_ISDIR(ext2->inode->i_mode));
+		return (EXT2_BAD_INO);
+	}
+	if (BAD_READ == ReadDataBlock(ext2, block, block_size))
 	{
 		return (EXT2_BAD_INO);
 	}
-
-	if ((block = malloc(block_size)) == NULL)
-	{
-		DEBUG perror("Memory error\n");
-		return (EXT2_BAD_INO);
-	}
-
-	lseek(ext2->fd, BLOCK_OFFSET(ext2->inode->i_block[0]), SEEK_SET);
-	if (BED_READ == read(ext2->fd, block, block_size))
-	{
-		free(block);
-		return (EXT2_BAD_INO);
-	}
-
 	entry = (dir_entry_t *)block;
 
 	while ((((char *)block + block_size) > ((char *)entry)))
 	{
 		InitDebugPrintSerchDir(&debug_print, entry->inode, entry->name);
+		PrintSerchDir((debug_print_of_t)falg, &debug_print);
 
-		PrintDebug(SEARCH_DIR_ENTRY_AND_NAME, &debug_print);
-
-		/*if the file is found leave and return the inode num */
+		/* if the file is found leave and return the inode num */
 		if ((strlen(name) == entry->name_len) &&
 			(!strncmp(entry->name, name, entry->name_len)))
 		{
-			PrintDebug(SEARCH_DIR_ENTERY, NULL);
-
 			inode_n = entry->inode;
-			free(block);
-			return (inode_n);
+			PrintDebug(SEARCH_DIR_ENTERY, NULL);
+			break;
 		}
 
 		entry = (dir_entry_t *)((char *)entry + entry->rec_len);
@@ -307,7 +315,7 @@ unsigned int SearchDir(const ext2_handle_t *ext2, char *name)
 
 	free(block);
 
-	return (EXT2_BAD_INO);
+	return (inode_n);
 }
 
 int ReadInode(ext2_handle_t *ext2, int inode_num)
@@ -319,23 +327,33 @@ int ReadInode(ext2_handle_t *ext2, int inode_num)
 	return read(ext2->fd, ext2->inode, sizeof(inode_t));
 }
 
-int InitSuperblock(super_block_t *super_block, const char *device_path)
+int ReadDataBlock(const ext2_handle_t *ext2, void *block, size_t block_size)
 {
-	int fd = BED_FD;
+	assert(ext2);
 
+	lseek(ext2->fd, BLOCK_OFFSET(ext2->inode->i_block[0]), SEEK_SET);
+	return (read(ext2->fd, block, block_size));
+}
+
+/******************************** Init Func ********************************/
+/*----------- Init Files funcs ------------*/
+int GetFileDescriptor(const char *device_path)
+{
+	assert(device_path);
+
+	return (open(device_path, O_RDONLY));
+}
+
+int InitSuperblock(super_block_t *super_block, int fd, const char *device_path)
+{
 	assert(super_block);
 	assert(device_path);
 
-	if (BED_FD == ((fd = open(device_path, O_RDONLY))))
-	{
-		PrintDebug(INIT_SUPER_BLOCK, (void *)device_path);
-		return (fd);
-	}
-
 	lseek(fd, BASE_OFFSET, SEEK_SET); /* position head above super_block */
-	if (BED_READ == read(fd, super_block, sizeof(super_block_t)))
+	if (BAD_READ == read(fd, super_block, sizeof(super_block_t)))
 	{
-		return (-1);
+		DEBUG printf("can read this file, InitSuperblock() line: %d\n", __LINE__);
+		return (BAD_READ);
 	}
 
 	block_size = EXT2_BLOCK_SIZE(super_block);
@@ -343,9 +361,10 @@ int InitSuperblock(super_block_t *super_block, const char *device_path)
 	if (super_block->s_magic != EXT2_SUPER_MAGIC)
 	{
 		DEBUG perror("Not a Ext2 filesystem\n");
+		return (ERROR);
 	}
 
-	return (fd);
+	return (SUCCESS);
 }
 
 int InitGroupDescriptor(group_desc_t *group, int fd, size_t block_size)
@@ -378,6 +397,8 @@ void InitEXT2(ext2_handle_t *ext2,
 	return;
 }
 
+/************************** Print For DEBUG Funcs **************************/
+
 static void InitDebugPrintSerchDir(debug_print_serch_dir_t *debug_print,
 								   unsigned int inode_n, char *name)
 {
@@ -391,14 +412,14 @@ static void InitDebugPrintSerchDir(debug_print_serch_dir_t *debug_print,
 	return;
 }
 
-static void PrintDebugFileContent(inode_t *inode)
+static void InerPrintForPrintFileContent(inode_t *inode)
 {
 	size_t i = 0;
 
 	assert(inode);
 
 	/*prints the offset of each datat block of the curr inode */
-	for (i = 0; i < EXT2_N_BLOCKS; i++)
+	DEBUG for (i = 0; i < EXT2_N_BLOCKS; i++)
 	{
 		if (i < EXT2_NDIR_BLOCKS)
 		{
@@ -418,24 +439,35 @@ static void PrintDebugFileContent(inode_t *inode)
 		}
 	}
 
+	printf("%s\n", B_GREEN);
+	puts("File Content:");
+	printf("%s\n", RESET);
+
 	return;
 }
 
-static void PrintDebug(debug_print_of_t func, void *data)
+static void PrintSerchDir(debug_print_of_t flag, void *data)
 {
-	switch (func)
+	if (RESULT_DIR == flag)
+	{
+		printf("%10u %s \n",
+			   (unsigned int)(((debug_print_serch_dir_t *)data)->inode_n),
+			   (char *)(((debug_print_serch_dir_t *)data)->name));
+		return;
+	}
+
+	PrintDebug(SEARCH_DIR_ENTRY_AND_NAME, data);
+	return;
+}
+
+static void PrintDebug(debug_print_of_t flag, void *data)
+{
+	switch (flag)
 	{
 	case GET_FILE_INODE_READ_INODE:
 	{
 		DEBUG printf("%s", RED);
 		DEBUG printf("ReadInode failed\n");
-		DEBUG printf("%s", RESET);
-		break;
-	}
-	case GET_FILE_INODE_SIZE:
-	{
-		DEBUG printf("%s", CYAN);
-		DEBUG printf("%u\n", *(unsigned int *)data);
 		DEBUG printf("%s", RESET);
 		break;
 	}
@@ -456,7 +488,9 @@ static void PrintDebug(debug_print_of_t func, void *data)
 	case SEARCH_DIR_ENTRY_AND_NAME:
 	{
 		DEBUG printf("%s", CYAN);
-		DEBUG printf("%10u %s \n", (unsigned int)(((debug_print_serch_dir_t *)data)->inode_n), (char *)(((debug_print_serch_dir_t *)data)->name));
+		DEBUG printf("%10u %s \n",
+					 (unsigned int)(((debug_print_serch_dir_t *)data)->inode_n),
+					 (char *)(((debug_print_serch_dir_t *)data)->name));
 		DEBUG printf("%s", RESET);
 		break;
 	}
@@ -474,12 +508,13 @@ static void PrintDebug(debug_print_of_t func, void *data)
 		DEBUG printf("%s", RESET);
 		break;
 	}
-	case INIT_SUPER_BLOCK:
+	case INIT_FD:
 	{
 		DEBUG printf("%s", RED);
 		DEBUG printf("can not open device: %s\n", (char *)data);
 		DEBUG printf("%s", RESET);
 	}
+
 	default:
 	{
 		break;
