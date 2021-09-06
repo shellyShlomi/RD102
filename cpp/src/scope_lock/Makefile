@@ -7,7 +7,7 @@ SHAREDLIB = lib$(TARGET).so
 SHAREDLIB_REL = lib$(TARGET)_rel.so
 
 TEST_TARGET = $(TARGET)_test
-TARGET_RELEASE = $(TARGET)_rel
+TARGET_RELEASE = $(TEST_TARGET)_rel
 
 
 
@@ -25,6 +25,7 @@ CFLAGS = -std=c++98 -pedantic-errors -Wall -Wextra -g -I$(INC)  -I$(INC_SHAPE)
 RELEASE_FLAGS =  -std=c++98 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC) -I$(INC_SHAPE) 
 
 OBJECTS = $(OBJ)/$(TARGET)/$(TARGET).o 
+OBJECTS_TEST = $(OBJ)/$(TARGET)/$(TARGET)_test.o 
 OBJECTS_REL = $(OBJ_REL)/$(TARGET_RELEASE)/$(TARGET_RELEASE).o
 
 # ************************* source & test sourec files *************************
@@ -40,8 +41,8 @@ TEST_OBJs = $(patsubst %.o, $(OBJ)/tests_lib/%.o,  $(TEST_OBJ))
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared
 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla
-LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel 
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
+LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
 
 #					-------shared object flags whit thread-------					
 
@@ -61,20 +62,20 @@ CGDB	= cgdb
 
 #----------------debug rules------------------#
 
-$(OBJECTS): $(SOURCE)
+$(OBJECTS_TEST): $(TEST_SOURCE)
 	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $< -o $@ 
 
-$(LIB)/$(SHAREDLIB): $(OBJECTS)  
+$(LIB)/$(SHAREDLIB): $(OBJECTS_TEST)  
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 
-$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcla.so
+$(BIN)/$(TARGET): $(OBJECTS_TEST) $(LIB)/libcla.so
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libcla.so 
 
 
 #----------------release rules------------------#
 
-$(OBJECTS_REL): $(SOURCE)
+$(OBJECTS_REL): $(TEST_SOURCE)
 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_FIRST) $< -o $@ 
 
 $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)  
@@ -90,7 +91,7 @@ $(OBJ)/tests_lib/%.o: ../../../tools/%.c
 	@mkdir -p $(OBJ)/tests_lib 
 	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $^ -o $@ 
 
-$(LIB)/libcla.so: $(OBJECTS)
+$(LIB)/libcla.so: $(OBJECTS_TEST)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
 
 $(LIB)/libcla_rel.so: $(OBJECTS_REL)
@@ -125,7 +126,7 @@ nw_test:
 
 nmw_test:
 	@make -s build
-	@./$(BIN)/$(TARGET)
+	@./$(BIN)/$(TEST_SOURCE)
 
 test:
 	@make  build

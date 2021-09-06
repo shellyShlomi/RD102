@@ -48,6 +48,10 @@ void TestShape()
     ilrd::PrintShapes(shape_l);
 
     std::cout << std::endl;
-
+    for (std::list<ilrd::Shape *>::iterator it = shape_l.begin();
+         it != shape_l.end(); ++it)
+    {
+        delete (*it);
+    }
     return;
 }
