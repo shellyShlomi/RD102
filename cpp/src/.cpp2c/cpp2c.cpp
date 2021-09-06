@@ -195,12 +195,12 @@ int main(int argc, char **argv, char **envp)
 {
     Minibus m;
     // std::cout << "------------------------------------------------" << std::endl;
-    print_info(m);
-    // std::cout << "------------------------------------------------" << std::endl;
+    // print_info(m);
+    // // std::cout << "------------------------------------------------" << std::endl;
 
-    print_info(3).display();
+    // print_info(3).display();
     // std::cout << "------------------------------------------------" << std::endl;
-
+    PublicTransport t = m;
     PublicTransport *array[] = {new Minibus(), new Taxi(), new Minibus()};
     // //     std::cout << "------------------------------------------------" << std::endl;
 
@@ -210,14 +210,16 @@ int main(int argc, char **argv, char **envp)
     }
     // std::cout << "------------------------------------------------" << std::endl;
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i)
+    {
         delete array[i];
     }
 
-    PublicTransport arr2[] = { Minibus(), Taxi(), PublicTransport() };
+    PublicTransport arr2[3] = {Minibus(), Taxi(), PublicTransport()};
     // std::cout << "------------------------------------------------" << std::endl;
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i)
+    {
         arr2[i].display();
     }
 
@@ -244,15 +246,15 @@ int main(int argc, char **argv, char **envp)
     std::cout << max_func(1, 2) << "\n";
     //     std::cout << "------------------------------------------------" << std::endl;
 
-    std::cout << max_func<int>(1, 2.0f)<< "\n";
+    std::cout << max_func<int>(1, 2.0f) << "\n";
     //     std::cout << "------------------------------------------------" << std::endl;
 
-        // std::cout << "------------------------------------------------" << std::endl;
+    // std::cout << "------------------------------------------------" << std::endl;
     SpecialTaxi st;
     //     std::cout << "------------------------------------------------" << std::endl;
 
     taxi_display(st);
-        // std::cout << "------------------------------------------------" << std::endl;
+    // std::cout << "------------------------------------------------" << std::endl;
 
     // /*PublicConvoy *ts1 = new PublicConvoy();
     // PublicConvoy *ts2 = new PublicConvoy(*ts1);

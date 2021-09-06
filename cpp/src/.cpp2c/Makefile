@@ -38,8 +38,8 @@ SOURCE_CPP = $(SRC)/$(TARGET).cpp
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared
 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla
-LDFLAGS_CPP = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_cpp
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
+LDFLAGS_CPP = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_cpp -lpthread
 
 #					-------shared object flags whit thread-------					
 

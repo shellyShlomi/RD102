@@ -44,8 +44,8 @@ TEST_OBJs = $(patsubst %.o, $(OBJ)/tests_lib/%.o,  $(TEST_OBJ))
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared
 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla
-LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel 
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
+LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
 
 #					-------shared object flags whit thread-------					
 
@@ -98,8 +98,7 @@ $(LIB)/libcla.so: $(OBJECTS)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
 
 $(LIB)/libcla_rel.so: $(OBJECTS_REL)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/tests_lib/. -type f -regex ".*\.o") \
-	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
 
 
 libtests: $(TEST_OBJs)

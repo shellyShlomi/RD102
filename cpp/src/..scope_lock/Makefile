@@ -68,8 +68,8 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 
-$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcla.so
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libcla.so 
+$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) 
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ 
 
 
 #----------------release rules------------------#
@@ -81,8 +81,8 @@ $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)
 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 
-$(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) $(LIB)/libcla_rel.so
-	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/libcla_rel.so  
+$(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) 
+	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@
 
 
 #----------------	shered librery	------------------#
@@ -90,12 +90,6 @@ $(OBJ)/tests_lib/%.o: ../../../tools/%.c
 	@mkdir -p $(OBJ)/tests_lib 
 	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $^ -o $@ 
 
-$(LIB)/libcla.so: $(OBJECTS)
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
-
-$(LIB)/libcla_rel.so: $(OBJECTS_REL)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/tests_lib/. -type f -regex ".*\.o") \
-	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
 
 
 libtests: $(TEST_OBJs)
@@ -229,6 +223,4 @@ clean :
 	@rm -f -r $(LIB)
 	@rm -f -r $(OBJ_REL)
 	@rm -f -r $(OBJ)
-
-
 

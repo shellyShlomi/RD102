@@ -69,7 +69,7 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 
 
 $(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcla.so
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libcla.so 
+	$(CC) $(CFLAGS) $(LDFLAGS) -lpthread $< -o $@ $(LIB)/libcla.so 
 
 
 #----------------release rules------------------#
@@ -82,7 +82,7 @@ $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)
 
 
 $(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) $(LIB)/libcla_rel.so
-	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/libcla_rel.so  
+	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) -lpthread $< -o $@ $(LIB)/libcla_rel.so  
 
 
 #----------------	shered librery	------------------#
