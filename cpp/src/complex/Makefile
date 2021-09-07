@@ -225,10 +225,9 @@ shared_lib:
 
 
 clean :
-	@rm -f -r  $(BIN)
-	@rm -f -r $(LIB)
-	@rm -f -r $(OBJ_REL)
-	@rm -f -r $(OBJ)
+	@make clean_r
+	@make clean_d
+	@rm -f -r ../../test_o/ 
 
 
 

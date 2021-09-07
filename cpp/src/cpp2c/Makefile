@@ -228,11 +228,13 @@ shared_lib:
 
 
 clean :
-	@rm -f -r  $(BIN)
-	@rm -f -r $(LIB)
-	@rm -f -r $(OBJ_REL)
-	@rm -f -r $(OBJ)
-	@rm -f -r $(FILE)
+	@make clean_d_cpp
+	@make clean_d
+	@rm -f -r ../../test_o/ 
+
+
+
+
 
 
 

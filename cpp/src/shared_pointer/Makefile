@@ -230,6 +230,8 @@ shared_lib:
 clean :
 	@make clean_r
 	@make clean_d
+	@rm -f -r ../../test_o/ 
+
 
 
 
