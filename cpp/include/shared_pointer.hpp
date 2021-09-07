@@ -1,12 +1,12 @@
-
-#ifndef __ILRD_RD102_SHARED_POINTER_HPP__
-#define __ILRD_RD102_SHARED_POINTER_HPP__
 // Developer: Shelly Shlomi
 // Status: in development
 // Reviewer: SIRE
 // Group: RD102
 // date: 06.09.21
 // description: SharedPointer with referenc counting
+
+#ifndef __ILRD_RD102_SHARED_POINTER_HPP__
+#define __ILRD_RD102_SHARED_POINTER_HPP__
 
 #include <cstddef>
 
