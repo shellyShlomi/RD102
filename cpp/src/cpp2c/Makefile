@@ -82,6 +82,8 @@ $(LIB)/libcla.so: $(OBJECTS)
 $(LIB)/libcla_cpp.so: $(OBJECTS_CPP)
 	$(CPP) $(CPPFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/$(TARGET)/$(TARGET_CPP)/. -type f -regex ".*\.o")  -o $(LIB)/libcla_cpp.so
 
+libtests: 
+
 #----------------	PHONYs	------------------#
 #	first -  comparison of c and cpp output files, secound -  C, third -  CPP,
 #	fourth -  general
@@ -104,6 +106,8 @@ for_test:
 	@mkdir -p $(FILE)  
 	@make -s cpp_to_file
 	@make -s c_to_file
+	@rm -f -r  $(BIN)/$(TARGET_CPP)
+	@rm -f -r  $(BIN)/$(TARGET_C)
 
 cpp_to_file:
 	@make CPPFLAGS='-std=c++98 -g -I$(INC)'  -s build_cpp
@@ -132,8 +136,9 @@ nmw_test:
 	@./$(BIN)/$(TARGET_C)
 
 test:
-	@make  build
-	@./$(BIN)/$(TARGET_C)
+	@make  for_test
+	@make  test_cmp
+
 
 vlgT:
 	@make  build
@@ -171,6 +176,8 @@ build_cpp:
 test_cpp:
 	@make  build_cpp
 	@./$(BIN)/$(TARGET_CPP)
+	@rm -f -r  $(BIN)/$(TARGET_CPP)
+
 
 silent_test_cpp:
 	@make -s CPPFLAGS='-std=c++98 -g -I$(INC)' build_cpp

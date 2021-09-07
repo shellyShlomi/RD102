@@ -137,6 +137,7 @@ clean_d :
 	@rm -f -r $(LIB)/$(SHAREDLIB) 
 	@rm -f -r $(LIB)/libcla.so 
 	@rm -f -r $(OBJ)/$(TARGET) 
+	@rm -f -r ../../test_o/ 
 
 
 
@@ -176,10 +177,9 @@ hlgT_release:
 
 
 release_so:
-	@mkdir -p ./test/$(TARGET_RELEASE) 
+	@mkdir -p ../../test_o/$(TARGET_RELEASE) 
 	@mkdir -p $(LIB)/  
-	@mkdir -p $(BIN)/  
-	@make $(LIB)/libcla_rel.so
+	@mkdir -p $(BIN)/ 
 
 
 
@@ -193,6 +193,7 @@ clean_r :
 	@rm -f -r $(LIB)/$(SHAREDLIB_REL)  
 	@rm -f -r  $(LIB)/libcla_rel.so
 	@rm -f -r  $(OBJ_REL)/$(TARGET_RELEASE) 
+	@rm -f -r ../../test_o/ 
 
 
 #----------------GENERAL------------------#
@@ -204,10 +205,9 @@ shared_lib:
 
 
 clean :
-	@rm -f -r  $(BIN)
-	@rm -f -r $(LIB)
-	@rm -f -r $(OBJ_REL)
-	@rm -f -r $(OBJ)
+	@make clean_r
+	@make clean_d
+
 
 
 

@@ -94,7 +94,7 @@ $(LIB)/libcla.so: $(OBJECTS)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
 
 $(LIB)/libcla_rel.so: $(OBJECTS_REL)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/tests_lib/. -type f -regex ".*\.o") \
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) \
 	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
 
 

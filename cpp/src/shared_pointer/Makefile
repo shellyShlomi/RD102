@@ -1,5 +1,9 @@
 
-#made by shelly
+#*****************************************************************************#
+#-------- PHONYs command and there meaning to test the foledr's files --------#
+#-----------------------------------------------------------------------------#
+#------------------------------- made by shelly ------------------------------#
+# ****************************************************************************#
 
 
 TARGET = $(notdir $(shell pwd))
@@ -94,8 +98,7 @@ $(LIB)/libcla.so: $(OBJECTS)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
 
 $(LIB)/libcla_rel.so: $(OBJECTS_REL)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/tests_lib/. -type f -regex ".*\.o") \
-	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
 
 
 libtests: $(TEST_OBJs)
@@ -225,8 +228,8 @@ shared_lib:
 
 
 clean :
-	@rm -f -r  $(BIN)
-	@rm -f -r $(LIB)
-	@rm -f -r $(OBJ_REL)
-	@rm -f -r $(OBJ)
+	@make clean_r
+	@make clean_d
+
+
 
