@@ -47,11 +47,6 @@ SOFLAG_SECOND = -shared
 LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
 LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
 
-#					-------shared object flags whit thread-------					
-
-LDFLAGS_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
-LDFLAGS_REL_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
-
 # ********************************** debuging **********************************
 
 VLG		= valgrind --leak-check=yes --track-origins=yes
@@ -104,7 +99,7 @@ $(LIB)/libcla_rel.so: $(OBJECTS_REL)
 libtests: $(TEST_OBJs)
 #----------------	PHONYs	------------------#
 
-.PHONY :build silent_test nw_test nmw_test test vlgT hlgT shared_obj 
+.PHONY :build silent_test nw_test nmw_test test s_vlgT vlgT s_hlgT hlgT shared_obj 
 		update_debug clean_d
 		release silent_test_release nw_test_release nmw_test_release test_release  
 		hlgT_release vlgT_release release_so update_release clean_r
@@ -138,9 +133,18 @@ vlgT:
 	@make  build
 	@$(VLG) ./$(BIN)/$(TARGET)
 
+s_vlgT:
+	@make -s build
+	@$(VLG) ./$(BIN)/$(TARGET)
+
 hlgT:
 	@make  build
 	@$(HLG) ./$(BIN)/$(TARGET)
+
+s_hlgT:
+	@make -s build
+	@$(HLG) ./$(BIN)/$(TARGET)
+
 
 shared_obj:
 	@mkdir -p $(OBJ)/$(TARGET)  

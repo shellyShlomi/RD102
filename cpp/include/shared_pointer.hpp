@@ -88,9 +88,7 @@ namespace ilrd
 	SharedPointer<T> &SharedPointer<T>::operator=(const SharedPointer<U> &other_)
 	{
 		TestCast(GetPtr(), other_.GetPtr());
-		*this = SharedPointer<T>(other_);
-
-		return (*this);
+		return (*this = SharedPointer<T>(other_));
 	}
 
 	template <class T>

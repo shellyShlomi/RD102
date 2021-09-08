@@ -41,7 +41,7 @@ alias cdi='c git/ds/include'
 alias cdb='c git/ds/bin'
 alias cdt='c git/ds/test'
 alias cds='c git/ds/src'
-
+alias hlg='vlg valgrind --tool=helgrind --history-level=approx'
 alias t='touch'
 
 #make alias

@@ -208,6 +208,7 @@ int PrintFileContent(const char *device_path, const char *file_path)
 
 int InerPrintFileContentDir(ext2_handle_t *ext2, char *name)
 {
+	InerPrintForPrintFileContent(ext2->inode);
 	return !(EXT2_BAD_INO == SearchDir(ext2, name, RESULT_DIR));
 }
 

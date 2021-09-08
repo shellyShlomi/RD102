@@ -25,7 +25,7 @@ CFLAGS = -ansi -pedantic-errors -Wall -Wextra -g -I$(INC)
 RELEASE_FLAGS = -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)
 
 OBJECTS = $(OBJ)/$(TARGET).o 
-OBJECTS_REL = $(OBJ_REL)/$(TARGET_RELEASE).o
+OBJECTS_REL = $(OBJ_REL)/$(TARGET_RELEASE)/$(TARGET_RELEASE).o
 
 # ************************* source & test sourec files *************************
 TEST_SOURCE = $(TEST)/$(TEST_TARGET).c
@@ -81,7 +81,7 @@ $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)
 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 
-$(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) $(LIB)/libtests_rel.so
+$(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) 
 	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/libtests_rel.so  
 
 
@@ -94,8 +94,7 @@ $(LIB)/libtasts.so: $(OBJECTS)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libtests.so
 
 $(LIB)/libtests_rel.so: $(OBJECTS_REL)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/tests_lib/. -type f -regex ".*\.o") \
-	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libtests_rel.so
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/tests_lib/. -type f -regex ".*\.o") 	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libtests_rel.so
 
 
 libtests: $(TEST_OBJs)
@@ -147,10 +146,10 @@ clean_d :
 
 #----------------RELEASE------------------#
 
-release: CFLAGS = $(RELEASE_FLAGS) 
+# release: CFLAGS = $(RELEASE_FLAGS) 
 release: 
-	@make libtests
-	@make release_so
+	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' libtests
+	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release_so
 	@make $(BIN)/$(TARGET_RELEASE)
 
 silent_build_release:
@@ -171,8 +170,7 @@ release_so:
 	@mkdir -p $(OBJ_REL)/$(TARGET_RELEASE)
 	@mkdir -p $(LIB)/  
 	@mkdir -p $(BIN)/  
-	@make $(LIB)/libtasts_rel.so
-	@make $(LIB)/$(SHAREDLIB_REL)
+	@make $(LIB)/libtests_rel.so
 
 
 
