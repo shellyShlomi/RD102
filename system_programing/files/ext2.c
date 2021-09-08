@@ -188,7 +188,7 @@ int PrintFileContent(const char *device_path, const char *file_path)
 
 	InitEXT2(&ext2, &super, &group, &inode, fd);
 
-	memcpy(file_path_loc, file_path, strlen(file_path));
+	memcpy(file_path_loc, file_path, strlen(file_path) + 1);
 
 	if (ERROR == GetFileInode(&ext2, file_path_loc))
 	{
@@ -196,9 +196,7 @@ int PrintFileContent(const char *device_path, const char *file_path)
 		return (ERROR);
 	}
 
-	status = S_ISDIR(inode.i_mode) ? 
-	(InerPrintFileContentDir(&ext2, file_path_loc)) : 
-	(InerPrintFileContentFile(&inode, fd));
+	status = S_ISDIR(inode.i_mode) ? (InerPrintFileContentDir(&ext2, file_path_loc)) : (InerPrintFileContentFile(&inode, fd));
 
 	close(fd);
 	return (status);
@@ -240,8 +238,8 @@ int GetFileInode(ext2_handle_t *ext2, char *file_path)
 {
 	unsigned int inode_num = EXT2_ROOT_INO;
 
-	assert(file_path);
 	assert(ext2);
+	assert(file_path);
 
 	PrintDebug(GET_FILE_INODE, file_path);
 	if (BAD_READ == ReadInode(ext2, inode_num))
@@ -277,10 +275,10 @@ int GetFileInode(ext2_handle_t *ext2, char *file_path)
 
 unsigned int SearchDir(const ext2_handle_t *ext2, char *name, int falg)
 {
-	dir_entry_t *entry = NULL;
 	void *block = NULL;
-	debug_print_serch_dir_t debug_print = {0};
+	dir_entry_t *entry = NULL;
 	int inode_n = EXT2_BAD_INO;
+	debug_print_serch_dir_t debug_print = {0};
 
 	assert(ext2);
 	assert(name);
@@ -290,8 +288,10 @@ unsigned int SearchDir(const ext2_handle_t *ext2, char *name, int falg)
 		DEBUG S_ISDIR(ext2->inode->i_mode) ? printf("Memory error\n") : printf("inode mode is: %u\n", S_ISDIR(ext2->inode->i_mode));
 		return (EXT2_BAD_INO);
 	}
+
 	if (BAD_READ == ReadDataBlock(ext2, block, block_size))
 	{
+		free(block);
 		return (EXT2_BAD_INO);
 	}
 	entry = (dir_entry_t *)block;
@@ -348,6 +348,7 @@ int InitSuperblock(super_block_t *super_block, int fd, const char *device_path)
 {
 	assert(super_block);
 	assert(device_path);
+	assert(BAD_FD != fd);
 
 	lseek(fd, BASE_OFFSET, SEEK_SET); /* position head above super_block */
 	if (BAD_READ == read(fd, super_block, sizeof(super_block_t)))
@@ -370,7 +371,7 @@ int InitSuperblock(super_block_t *super_block, int fd, const char *device_path)
 int InitGroupDescriptor(group_desc_t *group, int fd, size_t block_size)
 {
 	assert(group);
-	assert(0 < fd);
+	assert(BAD_FD != fd);
 	assert(0 < block_size);
 
 	lseek(fd, block_size, SEEK_SET);
