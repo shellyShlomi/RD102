@@ -69,7 +69,6 @@ namespace ilrd
 	template <class U>
 	SharedPointer<T>::SharedPointer(const SharedPointer<U> &other_) : m_shared(reinterpret_cast<SharedData *>(other_.m_shared))
 	{
-
 		TestCast(GetPtr(), other_.GetPtr());
 		RefInc(m_shared);
 	}
@@ -77,7 +76,6 @@ namespace ilrd
 	template <class T>
 	SharedPointer<T> &SharedPointer<T>::operator=(const SharedPointer &other_)
 	{
-
 		RefInc(other_.m_shared);
 		SharedDataCleanUp(m_shared);
 		m_shared = other_.m_shared;
@@ -90,9 +88,7 @@ namespace ilrd
 	SharedPointer<T> &SharedPointer<T>::operator=(const SharedPointer<U> &other_)
 	{
 		TestCast(GetPtr(), other_.GetPtr());
-
-		SharedPointer<T> cpy_other_(other_); //++other_counter
-		*this = cpy_other_;
+		*this = SharedPointer<T>(other_);
 
 		return (*this);
 	}
