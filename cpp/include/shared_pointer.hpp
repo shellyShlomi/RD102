@@ -34,6 +34,8 @@ namespace ilrd
 		inline T *operator->() const;
 
 	private:
+		template <class U>
+		friend class SharedPointer;
 		struct SharedData
 		{
 			size_t m_counter;
@@ -46,9 +48,6 @@ namespace ilrd
 		inline void SharedDataCleanUp(SharedData *m_shared);
 		inline void RefDec(SharedData *m_counter);
 		inline void RefInc(SharedData *m_counter);
-
-		template <class U>
-		friend class SharedPointer;
 
 	}; // SharedPointer
 	template <class T, class U>
@@ -92,10 +91,8 @@ namespace ilrd
 	{
 		TestCast(GetPtr(), other_.GetPtr());
 
-		SharedPointer<T> cpy_O(other_); //++other_counter
-		SharedDataCleanUp(m_shared);
-		m_shared = cpy_O.m_shared;
-		RefInc(m_shared);
+		SharedPointer<T> cpy_other_(other_); //++other_counter
+		*this = cpy_other_;
 
 		return (*this);
 	}
