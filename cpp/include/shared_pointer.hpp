@@ -1,6 +1,6 @@
 // Developer: Shelly Shlomi
-// Status: in development
-// Reviewer: SIRE
+// Status: Approved
+// Reviewer: SHIR
 // Group: RD102
 // date: 06.09.21
 // description: SharedPointer with referenc counting

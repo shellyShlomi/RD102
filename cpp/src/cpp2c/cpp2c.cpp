@@ -1,4 +1,5 @@
 #include <iostream> //cout
+#include <cstring>
 using namespace std;
 
 class PublicTransport
@@ -110,7 +111,7 @@ inline T max_func(const T &t1, const T &t2)
     return ((t1 > t2) ? t1 : t2);
 }
 
-/**/ class SpecialTaxi : public Taxi
+class SpecialTaxi : public Taxi
 {
 public:
     SpecialTaxi()
@@ -136,10 +137,21 @@ public:
 private:
 };
 
-/*class PublicConvoy: public PublicTransport {
+class PublicConvoy : public PublicTransport
+{
 public:
     PublicConvoy() : m_pt1(new Minibus()), m_pt2(new Taxi())
     {
+    }
+
+    PublicConvoy(const PublicConvoy &other) : 
+    m_t(other.m_t),
+    m_m(other.m_m),
+    m_pt1(new Minibus()), 
+    m_pt2(new Taxi())
+    {
+        memmove(m_pt1, other.m_pt1, sizeof(Minibus));
+        memmove(m_pt2, other.m_pt2, sizeof(Taxi));
     }
 
     ~PublicConvoy()
@@ -161,7 +173,7 @@ private:
     PublicTransport *m_pt2;
     Minibus m_m;
     Taxi m_t;
-};*/
+};
 
 void print_info(PublicTransport &a)
 {
@@ -210,14 +222,16 @@ int main(int argc, char **argv, char **envp)
     }
     // std::cout << "------------------------------------------------" << std::endl;
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i)
+    {
         delete array[i];
     }
 
-    PublicTransport arr2[] = { Minibus(), Taxi(), PublicTransport() };
+    PublicTransport arr2[] = {Minibus(), Taxi(), PublicTransport()};
     // std::cout << "------------------------------------------------" << std::endl;
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i)
+    {
         arr2[i].display();
     }
 
@@ -244,23 +258,23 @@ int main(int argc, char **argv, char **envp)
     std::cout << max_func(1, 2) << "\n";
     //     std::cout << "------------------------------------------------" << std::endl;
 
-    std::cout << max_func<int>(1, 2.0f)<< "\n";
+    std::cout << max_func<int>(1, 2.0f) << "\n";
     //     std::cout << "------------------------------------------------" << std::endl;
 
-        // std::cout << "------------------------------------------------" << std::endl;
+    // std::cout << "------------------------------------------------" << std::endl;
     SpecialTaxi st;
     //     std::cout << "------------------------------------------------" << std::endl;
 
     taxi_display(st);
-        // std::cout << "------------------------------------------------" << std::endl;
+    // std::cout << "------------------------------------------------" << std::endl;
 
-    // /*PublicConvoy *ts1 = new PublicConvoy();
-    // PublicConvoy *ts2 = new PublicConvoy(*ts1);
-    // ts1->display();
-    // ts2->display();
-    // delete ts1;
-    // ts2->display(); // this crashes. fix the bug!
-    // delete ts2;*/
+    PublicConvoy *ts1 = new PublicConvoy();
+    PublicConvoy *ts2 = new PublicConvoy(*ts1);
+    ts1->display();
+    ts2->display();
+    delete ts1;
+    ts2->display(); // this crashes. fix the bug!
+    delete ts2;
 
     return 0;
 }

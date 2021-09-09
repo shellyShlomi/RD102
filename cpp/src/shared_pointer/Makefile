@@ -103,7 +103,7 @@ libtests: $(TEST_OBJs)
 		update_debug clean_d
 		release silent_test_release nw_test_release nmw_test_release test_release  
 		hlgT_release vlgT_release release_so update_release clean_r
-		shared_lib clean  
+		shared_lib clean clean_all
 
 #----------------DEBUG------------------#
 
@@ -236,6 +236,12 @@ clean :
 	@make clean_d
 	@rm -f -r ../../test_o/ 
 
-
+clean_all:
+	@rm -f -r $(BIN)/
+	@rm -f -r $(LIB)/
+	@rm -f -r  $(LIB)/
+	@rm -f -r  $(OBJ_REL)/
+	@rm -f -r  $(OBJ)/
+	@rm -f -r ../../test_o/ 
 
 

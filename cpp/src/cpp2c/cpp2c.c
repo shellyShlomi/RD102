@@ -5,11 +5,11 @@
 // date: 29.8.21
 // description: Implementation cpp2c
 
-
 #include <stdlib.h> /* malloc */
 #include <stdio.h>  /*printf*/
 
 #include "cpp2c.h"
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 /******************************* Struct Definition *******************************/
 
@@ -205,9 +205,9 @@ void S_TaxiDisplay(Taxi_t s)
 
 void PublicTransportCreat(PublicTransport_t *pt)
 {
-    pt->vptr = GetVtable(PUBLICTRANSPORT);
     ++PublicTransport_s_count;
     pt->m_license_plate = PublicTransport_s_count;
+    pt->vptr = GetVtable(PUBLICTRANSPORT);
 
     printf("PublicTransport::Ctor()%d\n", pt->m_license_plate);
 
@@ -226,9 +226,9 @@ void PublicTransportDestroy(void *pt)
 void PublicTransportCopyCreate(PublicTransport_t *pt, const PublicTransport_t *other)
 {
     UNUSED(other);
-    pt->vptr = GetVtable(PUBLICTRANSPORT);
     ++PublicTransport_s_count;
     pt->m_license_plate = PublicTransport_s_count;
+    pt->vptr = GetVtable(PUBLICTRANSPORT);
 
     printf("PublicTransport::CCtor() %d\n", pt->m_license_plate);
     return;
@@ -251,8 +251,8 @@ void MinibusCreate(Minibus_t *mb)
 {
     PublicTransportCreat((PublicTransport_t *)mb);
 
-    ((PublicTransport_t *)mb)->vptr = GetVtable(MINIBUS);
     mb->m_numSeats = 20;
+    ((PublicTransport_t *)mb)->vptr = GetVtable(MINIBUS);
 
     printf("Minibus::Ctor()\n");
     return;
@@ -420,7 +420,7 @@ int main(int argc, char **argv, char **envp)
     free(arr4);
     int i1 = 1;
     int i2 = 2;
-    printf("%d\n", MaxFunc(&i1, &i2));
+    printf("%d\n", MAX(i1, i2));
 
     i2 = 2.0f;
     i1 = 1;

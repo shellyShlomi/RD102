@@ -96,7 +96,7 @@ libtests:
 		build_cpp silent_test_cpp nw_test_cpp nmw_test_cpp test_cpp vlgT_cpp \
 		hlgT_cpp shared_obj_cpp update_debug_cpp clean_d_cpp \
 \
-		shared_lib  clean  
+		shared_lib  clean clean_all 
 #----------------Comparison Of C & CPP Outפut Files------------------#
 
 test_cmp:
