@@ -20,7 +20,7 @@ namespace ilrd
 	{
 
 	public:
-		explicit inline SharedPointer(T *ptr_ = 0);
+		inline SharedPointer(T *ptr_ = 0);
 		inline SharedPointer(const SharedPointer &other_);
 		template <class U>
 		inline SharedPointer(const SharedPointer<U> &other_);
@@ -48,6 +48,12 @@ namespace ilrd
 		inline void SharedDataCleanUp(SharedData *m_shared);
 		inline void RefDec(SharedData *m_counter);
 		inline void RefInc(SharedData *m_counter);
+
+		//to disallow heap alloction of SharedPointer
+		void *operator new(size_t);
+		void operator delete(void *);
+		void *operator new[](size_t);
+		void operator delete[](void *);
 
 	}; // SharedPointer
 	template <class T, class U>
@@ -136,12 +142,11 @@ namespace ilrd
 		if (NOT_EXSIST == m_shared->m_counter)
 		{
 			delete (m_shared->m_data);
-			m_shared->m_data = 0;
-			m_shared->m_counter = SELF_COUNT;
+			m_shared->m_data = NOT_EXSIST;
+			m_shared->m_counter = NOT_EXSIST;
 			delete (m_shared);
-			m_shared = 0;
+			m_shared = NOT_EXSIST;
 		}
-
 		return;
 	}
 

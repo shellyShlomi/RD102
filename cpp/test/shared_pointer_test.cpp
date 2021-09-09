@@ -1,7 +1,7 @@
 #include <string>	//string
 #include <iostream> // cout
 #include "shared_pointer.hpp"
-#include "utilities.hpp"
+#include "utilities_shared_pointer.hpp"
 #include "tools.h"
 
 using namespace utilities;
@@ -20,6 +20,7 @@ void foo_helper(int i, int to_test, int flag, int line);
 
 void TestPointerOperators();
 
+void TestDisAllowingAlloctionOfSharedPointerOnHeap();
 /********************************** General **********************************/
 
 void Test();
@@ -39,6 +40,7 @@ void Test()
 
 	TestPointerOperators();
 	TestUpcastAndCCtorAndAssignment();
+	TestDisAllowingAlloctionOfSharedPointerOnHeap();
 	TotalErrors();
 	return;
 }
@@ -47,6 +49,14 @@ void TestUpcastAndCCtorAndAssignment()
 {
 	TestTUAndTTClassesCCtor();
 	TestTUAnsTTClassesAssignmentOprator();
+	return;
+}
+
+void TestDisAllowingAlloctionOfSharedPointerOnHeap()
+{
+	SharedPointer<Base> sharedbasePtr1(new Base());
+	// SharedPointer<Base> *sharedbasePtr = new SharedPointer<Base>(SharedPointer<Base>(new Base()));
+	// delete sharedbasePtr;
 	return;
 }
 
