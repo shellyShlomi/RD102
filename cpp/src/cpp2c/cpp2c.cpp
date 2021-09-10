@@ -137,23 +137,56 @@ public:
 private:
 };
 
+// class PublicConvoy : public PublicTransport
+// {
+// public:
+//     PublicConvoy() : m_pt1(new Minibus()), m_pt2(new Taxi())
+//     {
+//     }
+
+//     PublicConvoy(PublicConvoy &other) : m_pt1(new Minibus(dynamic_cast<Minibus &>(*(other.m_pt1)))),
+//                                         m_pt2(new Taxi(dynamic_cast<Taxi &>(*(other.m_pt2))))
+//     {
+//     }
+//     ~PublicConvoy()
+//     {
+//         delete m_pt1;
+//         delete m_pt2;
+//     }
+
+//     void display()
+//     {
+//         m_pt1->display();
+//         m_pt2->display();
+//         m_m.display();
+//         m_t.display();
+//     }
+
+// private:
+//     PublicTransport *m_pt1;
+//     PublicTransport *m_pt2;
+//     Minibus m_m;
+//     Taxi m_t;
+// };
+
 class PublicConvoy : public PublicTransport
 {
 public:
     PublicConvoy() : m_pt1(new Minibus()), m_pt2(new Taxi())
     {
+        cout << "PublicConvoy::Ctor()\n";
     }
 
-    PublicConvoy(PublicConvoy &other) :
-    PublicTransport(other)
-    ,m_pt1(new Minibus(dynamic_cast<Minibus &>(*(other.m_pt1)))),
-    m_pt2(new Taxi(dynamic_cast<Taxi &>(*(other.m_pt2)))),
-    m_m(other.m_m), m_t(other.m_t)
+    PublicConvoy(PublicConvoy &other) :PublicTransport(other),m_pt1(new Minibus(dynamic_cast<Minibus &>(*(other.m_pt1)))),
+                                        m_pt2(new Taxi(dynamic_cast<Taxi &>(*(other.m_pt2)))),
+                                        m_m(other.m_m), m_t(other.m_t)
     {
         cout << "PublicConvoy::CCtor()\n";
     }
+
     ~PublicConvoy()
     {
+        cout << "PublicConvoy::Dtor()\n";
         delete m_pt1;
         delete m_pt2;
     }
@@ -261,7 +294,7 @@ int main(int argc, char **argv, char **envp)
 
     // std::cout << "------------------------------------------------" << std::endl;
     SpecialTaxi st;
-    //     std::cout << "------------------------------------------------" << std::endl;
+    // std::cout << "------------------------------------------------" << std::endl;
 
     taxi_display(st);
     std::cout << "------------------------------------------------" << std::endl;
@@ -277,6 +310,7 @@ int main(int argc, char **argv, char **envp)
     std::cout << "------------------------------------------------" << std::endl;
 
     ts2->display();
+
     std::cout << "------------------------------------------------" << std::endl;
 
     delete ts1;

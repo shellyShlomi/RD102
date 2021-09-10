@@ -42,6 +42,16 @@ struct SpecialTaxi
     Taxi_t m_superclass;
 };
 
+struct PublicConvoy
+{
+    PublicTransport_t m_superclass;
+
+    PublicTransport_t *m_pt1;
+    PublicTransport_t *m_pt2;
+    Minibus_t m_m;
+    Taxi_t m_t;
+};
+
 /******************************* Static Data Memb ******************************/
 
 static int PublicTransport_s_count = 0;
@@ -54,7 +64,8 @@ size_t GetSizeof(typeid_t type)
     static size_t types_size[NUM_OF_TYPE] = {sizeof(PublicTransport_t),
                                              sizeof(Minibus_t),
                                              sizeof(Taxi_t),
-                                             sizeof(SpecialTaxi_t)};
+                                             sizeof(SpecialTaxi_t),
+                                             sizeof(PublicConvoy_t)};
     return (types_size[type]);
 }
 
@@ -76,6 +87,8 @@ vtable_t *GetVtable(typeid_t type)
     static vtable_t g_staxi_vtble = {SpecialTaxiDestroy,
                                      SpecialTaxiDisplay, NULL};
 
+    static vtable_t g_publicconvoy_vtble = {PublicConvoyDestroy,
+                                            PublicConvoyDisplay, NULL};
     vtable_t *return_table = NULL;
 
     switch (type)
@@ -100,6 +113,12 @@ vtable_t *GetVtable(typeid_t type)
         return_table = &g_staxi_vtble;
         break;
     }
+    case PUBLICCONVOY:
+    {
+        return_table = &g_publicconvoy_vtble;
+        break;
+    }
+
     default:
     {
         return_table = &g_publictransport_vtble;
@@ -258,6 +277,18 @@ void MinibusCreate(Minibus_t *mb)
     return;
 }
 
+void MinibusCopyCreate(void *mb, const void *other)
+{
+    PublicTransportCopyCreate(((PublicTransport_t *)mb), ((PublicTransport_t *)other));
+    ((Minibus_t *)mb)->m_numSeats = ((Minibus_t*)other)->m_numSeats;
+
+    printf("Minibus::CCtor()\n");
+
+    ((PublicTransport_t *)mb)->vptr = GetVtable(MINIBUS);
+
+    return;
+}
+
 void MinibusDestroy(void *mb)
 {
     printf("Minibus::Dtor()\n");
@@ -290,7 +321,7 @@ void TaxiCreate(Taxi_t *tx)
     return;
 }
 
-void TaxiCopyCreate(Taxi_t *tx, const Taxi_t *other)
+void TaxiCopyCreate(void *tx, const void *other)
 {
     PublicTransportCopyCreate(((PublicTransport_t *)tx), ((PublicTransport_t *)other));
     printf("Taxi::CCtor()\n");
@@ -334,6 +365,71 @@ void SpecialTaxiDestroy(void *s_tx)
 void SpecialTaxiDisplay(void const *s_tx)
 {
     printf("SpecialTaxi::display() ID:%d\n", GetID(((PublicTransport_t *)s_tx)));
+    return;
+}
+/**************************** PublicConvoy *******************************/
+
+void PublicConvoyCreate(PublicConvoy_t *pc)
+{
+    PublicTransportCreat((PublicTransport_t *)pc);
+
+    pc->m_pt1 = (PublicTransport_t *)malloc(sizeof(Minibus_t));
+    MinibusCreate((Minibus_t *)(pc->m_pt1));
+
+    pc->m_pt2 = (PublicTransport_t *)malloc(sizeof(Taxi_t));
+    TaxiCreate((Taxi_t *)(pc->m_pt2));
+
+    MinibusCreate(&(pc->m_m));
+    TaxiCreate(&(pc->m_t));
+    ((PublicTransport_t *)pc)->vptr = GetVtable(PUBLICCONVOY);
+
+    printf("PublicConvoy::Ctor()\n");
+    return;
+}
+
+void PublicConvoyCopyCreate(PublicConvoy_t *pc, const PublicConvoy_t *other)
+{
+    PublicTransportCopyCreate(((PublicTransport_t *)pc), ((PublicTransport_t *)other));
+
+    pc->m_pt1 = (PublicTransport_t *)malloc(sizeof(Minibus_t));
+    MinibusCopyCreate((Minibus_t *)(pc->m_pt1), (Minibus_t *)(other->m_pt1));
+
+    pc->m_pt2 = (PublicTransport_t *)malloc(sizeof(Taxi_t));
+    TaxiCopyCreate((Taxi_t *)(pc->m_pt2), (Taxi_t *)(other->m_pt2));
+
+    MinibusCopyCreate(&(pc->m_m), &(other->m_m));
+    TaxiCopyCreate(&(pc->m_t), &(other->m_t));
+
+    printf("PublicConvoy::CCtor()\n");
+
+    ((PublicTransport_t *)pc)->vptr = GetVtable(PUBLICCONVOY);
+
+    return;
+}
+
+void PublicConvoyDestroy(void *pc)
+{
+    printf("PublicConvoy::Dtor()\n");
+
+    MinibusDestroy((void *)((PublicConvoy_t *)pc)->m_pt1);
+    free((void *)((PublicConvoy_t *)pc)->m_pt1);
+    TaxiDestroy((void *)((PublicConvoy_t *)pc)->m_pt2);
+    free((void *)((PublicConvoy_t *)pc)->m_pt2);
+
+    TaxiDestroy((void *)&(((PublicConvoy_t *)pc)->m_t));
+    MinibusDestroy((void *)&(((PublicConvoy_t *)pc)->m_m));
+
+    PublicTransportDestroy((void *)((PublicTransport_t *)pc));
+
+    return;
+}
+
+void PublicConvoyDisplay(void const *pc)
+{
+    ((PublicConvoy_t *)pc)->m_pt1->vptr->Display(((PublicConvoy_t *)pc)->m_pt1);
+    ((PublicConvoy_t *)pc)->m_pt2->vptr->Display(((PublicConvoy_t *)pc)->m_pt2);
+    MinibusDisplay((void *)&(((PublicConvoy_t *)pc)->m_m));
+    TaxiDisplay((void *)&(((PublicConvoy_t *)pc)->m_t));
     return;
 }
 
@@ -433,15 +529,28 @@ int main(int argc, char **argv, char **envp)
 
     S_TaxiDisplay(tx1);
     TaxiDestroy(&tx1);
-    /*PublicConvoy *ts1 = new PublicConvoy();
-    PublicConvoy *ts2 = new PublicConvoy(*ts1);
-    ts1->display();
-    ts2->display();
-    delete ts1;
-    ts2->display(); // this crashes. fix the bug!
-    delete ts2;*/
-    /*     printf("------------------------------------------------\n");
- */
+
+        printf("------------------------------------------------\n");
+        printf("------------------------------------------------\n");
+        printf("------------------------------------------------\n");
+
+    PublicConvoy_t *ts1 = Allocet((void **)(&ts1), GetSizeof(PUBLICCONVOY));
+    PublicConvoyCreate(ts1);
+    PublicConvoy_t *ts2 = Allocet((void **)(&ts2), GetSizeof(PUBLICCONVOY));
+    PublicConvoyCopyCreate(ts2, ts1);
+
+    PublicConvoyDisplay(ts1);
+    PublicConvoyDisplay(ts2);
+    
+    PublicConvoyDestroy(ts1);
+    free(ts1);
+    PublicConvoyDisplay(ts2);
+    PublicConvoyDestroy(ts2);
+    free(ts2);
+
+
+        printf("------------------------------------------------\n");
+
     SpecialTaxiDestroy(&st);
 
     for (int i = 3; i > -1; --i)
