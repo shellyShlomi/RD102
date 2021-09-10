@@ -3,7 +3,14 @@
 // Reviewer: Yakov .M.
 // Group: RD102
 // date: 29.8.21
-// description: Implementation cpp2c
+// description: Implementation cpp2c phas 1
+
+// Developer: Shelly Shlomi
+// Status: Done
+// Reviewer: Maor
+// Group: RD102
+// date: 9.9.21
+// description: Implementation cpp2c phas 2
 
 #include <stdlib.h> /* malloc */
 #include <stdio.h>  /*printf*/
