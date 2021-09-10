@@ -40,7 +40,7 @@ void MinibusDisplay(void const *mb);
 void Wash(void *obj, int minutes);
 
 void TaxiCreate(Taxi_t *tx);
-void TaxiCopyCreate(void *tx, const void  *other);
+void TaxiCopyCreate(void *tx, const void *other);
 void TaxiDestroy(void *tx);
 void TaxiDisplay(void const *tx);
 
