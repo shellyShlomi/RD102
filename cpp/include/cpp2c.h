@@ -11,6 +11,7 @@ typedef struct PublicTransport PublicTransport_t;
 typedef struct Minibus Minibus_t;
 typedef struct Taxi Taxi_t;
 typedef struct SpecialTaxi SpecialTaxi_t;
+typedef struct PublicConvoy PublicConvoy_t;
 
 /******************************* Struct Definition *******************************/
 
@@ -20,6 +21,7 @@ typedef enum type_id
     MINIBUS,
     TAXI,
     SPECIALTAXI,
+    PUBLICCONVOY,
     NUM_OF_TYPE,
 } typeid_t;
 
@@ -32,6 +34,7 @@ int GetID(PublicTransport_t *const pt);
 void PublicTransportInit(PublicTransport_t **pt);
 
 void MinibusCreate(Minibus_t *mb);
+void MinibusCopyCreate(Minibus_t *mb, const Minibus_t *other);
 void MinibusDestroy(void *mb);
 void MinibusDisplay(void const *mb);
 void Wash(void *obj, int minutes);
@@ -44,6 +47,12 @@ void TaxiDisplay(void const *tx);
 void SpecialTaxiCreate(SpecialTaxi_t *s_tx);
 void SpecialTaxiDestroy(void *s_tx);
 void SpecialTaxiDisplay(void const *s_tx);
+
+
+void PublicConvoyCreate(PublicConvoy_t *pc);
+void PublicConvoyCopyCreate(PublicConvoy_t *pc, const PublicConvoy_t *other);
+void PublicConvoyDestroy(void *pc);
+void PublicConvoyDisplay(void const *pc);
 
 /**************************** general *******************************/
 

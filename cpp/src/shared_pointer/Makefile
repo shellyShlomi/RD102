@@ -234,14 +234,12 @@ shared_lib:
 clean :
 	@make clean_r
 	@make clean_d
-	@rm -f -r ../../test_o/ 
-
-clean_all:
 	@rm -f -r $(BIN)/
-	@rm -f -r $(LIB)/
 	@rm -f -r  $(LIB)/
 	@rm -f -r  $(OBJ_REL)/
 	@rm -f -r  $(OBJ)/
 	@rm -f -r ../../test_o/ 
+
+
 
 

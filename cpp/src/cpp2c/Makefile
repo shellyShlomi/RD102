@@ -106,8 +106,6 @@ for_test:
 	@mkdir -p $(FILE)  
 	@make -s cpp_to_file
 	@make -s c_to_file
-	@rm -f -r  $(BIN)/$(TARGET_CPP)
-	@rm -f -r  $(BIN)/$(TARGET_C)
 
 cpp_to_file:
 	@make CPPFLAGS='-std=c++98 -g -I$(INC)'  -s build_cpp
@@ -136,9 +134,8 @@ nmw_test:
 	@./$(BIN)/$(TARGET_C)
 
 test:
-	@make  for_test
-	@make  test_cmp
-
+	@make  build
+	@./$(BIN)/$(TARGET_C)
 
 vlgT:
 	@make  build
@@ -176,7 +173,6 @@ build_cpp:
 test_cpp:
 	@make  build_cpp
 	@./$(BIN)/$(TARGET_CPP)
-	@rm -f -r  $(BIN)/$(TARGET_CPP)
 
 
 silent_test_cpp:
@@ -228,9 +224,13 @@ shared_lib:
 
 
 clean :
+	@rm -f -r ../../obj 
+	@rm -f -r ../../lib 
+	@rm -f -r ../../bin 
 	@make clean_d_cpp
 	@make clean_d
 	@rm -f -r ../../test_o/ 
+	@rm -f -r ./$(FILE) 
 
 
 
