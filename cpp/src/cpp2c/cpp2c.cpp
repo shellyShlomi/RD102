@@ -174,19 +174,16 @@ class PublicConvoy : public PublicTransport
 public:
     PublicConvoy() : m_pt1(new Minibus()), m_pt2(new Taxi())
     {
-        cout << "PublicConvoy::Ctor()\n";
     }
 
     PublicConvoy(PublicConvoy &other) :PublicTransport(other),m_pt1(new Minibus(dynamic_cast<Minibus &>(*(other.m_pt1)))),
                                         m_pt2(new Taxi(dynamic_cast<Taxi &>(*(other.m_pt2)))),
                                         m_m(other.m_m), m_t(other.m_t)
     {
-        cout << "PublicConvoy::CCtor()\n";
     }
 
     ~PublicConvoy()
     {
-        cout << "PublicConvoy::Dtor()\n";
         delete m_pt1;
         delete m_pt2;
     }

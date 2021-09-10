@@ -389,7 +389,6 @@ void PublicConvoyCreate(PublicConvoy_t *pc)
     TaxiCreate(&(pc->m_t));
     ((PublicTransport_t *)pc)->vptr = GetVtable(PUBLICCONVOY);
 
-    printf("PublicConvoy::Ctor()\n");
     return;
 }
 
@@ -406,7 +405,6 @@ void PublicConvoyCopyCreate(PublicConvoy_t *pc, const PublicConvoy_t *other)
     MinibusCopyCreate(&(pc->m_m), &(other->m_m));
     TaxiCopyCreate(&(pc->m_t), &(other->m_t));
 
-    printf("PublicConvoy::CCtor()\n");
 
     ((PublicTransport_t *)pc)->vptr = GetVtable(PUBLICCONVOY);
 
@@ -415,7 +413,6 @@ void PublicConvoyCopyCreate(PublicConvoy_t *pc, const PublicConvoy_t *other)
 
 void PublicConvoyDestroy(void *pc)
 {
-    printf("PublicConvoy::Dtor()\n");
 
     (((PublicConvoy_t *)pc)->m_pt1)->vptr->Dtor(((PublicConvoy_t *)pc)->m_pt1);
     free(((PublicConvoy_t *)pc)->m_pt1);
