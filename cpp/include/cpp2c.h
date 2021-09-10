@@ -34,13 +34,13 @@ int GetID(PublicTransport_t *const pt);
 void PublicTransportInit(PublicTransport_t **pt);
 
 void MinibusCreate(Minibus_t *mb);
-void MinibusCopyCreate(void *mb, const void *other);
+void MinibusCopyCreate(Minibus_t *mb, const Minibus_t *other);
 void MinibusDestroy(void *mb);
 void MinibusDisplay(void const *mb);
 void Wash(void *obj, int minutes);
 
 void TaxiCreate(Taxi_t *tx);
-void TaxiCopyCreate(void *tx, const void *other);
+void TaxiCopyCreate(Taxi_t *tx, const Taxi_t *other);
 void TaxiDestroy(void *tx);
 void TaxiDisplay(void const *tx);
 

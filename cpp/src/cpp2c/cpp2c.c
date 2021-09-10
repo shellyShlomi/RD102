@@ -277,10 +277,10 @@ void MinibusCreate(Minibus_t *mb)
     return;
 }
 
-void MinibusCopyCreate(void *mb, const void *other)
+void MinibusCopyCreate(Minibus_t *mb, const Minibus_t *other)
 {
     PublicTransportCopyCreate(((PublicTransport_t *)mb), ((PublicTransport_t *)other));
-    ((Minibus_t *)mb)->m_numSeats = ((Minibus_t *)other)->m_numSeats;
+    mb->m_numSeats = other->m_numSeats;
     printf("Minibus::CCtor()\n");
 
     ((PublicTransport_t *)mb)->vptr = GetVtable(MINIBUS);
@@ -320,7 +320,7 @@ void TaxiCreate(Taxi_t *tx)
     return;
 }
 
-void TaxiCopyCreate(void *tx, const void *other)
+void TaxiCopyCreate(Taxi_t *tx, const Taxi_t *other)
 {
     PublicTransportCopyCreate(((PublicTransport_t *)tx), ((PublicTransport_t *)other));
     printf("Taxi::CCtor()\n");
@@ -410,9 +410,10 @@ void PublicConvoyDestroy(void *pc)
 {
     printf("PublicConvoy::Dtor()\n");
 
-    MinibusDestroy(((PublicConvoy_t *)pc)->m_pt1);
+    (((PublicConvoy_t *)pc)->m_pt1)->vptr->Dtor(((PublicConvoy_t *)pc)->m_pt1);
     free(((PublicConvoy_t *)pc)->m_pt1);
-    TaxiDestroy(((PublicConvoy_t *)pc)->m_pt2);
+
+    (((PublicConvoy_t *)pc)->m_pt2)->vptr->Dtor(((PublicConvoy_t *)pc)->m_pt2);
     free((void *)((PublicConvoy_t *)pc)->m_pt2);
 
     TaxiDestroy((void *)&(((PublicConvoy_t *)pc)->m_t));
@@ -529,23 +530,23 @@ int main(int argc, char **argv, char **envp)
     S_TaxiDisplay(tx1);
     TaxiDestroy(&tx1);
 
-
     PublicConvoy_t *ts1 = (PublicConvoy_t *)malloc(sizeof(PublicConvoy_t));
     PublicConvoyCreate(ts1);
 
     PublicConvoy_t *ts2 = (PublicConvoy_t *)malloc(sizeof(PublicConvoy_t));
     PublicConvoyCopyCreate(ts2, ts1);
-/*    printf("------------------------------------------------\n");
-*/
-    PublicConvoyDisplay(ts1);
-  
-    PublicConvoyDisplay(ts2);
 
-    PublicConvoyDestroy(ts1);
+    ts1->m_superclass.vptr->Display(ts1);
+    ts2->m_superclass.vptr->Display(ts2);
+
+    ts1->m_superclass.vptr->Dtor(ts1);
     free(ts1);
-    PublicConvoyDisplay(ts2);
-    PublicConvoyDestroy(ts2);
+
+    ts2->m_superclass.vptr->Display(ts2);
+
+    ts2->m_superclass.vptr->Dtor(ts2);
     free(ts2);
+
     printf("------------------------------------------------\n");
     printf("------------------------------------------------\n");
 
