@@ -6,10 +6,10 @@
 // description: Implementation cpp2c phas 1
 
 // Developer: Shelly Shlomi
-// Status: Done
-// Reviewer: Maor
+// Status: Approved
+// Reviewer: Nir
 // Group: RD102
-// date: 9.9.21
+// date: 12.9.21
 // description: Implementation cpp2c phas 2
 
 #include <stdlib.h> /* malloc */
@@ -374,7 +374,7 @@ void SpecialTaxiDisplay(void const *s_tx)
     return;
 }
 /**************************** PublicConvoy *******************************/
-
+// PHAS 2
 void PublicConvoyCreate(PublicConvoy_t *pc)
 {
     PublicTransportCreat((PublicTransport_t *)pc);
@@ -404,7 +404,6 @@ void PublicConvoyCopyCreate(PublicConvoy_t *pc, const PublicConvoy_t *other)
 
     MinibusCopyCreate(&(pc->m_m), &(other->m_m));
     TaxiCopyCreate(&(pc->m_t), &(other->m_t));
-
 
     ((PublicTransport_t *)pc)->vptr = GetVtable(PUBLICCONVOY);
 
@@ -534,6 +533,7 @@ int main(int argc, char **argv, char **envp)
     S_TaxiDisplay(tx1);
     TaxiDestroy(&tx1);
 
+    // PHAS 2
     PublicConvoy_t *ts1 = (PublicConvoy_t *)malloc(sizeof(PublicConvoy_t));
     PublicConvoyCreate(ts1);
 

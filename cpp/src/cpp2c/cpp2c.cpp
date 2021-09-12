@@ -18,6 +18,7 @@ public:
 
     PublicTransport(const PublicTransport &other) : m_license_plate(++s_count)
     {
+        (void)other;
         cout << "PublicTransport::CCtor() " << m_license_plate << "\n";
     }
 
@@ -137,38 +138,6 @@ public:
 private:
 };
 
-// class PublicConvoy : public PublicTransport
-// {
-// public:
-//     PublicConvoy() : m_pt1(new Minibus()), m_pt2(new Taxi())
-//     {
-//     }
-
-//     PublicConvoy(PublicConvoy &other) : m_pt1(new Minibus(dynamic_cast<Minibus &>(*(other.m_pt1)))),
-//                                         m_pt2(new Taxi(dynamic_cast<Taxi &>(*(other.m_pt2))))
-//     {
-//     }
-//     ~PublicConvoy()
-//     {
-//         delete m_pt1;
-//         delete m_pt2;
-//     }
-
-//     void display()
-//     {
-//         m_pt1->display();
-//         m_pt2->display();
-//         m_m.display();
-//         m_t.display();
-//     }
-
-// private:
-//     PublicTransport *m_pt1;
-//     PublicTransport *m_pt2;
-//     Minibus m_m;
-//     Taxi m_t;
-// };
-
 class PublicConvoy : public PublicTransport
 {
 public:
@@ -176,7 +145,8 @@ public:
     {
     }
 
-    PublicConvoy(PublicConvoy &other) :PublicTransport(other),m_pt1(new Minibus(dynamic_cast<Minibus &>(*(other.m_pt1)))),
+    PublicConvoy(PublicConvoy &other) : PublicTransport(other),
+                                        m_pt1(new Minibus(dynamic_cast<Minibus &>(*(other.m_pt1)))),
                                         m_pt2(new Taxi(dynamic_cast<Taxi &>(*(other.m_pt2)))),
                                         m_m(other.m_m), m_t(other.m_t)
     {
@@ -220,6 +190,7 @@ void print_info(Minibus &m)
 
 PublicTransport print_info(int i)
 {
+    (void)i;
     Minibus ret;
     cout << "print_info(int i)\n";
     ret.display();
@@ -233,6 +204,10 @@ void taxi_display(Taxi s)
 
 int main(int argc, char **argv, char **envp)
 {
+    (void)argc;
+    (void)argv;
+    (void)envp;
+
     Minibus m;
     // std::cout << "------------------------------------------------" << std::endl;
     print_info(m);
