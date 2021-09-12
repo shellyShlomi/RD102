@@ -551,9 +551,6 @@ int main(int argc, char **argv, char **envp)
     ts2->m_superclass.vptr->Dtor(ts2);
     free(ts2);
 
-    printf("------------------------------------------------\n");
-    printf("------------------------------------------------\n");
-
     SpecialTaxiDestroy(&st);
 
     for (int i = 3; i > -1; --i)

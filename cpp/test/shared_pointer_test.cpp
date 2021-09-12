@@ -10,6 +10,7 @@ using namespace ilrd;
 /******************************* CCtoe UT & TT *******************************/
 /***************************** operator= UT & TT *****************************/
 
+void TestOf2BaseClass1Derived();
 void TestUpcastAndCCtorAndAssignment();
 void TestTUAndTTClassesCCtor();
 void TestTUAnsTTClassesAssignmentOprator();
@@ -41,6 +42,7 @@ void Test()
 	TestPointerOperators();
 	TestUpcastAndCCtorAndAssignment();
 	TestDisAllowingAlloctionOfSharedPointerOnHeap();
+	TestOf2BaseClass1Derived();
 	TotalErrors();
 	return;
 }
@@ -179,6 +181,53 @@ void TestTUAnsTTClassesAssignmentOprator()
 		  "Failed operator= ,DerivedPtr = DerivedPtr", __LINE__);
 	Valid(DerivedPtr.GetPtr() == DerivedPtr.GetPtr(),
 		  "Failed operator= ,DerivedPtr = DerivedPtr", __LINE__);
+
+	// DerivedPtr = BasePtr;
+
+	return;
+}
+
+void TestOf2BaseClass1Derived()
+{
+	using namespace utilities;
+	using namespace ilrd;
+
+	Derived2 *ptr = new Derived2();
+	SharedPointer<Derived2> DerivedPtr = SharedPointer<Derived2>(ptr);
+	Valid(DerivedPtr.GetPtr()->Display() == DERIVED2,
+		  "Failed Ctoe ,DerivedPtr", __LINE__);
+
+	SharedPointer<Base2> BasePtr2 = SharedPointer<Base2>(DerivedPtr);
+	Valid(BasePtr2.GetPtr()->Display() == DERIVED2,
+		  "Failed Ctoe ,BasePtr2", __LINE__);
+
+	SharedPointer<Base> BasePtr = SharedPointer<Base>(DerivedPtr);
+	Valid(BasePtr.GetPtr()->Display() == DERIVED2,
+		  "Failed Ctoe ,BasePtr", __LINE__);
+
+	BasePtr = BasePtr; //self assingmentI
+	Valid(BasePtr.GetPtr()->Display() == DERIVED2,
+		  "Failed operator= ,BasePtr = BasePtr", __LINE__);
+	Valid(BasePtr.GetPtr() == BasePtr.GetPtr(),
+		  "Failed operator= ,BasePtr = BasePtr", __LINE__);
+
+	BasePtr2 = DerivedPtr;
+
+	Valid(BasePtr2.GetPtr()->Display() == DerivedPtr.GetPtr()->Display(),
+		  "Failed operator= ,BasePtr2 = DerivedPtr", __LINE__);
+	Valid(BasePtr2.GetPtr()->Display() == DERIVED2,
+		  "Failed operator= ,BasePtr2 = DerivedPtr", __LINE__);
+	Valid(BasePtr2.GetPtr() == DerivedPtr.GetPtr(),
+		  "Failed operator= ,BasePtr2 = DerivedPtr", __LINE__);
+
+	BasePtr = DerivedPtr;
+
+	Valid(BasePtr.GetPtr()->Display() == DerivedPtr.GetPtr()->Display(),
+		  "Failed operator= ,BasePtr = DerivedPtr", __LINE__);
+	Valid(BasePtr.GetPtr()->Display() == DERIVED2,
+		  "Failed operator= ,BasePtr = DerivedPtr", __LINE__);
+	Valid(BasePtr.GetPtr() == DerivedPtr.GetPtr(),
+		  "Failed operator= ,BasePtr = DerivedPtr", __LINE__);
 
 	// DerivedPtr = BasePtr;
 

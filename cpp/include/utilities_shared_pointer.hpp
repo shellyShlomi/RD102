@@ -37,6 +37,7 @@ namespace utilities
     {
         x = 0;
     }
+
     int Base::Display()
     {
         return (x);
@@ -56,6 +57,62 @@ namespace utilities
     {
         return (y);
     }
+
+    const static int BASE2(3);
+    const static int DERIVED2(4);
+
+    class Base2
+    {
+    public:
+        Base2();
+        virtual ~Base2();
+        virtual int Display();
+
+    private:
+        int z;
+    };
+
+    Base2::Base2() : z(BASE2)
+    {
+        //empty
+    }
+
+    Base2::~Base2()
+    {
+        z = 0;
+    }
+
+    int Base2::Display()
+    {
+        return (z);
+    }
+
+    class Derived2 : public Base, public Base2
+    {
+    public:
+        Derived2();
+        ~Derived2();
+        int Display();
+
+    private:
+        int y;
+    };
+
+    Derived2::Derived2() : y(DERIVED2)
+    {
+        //empty
+    }
+
+    Derived2::~Derived2()
+    {
+        y = 0;
+    }
+
+    int Derived2::Display()
+    {
+        return (y);
+    }
+
     const static int FIRST(1);
     const static int SECOND(2);
 } //utilities

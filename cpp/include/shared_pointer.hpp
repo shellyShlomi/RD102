@@ -36,18 +36,13 @@ namespace ilrd
 	private:
 		template <class U>
 		friend class SharedPointer;
-		struct SharedData
-		{
-			size_t m_counter;
-			T *m_data;
-		};
 
-		SharedData *m_shared;
+		T *m_data;
+		size_t *m_counter;
 
-		inline SharedData *InitSharedData(T *ptr);
-		inline void SharedDataCleanUp(SharedData *m_shared);
-		inline void RefDec(SharedData *m_counter);
-		inline void RefInc(SharedData *m_counter);
+		inline void SharedDataCleanUp();
+		inline size_t *RefDec(size_t *m_counter);
+		inline size_t *RefInc(size_t *m_counter);
 
 		//to disallow heap alloction of SharedPointer
 		void *operator new(size_t);
@@ -56,35 +51,33 @@ namespace ilrd
 		void operator delete[](void *);
 
 	}; // SharedPointer
-	template <class T, class U>
-	void TestCast(T *test_to_cast, U *to_cast);
 
 	template <class T>
-	SharedPointer<T>::SharedPointer(T *ptr_) : m_shared(InitSharedData(ptr_))
+	SharedPointer<T>::SharedPointer(T *ptr_) : m_data(ptr_), m_counter(new size_t(SELF_COUNT))
 	{
 		; //empty
 	}
 
 	template <class T>
-	SharedPointer<T>::SharedPointer(const SharedPointer &other_) : m_shared(other_.m_shared)
+	SharedPointer<T>::SharedPointer(const SharedPointer &other_) : m_data(other_.m_data), m_counter(RefInc(other_.m_counter))
 	{
-		RefInc(m_shared);
+		; //empty
 	}
 
 	template <class T>
 	template <class U>
-	SharedPointer<T>::SharedPointer(const SharedPointer<U> &other_) : m_shared(reinterpret_cast<SharedData *>(other_.m_shared))
+	SharedPointer<T>::SharedPointer(const SharedPointer<U> &other_) : m_data(other_.m_data), m_counter(RefInc(other_.m_counter))
 	{
-		TestCast(GetPtr(), other_.GetPtr());
-		RefInc(m_shared);
+		; //empty
 	}
 
 	template <class T>
 	SharedPointer<T> &SharedPointer<T>::operator=(const SharedPointer &other_)
 	{
-		RefInc(other_.m_shared);
-		SharedDataCleanUp(m_shared);
-		m_shared = other_.m_shared;
+		RefInc(other_.m_counter);
+		SharedDataCleanUp();
+		m_data = other_.m_data;
+		m_counter = other_.m_counter;
 
 		return (*this);
 	}
@@ -93,20 +86,19 @@ namespace ilrd
 	template <class U>
 	SharedPointer<T> &SharedPointer<T>::operator=(const SharedPointer<U> &other_)
 	{
-		TestCast(GetPtr(), other_.GetPtr());
 		return (*this = SharedPointer<T>(other_));
 	}
 
 	template <class T>
 	SharedPointer<T>::~SharedPointer()
 	{
-		SharedDataCleanUp(m_shared);
+		SharedDataCleanUp();
 	}
 
 	template <class T>
 	T *SharedPointer<T>::GetPtr() const
 	{
-		return (m_shared->m_data);
+		return (m_data);
 	}
 
 	template <class T>
@@ -121,56 +113,37 @@ namespace ilrd
 		return (GetPtr());
 	}
 
-	template <class T>
-	typename SharedPointer<T>::SharedData *SharedPointer<T>::InitSharedData(T *ptr)
-	{
-		SharedData *shared_ptr =
-			static_cast<SharedData *>(::operator new(sizeof(SharedData)));
-
-		shared_ptr->m_counter = SELF_COUNT;
-		shared_ptr->m_data = ptr;
-
-		return (shared_ptr);
-	}
 
 	template <class T>
-	void SharedPointer<T>::SharedDataCleanUp(SharedData *m_shared)
+	void SharedPointer<T>::SharedDataCleanUp()
 	{
 
-		RefDec(m_shared);
+		RefDec(m_counter);
 
-		if (NOT_EXSIST == m_shared->m_counter)
+		if (NOT_EXSIST == *m_counter)
 		{
-			delete (m_shared->m_data);
-			m_shared->m_data = NOT_EXSIST;
-			m_shared->m_counter = NOT_EXSIST;
-			delete (m_shared);
-			m_shared = NOT_EXSIST;
+			delete (m_data);
+			m_data = NOT_EXSIST;
+			*m_counter = NOT_EXSIST;
+			delete (m_counter);
+			m_counter = NOT_EXSIST;
 		}
-		return;
-	}
-
-	template <class T, class U>
-	void TestCast(T *test_to_cast, U *to_cast)
-	{
-		(void)test_to_cast;
-
-		T *test_cast = to_cast;
-		(void)test_cast;
 
 		return;
 	}
 
 	template <class T>
-	inline void SharedPointer<T>::RefDec(SharedData *m_shared)
+	inline size_t *SharedPointer<T>::RefDec(size_t *m_counter)
 	{
-		--m_shared->m_counter;
+		(*m_counter) -= 1;
+		return (m_counter);
 	}
 
 	template <class T>
-	inline void SharedPointer<T>::RefInc(SharedData *m_shared)
+	inline size_t *SharedPointer<T>::RefInc(size_t *m_counter)
 	{
-		++m_shared->m_counter;
+		(*m_counter) += 1;
+		return (m_counter);
 	}
 
 } // ilrd
