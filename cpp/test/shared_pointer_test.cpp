@@ -4,7 +4,7 @@
 #include "utilities_shared_pointer.hpp"
 #include "tools.h"
 
-using namespace utilities;
+using namespace utilities::utilities_shared_ptr_shelly;
 using namespace ilrd;
 
 /******************************* CCtoe UT & TT *******************************/
@@ -59,6 +59,7 @@ void TestDisAllowingAlloctionOfSharedPointerOnHeap()
 	SharedPointer<Base> sharedbasePtr1(new Base());
 	// SharedPointer<Base> *sharedbasePtr = new SharedPointer<Base>(SharedPointer<Base>(new Base()));
 	// delete sharedbasePtr;
+
 	return;
 }
 

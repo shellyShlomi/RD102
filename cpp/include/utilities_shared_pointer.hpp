@@ -3,118 +3,121 @@
 
 namespace utilities
 {
-    const static int BASE(1);
-    const static int DERIVED(2);
-
-    class Base
+    namespace utilities_shared_ptr_shelly
     {
-    public:
-        Base();
-        virtual ~Base();
-        virtual int Display();
+        const static int BASE(1);
+        const static int DERIVED(2);
 
-    private:
-        int x;
-    };
+        class Base
+        {
+        public:
+            Base();
+            virtual ~Base();
+            virtual int Display();
 
-    class Derived : public Base
-    {
-    public:
-        Derived();
-        ~Derived();
-        int Display();
+        private:
+            int x;
+        };
 
-    private:
-        int y;
-    };
+        class Derived : public Base
+        {
+        public:
+            Derived();
+            ~Derived();
+            int Display();
 
-    Base::Base() : x(BASE)
-    {
-        //empty
-    }
+        private:
+            int y;
+        };
 
-    Base::~Base()
-    {
-        x = 0;
-    }
+        Base::Base() : x(BASE)
+        {
+            //empty
+        }
 
-    int Base::Display()
-    {
-        return (x);
-    }
+        Base::~Base()
+        {
+            x = 0;
+        }
 
-    Derived::Derived() : y(DERIVED)
-    {
-        //empty
-    }
+        int Base::Display()
+        {
+            return (x);
+        }
 
-    Derived::~Derived()
-    {
-        y = 0;
-    }
+        Derived::Derived() : y(DERIVED)
+        {
+            //empty
+        }
 
-    int Derived::Display()
-    {
-        return (y);
-    }
+        Derived::~Derived()
+        {
+            y = 0;
+        }
 
-    const static int BASE2(3);
-    const static int DERIVED2(4);
+        int Derived::Display()
+        {
+            return (y);
+        }
 
-    class Base2
-    {
-    public:
-        Base2();
-        virtual ~Base2();
-        virtual int Display();
+        const static int BASE2(3);
+        const static int DERIVED2(4);
 
-    private:
-        int z;
-    };
+        class Base2
+        {
+        public:
+            Base2();
+            virtual ~Base2();
+            virtual int Display();
 
-    Base2::Base2() : z(BASE2)
-    {
-        //empty
-    }
+        private:
+            int z;
+        };
 
-    Base2::~Base2()
-    {
-        z = 0;
-    }
+        Base2::Base2() : z(BASE2)
+        {
+            //empty
+        }
 
-    int Base2::Display()
-    {
-        return (z);
-    }
+        Base2::~Base2()
+        {
+            z = 0;
+        }
 
-    class Derived2 : public Base, public Base2
-    {
-    public:
-        Derived2();
-        ~Derived2();
-        int Display();
+        int Base2::Display()
+        {
+            return (z);
+        }
 
-    private:
-        int y;
-    };
+        class Derived2 : public Base, public Base2
+        {
+        public:
+            Derived2();
+            ~Derived2();
+            int Display();
 
-    Derived2::Derived2() : y(DERIVED2)
-    {
-        //empty
-    }
+        private:
+            int y;
+        };
 
-    Derived2::~Derived2()
-    {
-        y = 0;
-    }
+        Derived2::Derived2() : y(DERIVED2)
+        {
+            //empty
+        }
 
-    int Derived2::Display()
-    {
-        return (y);
-    }
+        Derived2::~Derived2()
+        {
+            y = 0;
+        }
 
-    const static int FIRST(1);
-    const static int SECOND(2);
+        int Derived2::Display()
+        {
+            return (y);
+        }
+
+        const static int FIRST(1);
+        const static int SECOND(2);
+    } //utilities_shared_ptr_shelly
 } //utilities
 
 #endif /* __UTILITIES_HPP__ */
