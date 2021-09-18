@@ -112,10 +112,12 @@ namespace ilrd
     bool BitArray<SIZE>::operator[](size_t index) const noexcept
     {
         return (UnconstCast()[index]);
-        // NOTE: operator[] (non const) returns BitProxy by val so ther is no problem to reuse it
-        // cuse it will not return a referenc to a bit that the user can use
-        // (i.e, the user dosnot know BitProxy so it canot save a reference to a bit)
-        // and thas automaticly go implicit cast to bool value
+        //  NOTE: operator[] (non const) returns BitProxy by value so there is 
+        //  no problem to reuse it
+        //  cuse it will not return a referenc to a bit that the user can use
+        //  (i.e, the user dosen't know BitProxy so, it canot save a 
+        //  reference to a bit by declering a bit proxy variable)
+        //  and thus automaticly go implicit cast to bool value
     }
 
     /******************************* Bitwise *******************************/
