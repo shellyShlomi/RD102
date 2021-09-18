@@ -35,7 +35,6 @@ int Valid(int expression, const char *message, int line)
 	return EXIT_SUCCESS;
 }
 
-
 void TotalErrors(void)
 {
 	printf("Total tested: %s%ld", BLUE, count);

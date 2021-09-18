@@ -1,5 +1,5 @@
-#ifndef __UTILITIES_HPP__
-#define __UTILITIES_HPP__
+#ifndef __UTILITIES_SHARED_PTR_SHELLY__
+#define __UTILITIES_SHARED_PTR_SHELLY__
 
 namespace utilities
 {
@@ -118,6 +118,9 @@ namespace utilities
         const static int FIRST(1);
         const static int SECOND(2);
     } //utilities_shared_ptr_shelly
+
+
+
 } //utilities
 
-#endif /* __UTILITIES_HPP__ */
+#endif /* __UTILITIES_SHARED_PTR_SHELLY__ */
