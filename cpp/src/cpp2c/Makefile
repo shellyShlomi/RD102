@@ -115,13 +115,18 @@ c_to_file:
 	@make CFLAGS='-std=c99 -pedantic-errors -Wall -Wextra -g -I$(INC)' -s build
 	@./$(BIN)/$(TARGET_C) > $(FILE)/$(TARGET_C).txt
 
+silent_test:
+	@make for_test
+	$(shell echo diff $(FILE)/$(TARGET_CPP).txt $(FILE)/$(TARGET_C).txt)
+
+
 #----------------DEBUG C------------------#
 
 build:
 	@make shared_obj
 	@make $(BIN)/$(TARGET_C)
 
-silent_test:
+silent_test_c:
 	@make -s CFLAGS='-std=c99 -g -I$(INC) ' build
 	@./$(BIN)/$(TARGET_C)
 

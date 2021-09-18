@@ -3,7 +3,7 @@
 #include <string> // std::string, std::to_string
 #include <cstdio> // Pars
 
-#include "bit_array.hpp"
+#include "bitarray.hpp"
 #include "tools.h"
 //TODO:
 

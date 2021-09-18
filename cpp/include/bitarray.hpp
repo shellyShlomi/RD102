@@ -9,7 +9,7 @@
 #include <numeric>    // std::accumulate
 
 #include <boost/array.hpp>
-#include "bit_array_detail.hpp"
+#include "bitarray_detail.hpp"
 
 #if __cplusplus <= 199711L
 #define noexcept throw()
@@ -113,7 +113,7 @@ namespace ilrd
     {
         return (UnconstCast()[index]);
         //  NOTE: operator[] (non const) returns BitProxy by value so there is 
-        //  no problem to reuse it
+        //  no problem to REUSE it
         //  cuse it will not return a referenc to a bit that the user can use
         //  (i.e, the user dosen't know BitProxy so, it canot save a 
         //  reference to a bit by declering a bit proxy variable)
@@ -153,40 +153,6 @@ namespace ilrd
                        std::bit_xor<unsigned char>());
         return (*this);
     }
-
-    // template <size_t SIZE>
-    // BitArray<SIZE> &BitArray<SIZE>::operator<<=(size_t shifts)
-    // {
-    //     BitArray<this->SIZE> cpy(*this);
-
-    //     const size_t byte_shift = shifts / detail::CHAR_BIT;
-    //     const size_t offset = shifts % detail::CHAR_BIT;
-
-    //     std::copy(m_bit_arr.c_array() , m_bit_arr.c_array() + ,
-    //               (const_cast<BitArray<SIZE> &>(other)).m_bit_arr.begin());
-
-    //     std::transform(m_bit_arr.c_array(),
-    //                    m_bit_arr.c_array(),
-    //                    m_bit_arr.begin(),
-    //                    m_bit_arr.begin(),
-    //                    std::bit_xor<unsigned char>());
-
-    //     BitArray<this->SIZE> mask;
-    //     mask.SetAll(false);
-
-    // }
-
-    // 11010011 << 4
-    //     |
-    //     V
-    // 00110000
-
-    // 11010011 >> 4
-    //     |
-    //     V
-    // 00001101
-
-    //     inline BitArray &operator>>=(size_t shifts) noexcept;
 
     /************************** Set & Flip & Get *************************/
 

@@ -1,5 +1,5 @@
 
-#include "bit_array.hpp"
+#include "bitarray.hpp"
 
 namespace ilrd
 {

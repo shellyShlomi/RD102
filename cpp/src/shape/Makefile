@@ -44,13 +44,8 @@ TEST_OBJs = $(patsubst %.o, $(OBJ)/tests_lib/%.o,  $(TEST_OBJ))
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared
 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
-LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
-
-#					-------shared object flags whit thread-------					
-
-LDFLAGS_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla -lpthread
-LDFLAGS_REL_MT = -L$(LIB) -Wl,-rpath=$(LIB) -lcla_rel -lpthread
+LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -lcpp -lpthread
+LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -lcpp_rel -lpthread
 
 # ********************************** debuging **********************************
 
@@ -72,8 +67,8 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 
-$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcla.so
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIB)/libcla.so 
+$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcpp.so
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ 
 
 
 #----------------release rules------------------#
@@ -85,8 +80,8 @@ $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)
 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 
-$(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) $(LIB)/libcla_rel.so
-	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/libcla_rel.so  
+$(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) $(LIB)/libcpp_rel.so
+	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@
 
 
 #----------------	shered librery	------------------#
@@ -94,21 +89,21 @@ $(OBJ)/tests_lib/%.o: ../../../tools/%.c
 	@mkdir -p $(OBJ)/tests_lib 
 	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $^ -o $@ 
 
-$(LIB)/libcla.so: $(OBJECTS)
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcla.so
+$(LIB)/libcpp.so: $(OBJECTS)
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/*/. -type f -regex ".*\.o")  -o $(LIB)/libcpp.so
 
-$(LIB)/libcla_rel.so: $(OBJECTS_REL)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcla_rel.so
+$(LIB)/libcpp_rel.so: $(OBJECTS_REL)
+	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/*/. -type f -regex ".*\.o") -o $(LIB)/libcpp_rel.so
 
 
 libtests: $(TEST_OBJs)
 #----------------	PHONYs	------------------#
 
-.PHONY :build silent_test nw_test nmw_test test vlgT hlgT shared_obj 
+.PHONY :build silent_test nw_test nmw_test test s_vlgT vlgT s_hlgT hlgT shared_obj 
 		update_debug clean_d
 		release silent_test_release nw_test_release nmw_test_release test_release  
 		hlgT_release vlgT_release release_so update_release clean_r
-		shared_lib clean  
+		shared_lib clean clean_all
 
 #----------------DEBUG------------------#
 
@@ -138,15 +133,24 @@ vlgT:
 	@make  build
 	@$(VLG) ./$(BIN)/$(TARGET)
 
+s_vlgT:
+	@make -s build
+	@$(VLG) ./$(BIN)/$(TARGET)
+
 hlgT:
 	@make  build
 	@$(HLG) ./$(BIN)/$(TARGET)
+
+s_hlgT:
+	@make -s build
+	@$(HLG) ./$(BIN)/$(TARGET)
+
 
 shared_obj:
 	@mkdir -p $(OBJ)/$(TARGET)  
 	@mkdir -p $(LIB)/  
 	@mkdir -p $(BIN)/  
-	@make $(LIB)/libcla.so
+	@make $(LIB)/libcpp.so
 	@make $(LIB)/$(SHAREDLIB)
 
 
@@ -158,7 +162,7 @@ update_debug:
 clean_d :
 	@rm -f -r  $(BIN)/$(TARGET)
 	@rm -f -r $(LIB)/$(SHAREDLIB) 
-	@rm -f -r $(LIB)/libcla.so 
+	@rm -f -r $(LIB)/libcpp.so 
 	@rm -f -r $(OBJ)/$(TARGET) 
 
 
@@ -202,7 +206,7 @@ release_so:
 	@mkdir -p $(OBJ_REL)/$(TARGET_RELEASE)
 	@mkdir -p $(LIB)/  
 	@mkdir -p $(BIN)/  
-	@make $(LIB)/libcla_rel.so
+	@make $(LIB)/libcpp_rel.so
 	@make $(LIB)/$(SHAREDLIB_REL)
 
 
@@ -215,7 +219,7 @@ update_release:
 clean_r :
 	@rm -f -r $(BIN)/$(TARGET_RELEASE)
 	@rm -f -r $(LIB)/$(SHAREDLIB_REL)  
-	@rm -f -r  $(LIB)/libcla_rel.so
+	@rm -f -r  $(LIB)/libcpp_rel.so
 	@rm -f -r  $(OBJ_REL)/$(TARGET_RELEASE) 
 
 
@@ -223,14 +227,19 @@ clean_r :
 
 
 shared_lib:
-	@make $(LIB)/libcla_rel.so
-	@make $(LIB)/libcla.so
+	@make $(LIB)/libcpp_rel.so
+	@make $(LIB)/libcpp.so
 
 
 clean :
 	@make clean_r
 	@make clean_d
+	@rm -f -r $(BIN)/
+	@rm -f -r  $(LIB)/
+	@rm -f -r  $(OBJ_REL)/
+	@rm -f -r  $(OBJ)/
 	@rm -f -r ../../test_o/ 
+
 
 
 
