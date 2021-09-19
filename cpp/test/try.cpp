@@ -36,55 +36,98 @@
 // class OtherDerived : public Base
 // {
 // };
+#include "bitarray.hpp"
+#include "bitarray_detail.hpp"
 
-// int main(int argc, char **argv)
-// {
-//    Derived d1(5, 'x');
-//    Derived d2(3, 'w');
+#include "tools.h"
+using namespace ilrd;
+namespace ilrd
+{
+   namespace detail
+   {
+static void TestCount()
+{
+   BitArray<8> b1;
 
-//    Base *b1 = &d1;
-//    b1->foo();
-//    b1->bar();
+   bool arr_test[] = {true, false, true, true, false, false, false, true, false, true, true, false};
+   size_t n_true = 0;
+   size_t n_false = 0;
 
-//    Base *b2 = &d2;
-//    *b2 = *b1;
-//    b2->foo();
-//    d2.bar();
+   for (size_t i = 0; i < 8; ++i)
+   {
+      b1[i] = arr_test[i];
 
-//    return 0;
-// }
+      if (arr_test[i])
+      {
+         ++n_true;
+      }
+      else
+      {
+         ++n_false;
+      }
+      Valid(b1[i] == arr_test[i], "b1\n", __LINE__);
+   }
 
-// 11010011 << 4
-//       |
-//       V
-// 00110000
+   Valid((n_true == b1.Count()), "", __LINE__);
+}
+
+static void TestToString()
+{
+   BitArray<8> b1;
+
+   char message[detail::BYTE_MAX] = {'\0'};
+
+   strcpy(message, "fail ToString");
+   b1.SetAll();
+   ValidStrEqual(b1.ToString().c_str(), "11111111", message, __LINE__);
+
+   strcpy(message, "fail ToString b1.SetBit(3)");
+   b1.SetBit(3, false);
+   ValidStrEqual(b1.ToString().c_str(), "11110111", message, __LINE__);
+
+   return;
+}
+
+      int TEST()
+      {
+         TestToString();
+         TestCount();
+         return 0;
+      }
+   } // detail
+
+} // ilrd
+  // 11010011 << 4
+  //       |
+  //       V
+  // 00110000
 
 // 11010011 >> 4
 //       |
 //       V
 // 00110000
 
-#include <bitset>
-#include <iostream>
+// #include <bitset>
+// #include <iostream>
 
-int main()
-{
-   std::bitset<15> b{0b011101111010011};
-   std::cout << b << " (initial value) ";
-   std::cout  << " b <<= 5\n";
-   b <<= 5;
+// int main()
+// {
+//    std::bitset<15> b{0b011101111010011};
+//    std::cout << b << " (initial value) ";
+//    std::cout  << " b <<= 5\n";
+//    b <<= 5;
 
-   std::cout << b << "\n";
-   std::bitset<15> b1;
-   std::cout << b1.set(3) << " (initial value) ";
-   std::cout <<  " b <<= 5\n";
-   b1 <<= 5;
-   // for (; b.any(); b <<= 1)
-   // {
+//    std::cout << b << "\n";
+//    std::bitset<15> b1;
+//    std::cout << b1.set(3) << " (initial value) ";
+//    std::cout <<  " b <<= 5\n";
+//    b1 <<= 5;
+//    // for (; b.any(); b <<= 1)
+//    // {
 
-   //    std::cout << b << '\n';
-   // }
-   std::cout << b1 << '\n';
+//    //    std::cout << b << '\n';
+//    // }
+//    std::cout << b1 << '\n';
 
-   return 0;//sdasd
-}//sdasd
+//    return 0;//sdasd
+// }//sdasd

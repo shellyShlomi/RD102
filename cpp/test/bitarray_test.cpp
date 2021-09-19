@@ -4,6 +4,7 @@
 #include <cstdio> // Pars
 
 #include "bitarray.hpp"
+#include "bitarray_detail.hpp"
 #include "tools.h"
 //TODO:
 
@@ -35,6 +36,7 @@ namespace utilities
 
 /********************************** General **********************************/
 static void TestCtorAndDtor();
+static void TestAssingment();
 static void TestBitArray();
 static void TestOperators();
 static void TestFlipBitAndFlipAll();
@@ -67,6 +69,7 @@ static const char *GetMessageCtor(int mesg, size_t size);
 int main()
 {
 	TestCtorAndDtor();
+	TestAssingment();
 	TestBitArray();
 	TestOperators();
 	TestGetBit();
@@ -75,7 +78,7 @@ int main()
 	TestEqual();
 	TestCount();
 	TestToString();
-
+	
 	TotalErrors();
 
 	return (0);
@@ -110,6 +113,43 @@ static void TestCtorAndDtor()
 		size_t size = utilities::SIZE_BYTE;
 		Valid(bitarr2.GetBit(i) == arr_test[i], GetMessageCtor(utilities::CCTOR, size), __LINE__);
 		Valid(bitarr2.GetBit(i) == bitarr.GetBit(i), GetMessageCtor(utilities::CCTOR, size), __LINE__);
+	}
+
+	return;
+}
+
+static void TestAssingment()
+{
+	bool arr_test[] = {true, false, true, true, false, false, false, true, false, true, true, false};
+
+	BitArray<utilities::SIZE_EVEN_MORE_THEN_BYTE> b;
+	
+	for (size_t i = 0; i < utilities::SIZE_EVEN_MORE_THEN_BYTE; ++i)
+	{
+		Valid(b.GetBit(i) == false,
+			  "TestAssingment Fail: \n 	Ctor",
+			  __LINE__);
+
+		b[i] = arr_test[i];
+	}
+
+	BitArray<utilities::SIZE_EVEN_MORE_THEN_BYTE> b1;
+	b1 = b;
+
+	for (size_t i = 0; i < utilities::SIZE_EVEN_MORE_THEN_BYTE; ++i)
+	{
+		Valid(b1[i] ==  arr_test[i],
+			  "TestAssingment Fail: \n 	b1 = b \n",
+			  __LINE__);
+	}
+
+	BitArray<utilities::SIZE_EVEN_MORE_THEN_BYTE> b2;
+	b1 = b = b2;
+	for (size_t i = 0; i < utilities::SIZE_EVEN_MORE_THEN_BYTE; ++i)
+	{
+		Valid(b.GetBit(i) == false,
+			  "TestAssingment Fail: \n 	b1 = b = b2 \n",
+			  __LINE__);
 	}
 
 	return;
@@ -418,7 +458,7 @@ static void TestEqual()
 		Valid(b2[i] == arr_test[i], "b2\n", __LINE__);
 	}
 
-	if (Valid(b1 == b2, "fail operator== ", __LINE__))
+	// if (Valid(b1 == b2, "fail operator== ", __LINE__))
 	{
 		for (size_t i = 0; i < utilities::SIZE_EVEN_MORE_THEN_BYTE; ++i)
 		{
@@ -481,7 +521,6 @@ static void TestToString()
 	strcpy(message, "fail ToString b1.SetBit(3)");
 	b1.SetBit(3, false);
 	ValidStrEqual(b1.ToString().c_str(), "11110111", message, __LINE__);
-
 
 	return;
 }

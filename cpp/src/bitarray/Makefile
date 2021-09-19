@@ -68,7 +68,7 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 
 
 $(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcpp.so
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ 
+	$(CC) $(CFLAGS) $(LDFLAGS) ../../test/try.cpp $< -o $@  $(LIB)/libcpp.so
 
 
 #----------------release rules------------------#
@@ -81,7 +81,7 @@ $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)
 
 
 $(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) $(LIB)/libcpp_rel.so
-	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@
+	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL)  $< -o $@  $(LIB)/libcpp_rel.so
 
 
 #----------------	shered librery	------------------#

@@ -39,8 +39,8 @@ namespace ilrd
         inline BitArray &operator^=(const BitArray &rhs_) noexcept;
         inline BitArray &operator<<=(size_t shifts) noexcept;
         inline BitArray &operator>>=(size_t shifts) noexcept;
-        inline bool operator==(const BitArray &rhs_) noexcept;
-        inline bool operator!=(const BitArray &rhs_) noexcept;
+        inline bool operator==(const BitArray &rhs_) const noexcept;
+        inline bool operator!=(const BitArray &rhs_) const noexcept;
 
         inline void SetAll(bool val = true) noexcept;
         inline void SetBit(size_t index, bool val = true) throw(std::out_of_range);
@@ -70,7 +70,6 @@ namespace ilrd
             unsigned char *m_proxy_bitarr;
             size_t m_index;
         };
-
     };
 
     /************************** Ctor & CCtor & Dtor **************************/
@@ -96,9 +95,8 @@ namespace ilrd
     template <size_t SIZE>
     BitArray<SIZE> &BitArray<SIZE>::operator=(const BitArray<SIZE> &other)
     {
-        std::copy(m_bit_arr.begin(), m_bit_arr.end(),
-                  (other.UnconstCast()).m_bit_arr.begin());
-
+        std::copy(other.m_bit_arr.begin(), other.m_bit_arr.end(),
+                  (m_bit_arr.begin()));
         return (*this);
     }
 
@@ -112,10 +110,10 @@ namespace ilrd
     bool BitArray<SIZE>::operator[](size_t index) const noexcept
     {
         return (UnconstCast()[index]);
-        //  NOTE: operator[] (non const) returns BitProxy by value so there is 
+        //  NOTE: operator[] (non const) returns BitProxy by value so there is
         //  no problem to REUSE it
         //  cuse it will not return a referenc to a bit that the user can use
-        //  (i.e, the user dosen't know BitProxy so, it canot save a 
+        //  (i.e, the user dosen't know BitProxy so, it canot save a
         //  reference to a bit by declering a bit proxy variable)
         //  and thus automaticly go implicit cast to bool value
     }
@@ -208,7 +206,7 @@ namespace ilrd
         size_t sum =
             std::accumulate(m_bit_arr.begin(),
                             m_bit_arr.end() - 1,
-                            0, detail::Sum());
+                            0, sum_local);
 
         return (sum_local(sum, *(m_bit_arr.end() - 1) &
                                    detail::GetMask(SIZE, M_SIZE_OF_ARRAY)));
@@ -230,7 +228,7 @@ namespace ilrd
     /************************** Logical operators *************************/
 
     template <size_t SIZE>
-    bool BitArray<SIZE>::operator==(const BitArray<SIZE> &rhs_) noexcept
+    bool BitArray<SIZE>::operator==(const BitArray<SIZE> &rhs_) const noexcept
     {
         unsigned char mask(detail::GetMask(SIZE, M_SIZE_OF_ARRAY));
 
@@ -243,7 +241,7 @@ namespace ilrd
     }
 
     template <size_t SIZE>
-    bool BitArray<SIZE>::operator!=(const BitArray<SIZE> &rhs_) noexcept
+    bool BitArray<SIZE>::operator!=(const BitArray<SIZE> &rhs_) const noexcept
     {
         return !(*this == rhs_);
     }
@@ -273,9 +271,10 @@ namespace ilrd
     template <size_t SIZE>
     typename BitArray<SIZE>::BitProxy &BitArray<SIZE>::BitProxy::operator=(const BitProxy &other) noexcept
     {
-        bool bit = (*(other.m_proxy_bitarr)) & (1 << other.m_index);
-        return (*this = bit);
+        return (*this = static_cast<bool>(other));
     }
+
+    /********************************** UnconstCast **********************************/
 
     template <size_t SIZE>
     BitArray<SIZE> BitArray<SIZE>::UnconstCast() const
