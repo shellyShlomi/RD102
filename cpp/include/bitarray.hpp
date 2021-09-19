@@ -1,3 +1,15 @@
+/*  Developer: Shelly Shlomi;									*
+ *  Status:Approved;                                            *
+ *  Date Of Creation:16.09.21;									*
+ *  Date Of Approval:19.09.21;									*
+ *  Approved By: saggi;                                         *	 
+ *                                 	    						*
+ *  Description: impl of bitarray based on boost array of       *
+ *               of unsigned char                               */
+
+
+
+
 #ifndef ILRD_RD102_BITARRAY_HPP
 #define ILRD_RD102_BITARRAY_HPP
 

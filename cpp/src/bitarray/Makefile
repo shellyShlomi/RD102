@@ -68,8 +68,7 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 
 
 $(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcpp.so
-	$(CC) $(CFLAGS) $(SOFLAG_FIRST) ../../test/try.cpp $< 
-#-o $@  $(LIB)/libcpp.so
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@  $(LIB)/libcpp.so
 
 
 #----------------release rules------------------#

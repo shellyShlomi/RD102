@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string> // std::string, std::to_string
 #include <cstdio> // Pars
+#include <cstring>
 
 #include "bitarray.hpp"
 #include "bitarray_detail.hpp"
@@ -458,7 +459,7 @@ static void TestEqual()
 		Valid(b2[i] == arr_test[i], "b2\n", __LINE__);
 	}
 
-	// if (Valid(b1 == b2, "fail operator== ", __LINE__))
+	if (Valid(b1 == b2, "fail operator== ", __LINE__))
 	{
 		for (size_t i = 0; i < utilities::SIZE_EVEN_MORE_THEN_BYTE; ++i)
 		{
