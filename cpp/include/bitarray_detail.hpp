@@ -13,11 +13,11 @@ namespace ilrd
         inline unsigned char GetMask(size_t size, size_t n_bytes);
         inline void RangeChack(size_t index, size_t size);
 
-        class NotByte
-        {
-        public:
-            inline unsigned char operator()(unsigned char byte);
-        };
+
+        template <class T>
+        void CpyArray(T &arr_dest, const T &arr_src);
+
+
 
         class Sum
         {
@@ -25,13 +25,7 @@ namespace ilrd
             inline size_t operator()(size_t sum, unsigned char byte);
         };
 
-
-    /********************************** Impl **********************************/
-
-        unsigned char NotByte::operator()(unsigned char byte)
-        {
-            return (~byte);
-        }
+        /********************************** Impl **********************************/
 
         size_t Sum::operator()(size_t sum, unsigned char byte)
         {
@@ -51,6 +45,14 @@ namespace ilrd
                 throw(std::out_of_range("out_of_range"));
             }
 
+            return;
+        }
+
+        template <class T>
+        void CpyArray(T &arr_dest, const T &arr_src)
+        {
+            std::copy(arr_src.begin(), arr_src.end(),
+                      (arr_dest.begin()));
             return;
         }
 

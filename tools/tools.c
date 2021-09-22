@@ -48,3 +48,11 @@ void TotalErrors(void)
 
 	return;
 }
+
+
+char *Pars(char *buff, int data)
+{
+    sprintf(buff, "%d", data);
+
+    return (buff);
+}

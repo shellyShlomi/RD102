@@ -26,7 +26,7 @@ namespace utilities
 	};
 
 	template <class T>
-	char *Pars(char *buff, const char *formet, T data)
+	inline char *Pars(char *buff, const char *formet, T data)
 	{
 		std::sprintf(buff, formet, data);
 

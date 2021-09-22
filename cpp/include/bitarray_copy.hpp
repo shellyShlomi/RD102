@@ -294,6 +294,7 @@ namespace ilrd
         return ((const_cast<BitArray<SIZE> &>(*this)));
     }
 
+    /********************************** CpyArray **********************************/
 
 } //ilrd
 

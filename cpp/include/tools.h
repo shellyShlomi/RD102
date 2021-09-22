@@ -1,5 +1,6 @@
 #ifndef __TOOLS_H__
 #define __TOOLS_H__
+#include <stddef.h> /* size_t */
 
 #define UNUSED(x) (void)(x)
 #define INTARRCMP(arr1, arr2) \
@@ -19,4 +20,5 @@ int ValidStrUnEqual(const char *str1, const char *str2, const char *message, int
 int PtrValidateEqual(void *d1, void *d2, const char *message, int line);
 int PtrValidateUnEqual(void *d1, void *d2, const char *message, int line);
 
+char *Pars(char *buff, int data);
 #endif /* __TOOLS_H__*/

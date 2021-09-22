@@ -67,8 +67,8 @@ $(LIB)/$(SHAREDLIB): $(OBJECTS)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $^ -o $@ 
 
 
-$(BIN)/$(TARGET): $(TEST_SOURCE) $(OBJECTS) $(LIB)/libcpp.so
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@  $(LIB)/libcpp.so
+$(BIN)/$(TARGET):  $(OBJECTS) $(LIB)/libcpp.so
+	$(CC) $(CFLAGS) $(LDFLAGS) $(TEST_SOURCE) -o $@  $(LIB)/libcpp.so
 
 
 #----------------release rules------------------#
