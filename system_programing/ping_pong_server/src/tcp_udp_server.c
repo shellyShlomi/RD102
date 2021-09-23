@@ -4,7 +4,6 @@
 
 #include <sys/select.h>
 #include <sys/fcntl.h>
-
 #include "ping_pong_func.h"
 
 #include "udp_local_ping_pong_server.h"
@@ -86,7 +85,6 @@ int main()
     }
 
     freeaddrinfo(serudp);
-
 
     while (1)
     {

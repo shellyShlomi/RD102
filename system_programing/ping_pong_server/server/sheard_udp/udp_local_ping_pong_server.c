@@ -4,6 +4,7 @@
 #include "udp_local_ping_pong.h"
 
 #include "udp_local_ping_pong_server.h"
+#include <sys/fcntl.h>
 
 #define MAXBUFLEN 100
 
@@ -48,29 +49,6 @@ int BindClient(int sockfd, const struct sockaddr *ai_addr, int ai_addrlen)
     return (0);
 }
 
-// int ReadIncomingPackegs(int sockfd, const char *o_msg)
-// {
-//     struct sockaddr_in their_addr = {0};
-//     socklen_t addr_len = sizeof(their_addr);
-
-//     int res = 1;
-
-//     while (0 < (res = GetInMsgU(sockfd, (struct sockaddr *)&their_addr, &addr_len)))
-//     {
-//         if (strcmp(inet_ntoa(their_addr.sin_addr), "127.0.0.1"))
-//         {
-//             puts("pong");
-//             return res;
-//         }
-
-//         if (0 > SendOutMsgU(sockfd, (struct sockaddr *)&their_addr, addr_len, o_msg))
-//         {
-//             break;
-//         }
-//     }
-
-//     return res;
-// }
 
 int ReadIncomingPackegs(int sockfd, const char *o_msg)
 {

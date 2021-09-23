@@ -8,15 +8,6 @@
 #define START 3
 #define END 10
 
-#define LOOP break
-#define TO_LOOP(x)    \
-    {                 \
-        if (x)        \
-        {             \
-            continue; \
-        }             \
-    }
-
 int ClientCreatSocketU(addrinfo_t *servinfo, int *sockfd)
 {
 

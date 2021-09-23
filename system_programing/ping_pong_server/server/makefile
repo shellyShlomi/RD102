@@ -12,11 +12,10 @@ TARGET_RELEASE = $(TARGET)_rel
 SRC = .
 LIB = ./lib
 TEST = .
-INC = ./tcp_udp_server/include 
+INC = ./include 
 SHARE_t = ./sheard_tcp 
 SHARE_u = ./sheard_udp 
 BIN = ./bin
-INC = ../include
 
 OBJ = ./obj
 
@@ -97,15 +96,10 @@ $(LIB)/libudp_rel.so: $(LIB_OBJs_udp)
 		hlgT_release vlgT_release release_so update_release clean_r
 		shared_lib clean  
 
-moveobj: 
-	@mv $(shell find ./. -type f -regex ".*\.o") $(OBJ)/
-
 #----------------DEBUG------------------#
 
 build:
 	@make shared_obj
-
-
 
 silent_build:
 	@make -s CFLAGS='-std=c++98 -g -I$(INC)' build
@@ -135,7 +129,6 @@ update_debug:
 clean_d :
 	@rm -f -r  $(BIN)/$(TARGET)
 	@rm -f -r $(LIB)/ 
-	@rm -f -r $(LIB)/libtasts.so 
 	@rm -f -r $(OBJ)/ 
 
 
