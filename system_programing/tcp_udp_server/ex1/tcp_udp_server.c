@@ -1,18 +1,22 @@
 
 
-#define _POSIX_C_SOURCE 200112L
+#include "ping_pong.h"
 
 #include <sys/select.h>
-
-#include <strings.h>
+#include <sys/fcntl.h>
 
 #include "ping_pong_func.h"
 
 #include "udp_local_ping_pong_server.h"
 #include "tcp_local_ping_pong_server.h"
-#include "udp_local_ping_pong_client.h"
 
-#define PORT 8000
+#define RED ("\033[0;31m")
+#define GREEN ("\033[0;32m")
+#define CYAN ("\033[0;36m")
+#define PURPLE ("\033[0;35m")
+
+#define RESET ("\033[0m")
+
 #define QUIT 10
 #define MAXLINE 1024
 #define SERVERPORT "8000" // the port users will be connecting to
@@ -28,27 +32,17 @@ int max(int x, int y)
 
 int main()
 {
-    int server_fd = 0;
-    int tcp_fd = 0;
-    int udp_fd = 0;
-    int nready = 0;
+    int tcp_fd = -1;
     int maxfdp1 = 0;
-    char buffer[MAXLINE];
 
-    pid_t child_pid;
     fd_set rset;
-    ssize_t n;
-    socklen_t len;
-    const int on = 1;
-    struct sockaddr_in cliaddr, servaddr;
-    char *message = "Hello Client";
     void sig_chld(int);
 
-    int sockfd = 0, new_sfd = 0;
+    int sockfd = 0;
     struct addrinfo hints = {0}, *servinfo = NULL;
     int res = 0;
 
-    CreatHints(&hints, AF_INET, SOCK_STREAM, 0);
+    CreatHints(&hints, AF_INET, SOCK_STREAM, AI_PASSIVE);
 
     if ((res = getaddrinfo(NULL, SERVERPORT, &hints, &servinfo)) != 0)
     {
@@ -62,8 +56,11 @@ int main()
 
         return 0;
     }
-    freeaddrinfo(servinfo);
 
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
+    fcntl(sockfd, F_SETFL, O_ASYNC);
+
+    freeaddrinfo(servinfo);
     if (0 != ListenToPort(sockfd))
     {
         perror("ListenToPort ");
@@ -87,82 +84,102 @@ int main()
     {
         return 0;
     }
+
     freeaddrinfo(serudp);
 
-    // clear the descriptor set
-    FD_ZERO(&rset);
 
-    // get maxfd
-    maxfdp1 = max(sockfd, udpfd) + 1;
-
-    for (;;)
+    while (1)
     {
 
+        // get maxfd
+        maxfdp1 = max(sockfd, udpfd) + 1;
+        maxfdp1 = max(maxfdp1, STDIN_FILENO) + 1;
         // set server_fd and udp_fd in readset
+        FD_ZERO(&rset);
         FD_SET(sockfd, &rset);
         FD_SET(udpfd, &rset);
         FD_SET(STDIN_FILENO, &rset);
-        FD_SET(STDOUT_FILENO, &rset);
 
-        // select the ready descriptor
-        nready = select(maxfdp1, &rset, NULL, NULL, NULL);
+        struct timeval time_out = {7, 0};
 
-        // if tcp socket is readable then handle
-        // it by accepting the connection
-        if (FD_ISSET(sockfd, &rset))//tcp
+        time_out.tv_sec = 7;
+
+        if (!select(maxfdp1, &rset, NULL, NULL, &time_out))
         {
-            len = sizeof(cliaddr);
-            tcp_fd = AcceptConection(sockfd);
+            puts("Timed Out!");
+        }
 
+        if (FD_ISSET(sockfd, &rset)) /*tcp*/
+        {
+            tcp_fd = AcceptConection(sockfd);
             if (-1 == tcp_fd)
             {
                 close(sockfd);
                 close(udpfd);
                 perror("accept failed\n");
             }
+
+            puts(CYAN);
             ReadIncomingPackegsTcp(tcp_fd, "pong");
+            puts(RESET);
 
             close(tcp_fd);
-        }
-        // if udp socket is readable receive the message.
-        if (FD_ISSET(udpfd, &rset))//udp
-        {
-            ReadIncomingPackegs(udpfd, "pong");
+            printf("selectserver: socket %d hung up\n", tcp_fd); /* connection closed*/
+
+            continue;
         }
 
-        if (FD_ISSET(0, &rset))//stdin
+        if (FD_ISSET(udpfd, &rset)) /*udp*/
         {
-            res = ReadIncomingPackegsStdIn(0, "pong");
-            if (QUIT == res)
+            puts(GREEN);
+            if (0 > ReadIncomingPackegs(udpfd, "pong"))
+            {
+                perror("recvfrom");
+            }
+
+            puts(RESET);
+            continue;
+        }
+
+        if (FD_ISSET(0, &rset)) //stdin
+        {
+            if (QUIT == ReadIncomingPackegsStdIn(0, "pong"))
             {
                 close(sockfd);
                 close(udpfd);
-                close(tcp_fd);
-                return;
+                return 0;
             }
+
+            continue;
         }
+        FD_SET(sockfd, &rset);
+        FD_SET(udpfd, &rset);
+        FD_SET(STDIN_FILENO, &rset);
     }
+    return 0;
 }
 
 int ReadIncomingPackegsStdIn(int sockfd, const char *o_msg)
 {
     char buf[100] = {0};
-    int i = 0;
-    struct sockaddr_storage their_addr = {0};
-    socklen_t addr_len = sizeof(their_addr);
-    int numbytes = 0;
 
-    numbytes = read(sockfd, buf, sizeof(buf));
-    sleep(1);
-    buf[numbytes] = '\n';
-    if (0 == strncmp(buf, "quit", 4))
+    if (0 < read(sockfd, buf, sizeof(buf)))
     {
-        puts("I quit!");
-        return QUIT;
-    }
-    else if (0 == strncmp(buf, "ping", 4))
-    {
-        puts("stdin pong!");
+
+        if (0 == strncmp(buf, "quit\n", 5))
+        {
+            puts(RED);
+            puts("I quit!");
+            puts(RESET);
+
+            return QUIT;
+        }
+        else if (0 == strncmp(buf, "ping\n", 5))
+        {
+            puts(PURPLE);
+            puts(o_msg);
+            puts(RESET);
+        }
     }
 
     return EXIT_SUCCESS;

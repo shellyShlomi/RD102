@@ -3,7 +3,10 @@
 #include "ping_pong_func.h"
 #include "udp_local_ping_pong.h"
 #include "udp_local_ping_pong_client.h"
+
 #define MAXBUFLEN 100
+#define START 3
+#define END 10
 
 #define LOOP break
 #define TO_LOOP(x)    \
@@ -26,24 +29,21 @@ int ClientCreatSocketU(addrinfo_t *servinfo, int *sockfd)
         fprintf(stderr, "client: failed to bind socket\n");
         return 2;
     }
-
     return 0;
 }
 
 void ReadIncomingMsgFromServer(int sockfd, addrinfo_t *servinfo, const char *o_msg)
 {
-    int numbytes = 0;
     struct sockaddr_storage their_addr = {0};
     socklen_t addr_len = sizeof(their_addr);
-    int i = NUM_TO_SEND;
-
-    do
+    size_t rand = GetRand(START, END);
+    while (rand)
     {
         SendOutMsgU(sockfd, servinfo->ai_addr, servinfo->ai_addrlen, o_msg);
         GetInMsgU(sockfd, (struct sockaddr *)&their_addr, &addr_len);
-        --i;
-
-    } while (i > 0);
+        --rand;
+        sleep(GetRand(START, END));
+    }
 
     return;
 }

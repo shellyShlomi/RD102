@@ -21,7 +21,7 @@ static void PingPongUDPClient(const char *ip)
     struct addrinfo hints = {0}, *servinfo = NULL;
     int res = 0;
 
-    CreatHints(&hints, AF_INET, SOCK_STREAM, 0);
+    CreatHints(&hints, AF_INET, SOCK_STREAM, AI_PASSIVE);
 
     if ((res = getaddrinfo(ip, MYPORT, &hints, &servinfo)) != 0)
     {
@@ -43,7 +43,7 @@ static void PingPongUDPClient(const char *ip)
         return;
     }
 
-    ReadIncomingMsgFromServer(sockfd, MSG);
+    ReadIncomingMsgFromServerTcp(sockfd, MSG);
 
     freeaddrinfo(servinfo);
 

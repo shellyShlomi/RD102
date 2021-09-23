@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     int res = 0;
     (void) argc;
 
-    CreatHints(&hints, AF_INET, SOCK_DGRAM, 0);
+    CreatHints(&hints, AF_INET, SOCK_DGRAM, AI_PASSIVE);
 
     if ((res = getaddrinfo(argv[1], MYPORT, &hints, &servinfo)) != 0)
     {

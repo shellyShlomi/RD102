@@ -15,9 +15,10 @@ INC = ../include
 SHARE = ../sheard_tcp 
 BIN = ../bin
 
-OBJ = ../obj/udp
+Obj = ../obj
+OBJ_U = ../obj/udp
 OBJ_T = ../obj/tcp
-OBJ_REL = ../obj_rel/ex1
+OBJ_REL = ../obj_rel/udp
 CC = gcc
 CFLAGS = -std=c99 -pedantic-errors -Wall -Wextra -g -I$(INC) 
 RELEASE_FLAGS = -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)
@@ -30,19 +31,12 @@ TEST_SOURCE_1 = ./$(TEST_TARGET).c
 TEST_SOURCE_2 = ./tcp_client.c
 TEST_SOURCE_3  = tcp_udp_server.c
 
-FILE  = $(shell find ../sheard_udp/. -type f -regex ".*\.c") ../sheard_tcp/ping_pong.c
-LIB_OBJ = $(patsubst *.c, *.o, $(notdir $(FILE:.c=.o)))
-LIB_OBJs = $(patsubst %.o, $(OBJ)/%.o,  $(LIB_OBJ))
-
-FILE_T  = $(shell find ../sheard_tcp/. -type f -regex ".*\.c") 
-LIB_OBJ_T = $(patsubst *.c, *.o, $(notdir $(FILE_T:.c=.o)))
-LIB_OBJS_T = $(patsubst %.o, $(OBJ_T)/%.o,  $(LIB_OBJ_T))
-
 # ***************************** share object flags ***************************** 
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared
 
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -ludp -ltcp
+LDFLAGS_U = -L$(LIB) -Wl,-rpath=$(LIB) -ludp
+LDFLAGS_L = -L$(LIB) -Wl,-rpath=$(LIB)  -ltcp
 LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -ludp_rel 
 
 #					-------shared object flags whit thread-------					
@@ -62,26 +56,16 @@ CGDB	= cgdb
 
 
 #----------------debug rules------------------#
-$(OBJ)/%.o: ../sheard_udp/%.c
-	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $^ -o $@ 
-
-$(OBJ)/%.o: ../sheard_tcp/ping_pong.c
-	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $^ -o $@ 
-
-$(OBJ_T)/%.o: ../sheard_tcp/%.c
-	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $^ -o $@ 
 
 $(BIN)/udp_client: $(TEST_SOURCE_1) $(LIB)/libudp.so 
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ 
+	$(CC) $(CFLAGS) $(LDFLAGS_U) $^ -o $@ 
 $(BIN)/tcp_client: $(TEST_SOURCE_2) $(LIB)/libtcp.so 
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ 
+	$(CC) $(CFLAGS) $(LDFLAGS_L) $^ -o $@ 
 
-$(BIN)/server: $(TEST_SOURCE_3) $(LIB)/libtcp.so $(LIB)/libudp.so 
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ 
+$(BIN)/server: $(TEST_SOURCE_3) $(LIB)/libtcp.so   $(LIB)/libudp.so 
+	$(CC) $(CFLAGS) $(LDFLAGS_U) -ltcp $^ -o $@ 
 #----------------release rules------------------#
 
-$(OBJECTS_REL)/%.o: ../sheard_udp/%.c
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_FIRST) $^ -o $@ 
 
 $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)  
 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND) $^ -o $@ 
@@ -89,17 +73,6 @@ $(LIB)/$(SHAREDLIB_REL):$(OBJECTS_REL)
 
 $(BIN)/$(TARGET_RELEASE): $(TEST_SOURCE) $(OBJECTS_REL) 
 	$(CC) $(RELEASE_FLAGS) $(LDFLAGS_REL) $< -o $@ $(LIB)/ludp_rel.so  
-
-
-#----------------	shered librery	------------------#
-$(LIB)/libudp.so: $(OBJECTS)
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ)/. -type f -regex ".*\.o")  -o $@ 
-
-$(LIB)/libudp_rel.so: $(OBJECTS_REL)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/. -type f -regex ".*\.o") -o $@ 
-
-$(LIB)/libtcp.so: $(OBJECTS)
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ_T)/. -type f -regex ".*\.o")  -o $@ 
 
 
 #----------------	PHONYs	------------------#
@@ -118,15 +91,16 @@ build:
 	@make build_s
 
 build_s:
-	@make shared_obj
 	@make $(BIN)/server
 
 build_u:
-	@make shared_obj
+	@mkdir -p $(LIB)/  
+	@mkdir -p $(BIN)/  
 	@make $(BIN)/udp_client
 
 build_t:
-	@make shared_obj
+	@mkdir -p $(LIB)/  
+	@mkdir -p $(BIN)/	
 	@make $(BIN)/tcp_client
 
 tserv:
@@ -173,8 +147,6 @@ shared_obj:
 	@mkdir -p $(OBJ_T)/ 
 	@mkdir -p $(LIB)/  
 	@mkdir -p $(BIN)/  
-	@make $(LIB_OBJs)
-	@make $(LIB_OBJS_T)
 	@make $(LIB)/libtcp.so
 	@make $(LIB)/libudp.so 
 
@@ -214,7 +186,6 @@ build_release:
 
 release_so:
 	@mkdir -p $(OBJ_REL)/$(TARGET_RELEASE)
-	@mkdir -p $(LIB)/  
 	@mkdir -p $(BIN)/  
 	@make $(LIB)/libudp_rel.so
 
@@ -227,8 +198,6 @@ update_release:
 
 clean_r :
 	@rm -f -r $(BIN)/$(TARGET_RELEASE)
-	@rm -f -r $(LIB)/$(SHAREDLIB_REL)  
-	@rm -f -r  $(LIB)/libudp_rel.so
 	@rm -f -r  $(OBJ_REL)/$(TARGET_RELEASE) 
 
 
@@ -242,9 +211,8 @@ shared_lib:
 
 clean :
 	@rm -f -r  $(BIN)
-	@rm -f -r $(LIB)
 	@rm -f -r $(OBJ_REL)
-	@rm -f -r $(OBJ)
+	@rm -f -r $(Obj)
 
 
 

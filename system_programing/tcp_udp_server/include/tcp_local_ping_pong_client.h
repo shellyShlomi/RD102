@@ -7,6 +7,6 @@
 
 int ClientCreatSocket(addrinfo_t *servinfo, int *sockfd);
 int ConnectSockt(int sockfd, addrinfo_t *p, int ai_addrlen);
-void ReadIncomingMsgFromServer(int sockfd, const char *o_msg);
+void ReadIncomingMsgFromServerTcp(int sockfd, const char *o_msg);
 
 #endif /* ILRD_RD102_TCP_PING_PONG_CLIENT_H */

@@ -6,6 +6,6 @@
 
 int BindClient(int sockfd, const struct sockaddr *ai_addr, int ai_addrlen);
 int BindClientToServer(addrinfo_t *servinfo, int *sockfd);
-void ReadIncomingPackegs(int sockfd, const char *o_msg);
+int ReadIncomingPackegs(int sockfd, const char *o_msg);
 
 #endif /* ILRD_RD102_UDP_PING_PONG_SERVER_H */
