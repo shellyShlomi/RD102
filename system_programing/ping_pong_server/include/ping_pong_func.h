@@ -11,5 +11,6 @@ size_t GetRand(size_t from, size_t to);
 int BindClient(int sockfd, const struct sockaddr *ai_addr, int ai_addrlen);
 int BindClientToServer(addrinfo_t *servinfo, int *sockfd);
 int BindSetSocketClientToServer(addrinfo_t *servinfo, int *sockfd);
+int PrintTime(time_t time_to_p);
 
 #endif /* ILRD_RD102_PING_PONG_FUNC_H */

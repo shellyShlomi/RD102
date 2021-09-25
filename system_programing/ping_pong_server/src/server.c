@@ -13,7 +13,7 @@
 #include "server.h"
 
 #define GREEN ("\033[0;32m")
-#define QUIT_MSG ("\033[0;31m I QUIT\033[0m")
+#define QUIT_MSG ("\033[0;31m I QUIT\n\033[0m")
 #define B_RED ("\033[1;31m")
 #define RED ("\033[0;31m")
 #define CYAN ("\033[0;36m")
@@ -91,9 +91,6 @@ int GetIncomingPackegsStdin(const char *o_msg, const char *exit_msg, const char 
 {
     char buf[BUFSIZE] = {0};
 
-    fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
-    fcntl(STDIN_FILENO, F_SETFL, O_ASYNC);
-
     _RESET_;
     if (NULL != fgets(buf, sizeof(buf), stdin))
     {
@@ -128,7 +125,7 @@ int ServerGetIncomingPackegsTCP(int sockfd, const char *o_msg, const char *exit_
     time_t start_t = time(NULL);
 
     fd_set rset = {0};
-    struct timeval time_out = {0};
+    struct timeval time_out = {INTERVAL, 0};
 
     fcntl(sockfd, F_SETFL, O_ASYNC);
 
@@ -173,10 +170,9 @@ int ServerGetIncomingPackegsTCP(int sockfd, const char *o_msg, const char *exit_
             {
                 break;
             }
-            sleep(1);
             _RESET_;
             printf("\n");
-            
+
             if (-1 == (res_sand_msg = SendOutMsg(sockfd, o_msg)))
             {
                 perror("SendOutMsg");
@@ -225,7 +221,7 @@ static void PrintDiff(time_t start_t)
     char *color_start = RESET;
     char *color_num = GREEN;
 
-    if (diff >= 7)
+    if (diff >= INTERVAL)
     {
         color_start = B_RED;
         color_num = B_RED;

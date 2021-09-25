@@ -70,13 +70,15 @@ int main()
         {
             if (0 > ReadIncomingPackegsUDP(udpfd, PONG))
             {
-                perror("recvfrom");
+                perror("ReadIncomingPackegsUDP");
+                CleanUp(fdarr, SIZE);
+                return (1);
             }
 
             continue;
         }
 
-        if (FD_ISSET(0, &rset)) /* stdin */
+        if (FD_ISSET(STDIN_FILENO, &rset)) /* stdin */
         {
             if (QUIT == GetIncomingPackegsStdin(PONG_IO, QUIT_MSG, PING))
             {

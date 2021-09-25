@@ -1,7 +1,6 @@
 
 #define _POSIX_C_SOURCE 200112L
 
-
 #include "ping_pong.h"
 #include "ping_pong_func.h"
 #include "udp_local_ping_pong.h"

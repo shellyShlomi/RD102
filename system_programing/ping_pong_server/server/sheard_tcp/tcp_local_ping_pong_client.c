@@ -44,7 +44,9 @@ void ReadIncomingMsgFromServerTcp(int sockfd, const char *o_msg)
 
     printf("TCP Cilent has %lu messages\n", rand);
 
-    while (rand && (printf("%lu :\t%s send at : ", i, o_msg), (SendOutMsg(sockfd, o_msg) != -1), !PrintTime(start_t = time(NULL))) && (res != -1))
+    while (rand && (printf("%lu :\t%s send at : ", i, o_msg), 
+            (SendOutMsg(sockfd, o_msg) != -1), !PrintTime(start_t = time(NULL))) 
+            && (res != -1))
     {
         printf("\t");
         res = GetInMsg(sockfd);

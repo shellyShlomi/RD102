@@ -13,15 +13,14 @@ int ReadIncomingPackegsUDP(int sockfd, const char *o_msg)
     socklen_t addr_len = sizeof(their_addr);
 
     int res = 1;
-    
-    fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
-    fcntl(STDIN_FILENO, F_SETFL, O_SYNC);
+    fcntl(STDIN_FILENO, F_SETFD, O_ASYNC);
 
     if (0 >= (res = GetInMsgU(sockfd, (struct sockaddr *)&their_addr, &addr_len)))
     {
         return res;
     }
-    sleep(1);
+    printf("\n");
+
     if (strcmp(inet_ntoa(*(struct in_addr *)GetInAddr((struct sockaddr *)&their_addr)), "127.0.0.1"))
     {
         puts(o_msg);
