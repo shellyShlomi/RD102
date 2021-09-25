@@ -16,8 +16,8 @@ INC = ../include
 SHARE = ../sheard_tcp 
 BIN = ../bin
 
-OBJ = ../obj/ex1
-OBJ_REL = ../obj_rel/ex1
+OBJ = ../obj/ex3
+OBJ_REL = ../obj_rel/ex3
 CC = gcc
 CFLAGS = -std=c99 -pedantic-errors -Wall -Wextra -g -I$(INC) 
 RELEASE_FLAGS = -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)

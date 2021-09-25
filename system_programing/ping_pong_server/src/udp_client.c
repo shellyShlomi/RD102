@@ -1,4 +1,5 @@
 
+#define _POSIX_C_SOURCE 200112L
 
 
 #include "ping_pong.h"
@@ -6,9 +7,9 @@
 #include "udp_local_ping_pong.h"
 #include "udp_local_ping_pong_client.h"
 
-#define MYPORT "8000" // the port users will be connecting to
+#define MYPORT "8000" 
 #define MAXBUFLEN 100
-#define MSG "PING"
+#define MSG "\033[0;33mPING \033[0m"
 
 int main(int argc, char *argv[])
 {

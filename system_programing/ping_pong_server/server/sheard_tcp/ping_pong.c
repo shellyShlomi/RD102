@@ -1,8 +1,19 @@
+#define _POSIX_C_SOURCE 200112L
+#include <time.h>
+#include <asm/socket.h>
 
 #include "ping_pong.h"
 #include "ping_pong_func.h"
 
-#include <time.h>
+
+#define LOOP break
+#define TO_LOOP(x)    \
+    {                 \
+        if (x)        \
+        {             \
+            continue; \
+        }             \
+    }
 
 void *GetInAddr(struct sockaddr *sa)
 {
@@ -52,3 +63,64 @@ size_t GetRand(size_t from, size_t to)
 
     return ((rand() % (to - from) + from));
 }
+
+int BindClient(int sockfd, const struct sockaddr *ai_addr, int ai_addrlen)
+{
+    if (bind(sockfd, ai_addr, ai_addrlen) == -1)
+    {
+        close(sockfd);
+        perror("server: bind");
+        return (1);
+    }
+    return (0);
+}
+
+int BindClientToServer(addrinfo_t *servinfo, int *sockfd)
+{
+    /* loop through all the results and bind to the first we can*/
+
+    addrinfo_t *p = servinfo;
+    for (; p != NULL; p = ((addrinfo_t *)p)->ai_next)
+    {
+        TO_LOOP(CreatSockt(sockfd, p->ai_family, p->ai_socktype, p->ai_protocol));
+        TO_LOOP(BindClient(*sockfd, p->ai_addr, p->ai_addrlen));
+        LOOP;
+    }
+
+    if (p == NULL)
+    {
+        fprintf(stderr, "server: failed to bind socket\n");
+        return 2;
+    }
+
+    return 0;
+}
+
+int BindSetSocketClientToServer(addrinfo_t *servinfo, int *sockfd)
+{
+    /* loop through all the results and bind to the first we can */
+    int yes = 1;
+
+    if (0 != CreatSockt(sockfd, servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol))
+    {
+        perror("CreatSockt");
+        return (1);
+    }
+
+    if (SetSocket(*sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &yes,
+                  sizeof(int)) < 0)
+    {
+        perror("SetSocket");
+        return (1);
+    }
+
+    if (0 > BindClient(*sockfd, servinfo->ai_addr, servinfo->ai_addrlen))
+    {
+        perror("BindClient");
+        return 1;
+    }
+
+    return 0;
+}
+
+

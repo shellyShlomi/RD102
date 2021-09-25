@@ -1,8 +1,9 @@
 
+#define _POSIX_C_SOURCE 200112L
 
 #include "tcp_local_ping_pong_client.h"
 
-#define MYPORT "8000" // the port users will be connecting to
+#define MYPORT "8000" 
 #define MAXBUFLEN 100
 #define MSG "PING"
 

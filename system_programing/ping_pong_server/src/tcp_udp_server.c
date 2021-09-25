@@ -1,184 +1,115 @@
+#define _POSIX_C_SOURCE 200112L
 
-
-#include "ping_pong.h"
-
+#include <time.h>
 #include <sys/select.h>
 #include <sys/fcntl.h>
 #include "ping_pong_func.h"
+#include "server.h"
 
 #include "udp_local_ping_pong_server.h"
 #include "tcp_local_ping_pong_server.h"
 
-#define RED ("\033[0;31m")
-#define GREEN ("\033[0;32m")
-#define CYAN ("\033[0;36m")
-#define PURPLE ("\033[0;35m")
-
 #define RESET ("\033[0m")
+#define GREEN ("\033[0;32m")
 
-#define QUIT 10
-#define MAXLINE 1024
-#define SERVERPORT "8000" // the port users will be connecting to
-int ReadIncomingPackegsStdIn(int sockfd, const char *o_msg);
+#define QUIT_MSG ("quit\n")
+#define PING ("ping\n")
+#define PONG ("PONG")
+#define PONG_IO ("\033[0;35mPONG\033[0m")
 
-int max(int x, int y)
-{
-    if (x > y)
-        return x;
-    else
-        return y;
-}
+#define MAXLINE (1024)
+#define SIZE (2)
+
+#define INTERVAL 7
 
 int main()
 {
-    int tcp_fd = -1;
-    int maxfdp1 = 0;
+    int new_tcp_fd = 0;
+    int maxfd = 0;
 
-    fd_set rset;
-    void sig_chld(int);
+    fd_set rset = {0};
 
-    int sockfd = 0;
-    struct addrinfo hints = {0}, *servinfo = NULL;
-    int res = 0;
+    fd_t tcpfd = 0;
+    fd_t udpfd = 0;
 
-    CreatHints(&hints, AF_INET, SOCK_STREAM, AI_PASSIVE);
-
-    if ((res = getaddrinfo(NULL, SERVERPORT, &hints, &servinfo)) != 0)
+    fd_t fdarr[SIZE] = {0};
+    SetFdArray(fdarr, SIZE, &tcpfd, 0);
+    if (ERORR == CreatTCPSocket(&tcpfd))
     {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(res));
-        return 0;
+        return (ERORR);
     }
 
-    if (0 != BindClientToServer(servinfo, &sockfd))
+    if (ERORR == CreatUDPSocket(&udpfd))
     {
-        perror("BindClientToServer");
-
-        return 0;
+        return (ERORR);
     }
 
-    fcntl(sockfd, F_SETFL, O_NONBLOCK);
-    fcntl(sockfd, F_SETFL, O_ASYNC);
-
-    freeaddrinfo(servinfo);
-    if (0 != ListenToPort(sockfd))
+    while (ON)
     {
-        perror("ListenToPort ");
-        return 0;
-    }
-    int udpfd = 0;
-    struct addrinfo hints_udp = {0}, *serudp = NULL;
-    int res_udp = 0;
+        struct timeval time_out = {INTERVAL, 0};
+        time_out.tv_sec = INTERVAL;
 
-    CreatHints(&hints_udp, AF_INET, SOCK_DGRAM, AI_PASSIVE);
-
-    if ((res_udp = getaddrinfo(NULL, SERVERPORT, &hints_udp, &serudp)) != 0)
-    {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(res_udp));
-        return 0;
-    }
-
-    /* loop through all the results and bind to the first we can*/
-
-    if (0 != BindClientToServer(serudp, &udpfd))
-    {
-        return 0;
-    }
-
-    freeaddrinfo(serudp);
-
-    while (1)
-    {
-
-        // get maxfd
-        maxfdp1 = max(sockfd, udpfd) + 1;
-        maxfdp1 = max(maxfdp1, STDIN_FILENO) + 1;
-        // set server_fd and udp_fd in readset
+        /* set server_fd and udp_fd in readset */
         FD_ZERO(&rset);
-        FD_SET(sockfd, &rset);
+        FD_SET(tcpfd, &rset);
         FD_SET(udpfd, &rset);
         FD_SET(STDIN_FILENO, &rset);
 
-        struct timeval time_out = {7, 0};
+        /* get maxfd */
+        maxfd = max(maxfd, udpfd) + 1;
+        maxfd = max(maxfd, tcpfd) + 1;
+        maxfd = max(maxfd, STDIN_FILENO) + 1;
 
-        time_out.tv_sec = 7;
-
-        if (!select(maxfdp1, &rset, NULL, NULL, &time_out))
+        if (!select(maxfd, &rset, NULL, NULL, &time_out))
         {
-            puts("Timed Out!");
-        }
-
-        if (FD_ISSET(sockfd, &rset)) /*tcp*/
-        {
-            tcp_fd = AcceptConection(sockfd);
-            if (-1 == tcp_fd)
-            {
-                close(sockfd);
-                close(udpfd);
-                perror("accept failed\n");
-            }
-
-            puts(CYAN);
-            ReadIncomingPackegsTcp(tcp_fd, "pong");
-            puts(RESET);
-
-            close(tcp_fd);
-            printf("selectserver: socket %d hung up\n", tcp_fd); /* connection closed*/
-
-            continue;
+            printf("\nTimed Out! - ");
+            PrintTime(time(NULL));
         }
 
         if (FD_ISSET(udpfd, &rset)) /*udp*/
         {
-            puts(GREEN);
-            if (0 > ReadIncomingPackegs(udpfd, "pong"))
+            if (0 > ReadIncomingPackegsUDP(udpfd, PONG))
             {
                 perror("recvfrom");
             }
 
-            puts(RESET);
             continue;
         }
 
-        if (FD_ISSET(0, &rset)) //stdin
+        if (FD_ISSET(0, &rset)) /* stdin */
         {
-            if (QUIT == ReadIncomingPackegsStdIn(0, "pong"))
+            if (QUIT == GetIncomingPackegsStdin(PONG_IO, QUIT_MSG, PING))
             {
-                close(sockfd);
-                close(udpfd);
-                return 0;
+                CleanUp(fdarr, SIZE);
+                return (1);
+            }
+            continue;
+        }
+        if (FD_ISSET(tcpfd, &rset)) /*tcp*/
+        {
+            new_tcp_fd = AcceptConection(tcpfd);
+
+            if (-1 == new_tcp_fd)
+            {
+                CleanUp(fdarr, SIZE);
+                perror("accept failed\n");
+                return (1);
             }
 
+            if (QUIT == ServerGetIncomingPackegsTCP(new_tcp_fd, PONG, QUIT_MSG, PING))
+            {
+                CleanUp(fdarr, SIZE);
+                return (0);
+            }
+
+            CleanUp(&new_tcp_fd, 1);
+
+            printf("selectserver: socket %d hung up\n", new_tcp_fd); /* connection closed*/
+
             continue;
         }
-        FD_SET(sockfd, &rset);
-        FD_SET(udpfd, &rset);
-        FD_SET(STDIN_FILENO, &rset);
-    }
-    return 0;
-}
-
-int ReadIncomingPackegsStdIn(int sockfd, const char *o_msg)
-{
-    char buf[100] = {0};
-
-    if (0 < read(sockfd, buf, sizeof(buf)))
-    {
-
-        if (0 == strncmp(buf, "quit\n", 5))
-        {
-            puts(RED);
-            puts("I quit!");
-            puts(RESET);
-
-            return QUIT;
-        }
-        else if (0 == strncmp(buf, "ping\n", 5))
-        {
-            puts(PURPLE);
-            puts(o_msg);
-            puts(RESET);
-        }
+        maxfd = 0;
     }
 
-    return EXIT_SUCCESS;
+    return (0);
 }

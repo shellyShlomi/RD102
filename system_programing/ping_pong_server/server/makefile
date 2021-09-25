@@ -1,18 +1,8 @@
 
-
-TARGET = tcp_local_ping_pong
-SHAREDLIB = lib$(TARGET).so
-SHAREDLIB_REL = lib$(TARGET)_rel.so
-
-TEST_TARGET = $(TARGET)
-TARGET_RELEASE = $(TARGET)_rel
-
-
-
-SRC = .
+SRC_LIB = ..
 LIB = ./lib
 TEST = .
-INC = ./include 
+INC = ../include 
 SHARE_t = ./sheard_tcp 
 SHARE_u = ./sheard_udp 
 BIN = ./bin
@@ -22,13 +12,14 @@ OBJ = ./obj
 OBJ_udp = ./obj/udp
 OBJ_tcp = ./obj/tcp
 CC = gcc
-CFLAGS = -std=c99 -pedantic-errors -Wall -Wextra -g -I$(INC) 
-RELEASE_FLAGS = -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)
+CFLAGS = -ansi -pedantic-errors -Wall -Wextra -g -I$(INC) 
+# RELEASE_FLAGS = -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 -I$(INC)
 
+FILE_general  = $(OBJ_tcp)/ping_pong.o
 
 FILE_udp  = $(shell find ./sheard_udp/. -type f -regex ".*\.c")
-LIB_OBJ_udp = $(patsubst *.c, *.o, $(notdir $(FILE_udp:.c=.o)))
-LIB_OBJs_udp = $(patsubst %.o, $(OBJ_udp)/%.o,  $(LIB_OBJ_udp)) $(OBJ_udp)/ping_pong.o
+LIB_OBJ_udp = $(patsubst *.c, *.o, $(notdir $(FILE_udp:.c=.o))) 
+LIB_OBJs_udp = $(patsubst %.o, $(OBJ_udp)/%.o,  $(LIB_OBJ_udp)) 
 
 FILE_tcp  = $(shell find ./sheard_tcp/. -type f -regex ".*\.c")
 LIB_OBJ_tcp = $(patsubst *.c, *.o, $(notdir $(FILE_tcp:.c=.o)))
@@ -38,14 +29,6 @@ LIB_OBJs_tcp = $(patsubst %.o, $(OBJ_tcp)/%.o,  $(LIB_OBJ_tcp))
 # ***************************** share object flags ***************************** 
 SOFLAG_FIRST = -c -fpic 
 SOFLAG_SECOND = -shared
-
-LDFLAGS = -L$(LIB) -Wl,-rpath=$(LIB) -ltcp
-LDFLAGS_REL = -L$(LIB) -Wl,-rpath=$(LIB) -ltcp_rel 
-
-#					-------shared object flags whit thread-------					
-
-LDFLAGS_MT = -L$(LIB) -Wl,-rpath=$(LIB) -ltcp -lpthread
-LDFLAGS_REL_MT = -L$(LIB) -Wl,-rpath=$(LIB) -ltcp_rel -lpthread
 
 # ********************************** debuging **********************************
 
@@ -67,45 +50,50 @@ $(OBJ_udp)/%.o: ./sheard_udp/%.c
 
 
 
-$(OBJ_udp)/%.o: ./sheard_tcp/ping_pong.c
+$(OBJ_udp)/%.o: $(SHARE_t)/$(FILE_general).c
 	$(CC) $(CFLAGS) $(SOFLAG_FIRST) $^ -o $@ 
 #----------------release rules------------------#
 
-$(OBJECTS_REL)/%.o: ./sheard_tcp/%.c
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_FIRST) $^ -o $@ 
+# $(OBJECTS_REL)/%.o: $(SHARE_t)/%.c
+# 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_FIRST) $^ -o $@ 
 
 
 #----------------	shered librery	------------------#
 $(LIB)/libtcp.so: $(LIB_OBJs_tcp)
 	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(shell find $(OBJ_tcp)/. -type f -regex ".*\.o")  -o $@ 
 
-$(LIB)/libtcp_rel.so: $(OBJ_tcp)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/. -type f -regex ".*\.o") -o $@ 
 
 $(LIB)/libudp.so: $(LIB_OBJs_udp) 
-	$(CC) $(CFLAGS) $(SOFLAG_SECOND)  $(shell find $(OBJ_udp)/. -type f -regex ".*\.o")  -o $@ 
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) $(FILE_general)  $(shell find $(OBJ_udp)/. -type f -regex ".*\.o")  -o $@ 
 
-$(LIB)/libudp_rel.so: $(LIB_OBJs_udp)
-	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/. -type f -regex ".*\.o") -o $@ 
+
+$(LIB)/libserver.so: $(LIB_OBJs_udp) $(LIB_OBJs_tcp)
+	$(CC) $(CFLAGS) $(SOFLAG_SECOND) \
+	$(shell find $(OBJ_tcp)/. -type f -regex ".*\.o") \
+	$(shell find $(OBJ_udp)/. -type f -regex ".*\.o")  -o $@ 
+
+
+# $(LIB)/libtcp_rel.so: $(OBJ_tcp)
+# 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/. -type f -regex ".*\.o") -o $@ 
+
+# $(LIB)/libudp_rel.so: $(LIB_OBJs_udp)
+# 	$(CC) $(RELEASE_FLAGS) $(SOFLAG_SECOND)	$(shell find $(OBJ_REL)/. -type f -regex ".*\.o") -o $@ 
 
 #----------------	PHONYs	------------------#
 
-.PHONY :build silent_build nw_build nmw_build test vlgT hlgT shared_obj 
-		update_debug clean_d
-		release silent_build_release nw_build_release nmw_build_release test_release  
-		hlgT_release vlgT_release release_so update_release clean_r
-		shared_lib clean  
+.PHONY :build nmw_build test vlgT hlgT shared_obj update_debug clean_d shared_lib clean 
+# release silent_build_release nw_build_release nmw_build_release test_release  
+# hlgT_release vlgT_release release_so update_release clean_r
+		 
 
 #----------------DEBUG------------------#
 
 build:
-	@make shared_obj
+	@make shared_obj 
+	@make $(LIB)/libserver.so 
+	@rm -f -r $(SRC_LIB)/lib
+	@mv $(LIB) $(SRC_LIB)
 
-silent_build:
-	@make -s CFLAGS='-std=c++98 -g -I$(INC)' build
-
-nw_build:
-	@make CFLAGS='-std=c++98 -g -I$(INC) ' build
 
 nmw_build:
 	@make -s build
@@ -115,8 +103,6 @@ shared_obj:
 	@mkdir -p $(OBJ_udp)/ 
 	@mkdir -p $(OBJ_tcp)/ 
 	@mkdir -p $(LIB)/  
-	@make $(LIB_OBJs_tcp)
-	@make $(LIB_OBJs_udp)
 	@make $(LIB)/libtcp.so
 	@make $(LIB)/libudp.so
 
@@ -135,43 +121,43 @@ clean_d :
 #----------------RELEASE------------------#
 
 # release: CFLAGS = $(RELEASE_FLAGS) 
-release: 
-	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' libtcp
-	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release_so
-	@make $(BIN)/$(TARGET_RELEASE)
+# release: 
+# 	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' libtcp
+# 	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release_so
+# 	@make $(BIN)/$(TARGET_RELEASE)
 
-silent_build_release:
-	@make -s RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release
+# silent_build_release:
+# 	@make -s RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release
 
-nw_build_release:
-	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release
-
-
-nmw_build_release:
-	@make -s release
+# nw_build_release:
+# 	@make RELEASE_FLAGS='-std=c++98 -DNDEBUG -O3 -I$(INC)' release
 
 
-build_release:
-	@make release
-
-release_so:
-	@mkdir -p $(OBJ_REL)/$(TARGET_RELEASE)
-	@mkdir -p $(LIB)/  
-	@mkdir -p $(BIN)/  
-	@make $(LIB)/libtcp_rel.so
+# nmw_build_release:
+# 	@make -s release
 
 
+# build_release:
+# 	@make release
 
-update_release:
-	@make clean_r
-	@make release
+# release_so:
+# 	@mkdir -p $(OBJ_REL)/$(TARGET_RELEASE)
+# 	@mkdir -p $(LIB)/  
+# 	@mkdir -p $(BIN)/  
+# 	@make $(LIB)/libtcp_rel.so
 
 
-clean_r :
-	@rm -f -r $(BIN)/$(TARGET_RELEASE)
-	@rm -f -r $(LIB)/$(SHAREDLIB_REL)  
-	@rm -f -r  $(LIB)/libtasts_rel.so
-	@rm -f -r  $(OBJ_REL)/$(TARGET_RELEASE) 
+
+# update_release:
+# 	@make clean_r
+# 	@make release
+
+
+# clean_r :
+# 	@rm -f -r $(BIN)/$(TARGET_RELEASE)
+# 	@rm -f -r $(LIB)/$(SHAREDLIB_REL)  
+# 	@rm -f -r  $(LIB)/libtasts_rel.so
+# 	@rm -f -r  $(OBJ_REL)/$(TARGET_RELEASE) 
 
 
 #----------------GENERAL------------------#
@@ -183,10 +169,8 @@ shared_lib:
 
 
 clean :
-	@rm -f -r  $(BIN)
-	@rm -f -r $(LIB)
-	@rm -f -r $(OBJ_REL)
-	@rm -f -r $(OBJ)
+	@rm -f -r $(LIB)/
+	@rm -f -r $(OBJ)/
 
 
 

@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200112L
+
 #include "ping_pong.h"
 #include "ping_pong_func.h"
 
@@ -11,7 +13,7 @@ int GetInMsgU(int sockfd, struct sockaddr *their_addr, socklen_t *addr_len)
     char buf[MAXBUFLEN] = {0};
 
     if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN - 1, 0,
-                             their_addr, addr_len)) == -1)
+                             their_addr, addr_len)) <= 0)
     {
         return (numbytes);
     }

@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200112L
 
 #include "ping_pong.h"
 #include "ping_pong_func.h"
@@ -28,6 +29,7 @@ void ReadIncomingMsgFromServer(int sockfd, addrinfo_t *servinfo, const char *o_m
     struct sockaddr_storage their_addr = {0};
     socklen_t addr_len = sizeof(their_addr);
     size_t rand = GetRand(START, END);
+    printf("TCP Cilent has %lu messages\n", rand);
     while (rand)
     {
         SendOutMsgU(sockfd, servinfo->ai_addr, servinfo->ai_addrlen, o_msg);
