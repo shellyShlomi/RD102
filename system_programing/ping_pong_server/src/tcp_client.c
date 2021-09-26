@@ -7,16 +7,18 @@
 #define MAXBUFLEN 100
 #define MSG "PING"
 
-static void PingPongUDPClient();
+static void PingPongTCPClient();
 
 int main(int argc, char *argv[])
 {
     (void)argc;
-    PingPongUDPClient(argv[1]);
+
+    PingPongTCPClient(argv[1]);
+    
     return 0;
 }
 
-static void PingPongUDPClient(const char *ip)
+static void PingPongTCPClient(const char *ip)
 {
     int sockfd = 0;
     struct addrinfo hints = {0}, *servinfo = NULL;

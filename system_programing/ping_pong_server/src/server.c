@@ -127,8 +127,6 @@ int ServerGetIncomingPackegsTCP(int sockfd, const char *o_msg, const char *exit_
     fd_set rset = {0};
     struct timeval time_out = {INTERVAL, 0};
 
-    fcntl(sockfd, F_SETFL, O_ASYNC);
-
     while ((0 < res) && (-1 != res_sand_msg) && QUIT != res_io)
     {
         int maxfd = 0;

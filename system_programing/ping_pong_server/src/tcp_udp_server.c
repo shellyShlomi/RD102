@@ -3,6 +3,7 @@
 #include <time.h>
 #include <sys/select.h>
 #include <sys/fcntl.h>
+
 #include "ping_pong_func.h"
 #include "server.h"
 
@@ -22,7 +23,15 @@
 
 #define INTERVAL 7
 
+int ServerEventLoop();
+
 int main()
+{
+    ServerEventLoop();
+    return (0);
+}
+
+int ServerEventLoop()
 {
     int new_tcp_fd = 0;
     int maxfd = 0;

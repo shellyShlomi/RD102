@@ -9,11 +9,11 @@
 
 int ReadIncomingPackegsUDP(int sockfd, const char *o_msg)
 {
+{
     struct sockaddr_in their_addr = {0};
     socklen_t addr_len = sizeof(their_addr);
 
     int res = 1;
-    fcntl(STDIN_FILENO, F_SETFD, O_ASYNC);
 
     if (0 >= (res = GetInMsgU(sockfd, (struct sockaddr *)&their_addr, &addr_len)))
     {

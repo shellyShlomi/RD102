@@ -10,24 +10,33 @@
 #define MAXBUFLEN 100
 #define MSG "\033[0;33mPING \033[0m"
 
+static void PingPongUDPClient(const char *data);
+
 int main(int argc, char *argv[])
+{
+    (void) argc;
+    PingPongUDPClient(argv[1]);
+    return (0);
+}
+
+
+static void PingPongUDPClient(const char *data)
 {
     int sockfd = 0;
     struct addrinfo hints = {0}, *servinfo = NULL;
     int res = 0;
-    (void) argc;
 
     CreatHints(&hints, AF_INET, SOCK_DGRAM, AI_PASSIVE);
 
-    if ((res = getaddrinfo(argv[1], MYPORT, &hints, &servinfo)) != 0)
+    if ((res = getaddrinfo(data, MYPORT, &hints, &servinfo)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(res));
-        return 1;
+        return ;
     }
 
     if (2 == ClientCreatSocketU(servinfo, &sockfd))
     {
-        return 1;
+        return ;
     }
 
     ReadIncomingMsgFromServer(sockfd, servinfo, MSG);
@@ -36,5 +45,5 @@ int main(int argc, char *argv[])
 
     close(sockfd);
 
-    return 0;
+    return ;
 }
