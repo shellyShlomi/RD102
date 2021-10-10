@@ -2,7 +2,7 @@
 
 #alias
 
-alias gconGun='git config --global user.name'
+alias gconGun='git config --global user.name'\n
 alias gic='git commit -m'
 alias gip='git push -u origin master'
 alias gsi='git status --ignored'

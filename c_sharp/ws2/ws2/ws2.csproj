@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Stacl.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShapeTests1\ShapeTests1.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Shape">
+      <HintPath>..\shape\bin\Debug\netstandard2.0\Shape.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
